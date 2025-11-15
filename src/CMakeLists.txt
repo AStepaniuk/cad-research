@@ -1,0 +1,5 @@
+add_subdirectory(console)
+add_subdirectory(gui)
+add_subdirectory(corecad)
+add_subdirectory(domain)
+add_subdirectory(tests)
