@@ -3,8 +3,10 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <ranges>
 #include <optional>
 #include <cmath>
+#include <numbers>
 #include <iostream>
 
 using namespace domain::plan::calculator;
@@ -278,55 +280,65 @@ namespace
         std::vector<wall_finish_id>& processed_fids
     )
     {
-        if (std::ranges::find(processed_fids, fid) == processed_fids.end())
+        auto jw = get_joined_walls_points(fid, floor, joints);
+
+        const auto& wall1_free_p = floor.points().get(jw.wall1_free_p);
+        const auto& walls_common_p = floor.points().get(jw.walls_common_p);
+        const auto& wall2_free_p = floor.points().get(jw.wall2_free_p);
+
+        auto& wall1 = floor.walls().get(fid.wall_index);
+        auto& wall2 = floor.walls().get(jw.wall2_fid.wall_index);
+
+        const auto left_intersection_p = calculate_joined_walls_left_border_intersection(
+            wall1, wall2,
+            wall1_free_p, walls_common_p, wall2_free_p
+        );
+
+        const auto right_intersection_p = calculate_joined_walls_left_border_intersection(
+            wall2, wall1,
+            wall2_free_p, walls_common_p, wall1_free_p
+        );
+
+        auto left_pid = floor.points().put(left_intersection_p);
+        auto right_pid = floor.points().put(right_intersection_p);
+
+        if (fid.location == wall_location::start)
         {
-            auto jw = get_joined_walls_points(fid, floor, joints);
-
-            const auto& wall1_free_p = floor.points().get(jw.wall1_free_p);
-            const auto& walls_common_p = floor.points().get(jw.walls_common_p);
-            const auto& wall2_free_p = floor.points().get(jw.wall2_free_p);
-
-            auto& wall1 = floor.walls().get(fid.wall_index);
-            auto& wall2 = floor.walls().get(jw.wall2_fid.wall_index);
-
-            const auto left_intersection_p = calculate_joined_walls_left_border_intersection(
-                wall1, wall2,
-                wall1_free_p, walls_common_p, wall2_free_p
-            );
-
-            const auto right_intersection_p = calculate_joined_walls_left_border_intersection(
-                wall2, wall1,
-                wall2_free_p, walls_common_p, wall1_free_p
-            );
-
-            auto left_pid = floor.points().put(left_intersection_p);
-            auto right_pid = floor.points().put(right_intersection_p);
-
-            if (fid.location == wall_location::start)
-            {
-                wall1.start_left = left_pid;
-                wall1.start_right = right_pid;
-            }
-            else
-            {
-                wall1.end_left = right_pid;
-                wall1.end_right = left_pid;
-            }
-
-            if (jw.wall2_fid.location == wall_location::start)
-            {
-                wall2.start_right = left_pid;
-                wall2.start_left = right_pid;
-            }
-            else
-            {
-                wall2.end_left = left_pid;
-                wall2.end_right = right_pid;
-            }
-            
-            processed_fids.push_back(fid);
-            processed_fids.push_back(jw.wall2_fid);
+            wall1.start_left = left_pid;
+            wall1.start_right = right_pid;
         }
+        else
+        {
+            wall1.end_left = right_pid;
+            wall1.end_right = left_pid;
+        }
+
+        if (jw.wall2_fid.location == wall_location::start)
+        {
+            wall2.start_right = left_pid;
+            wall2.start_left = right_pid;
+        }
+        else
+        {
+            wall2.end_left = left_pid;
+            wall2.end_right = right_pid;
+        }
+        
+        processed_fids.push_back(fid);
+        processed_fids.push_back(jw.wall2_fid);
+    }
+
+    double normailze_angle(double a)
+    {
+        while (a < -std::numbers::pi) a += 2 * std::numbers::pi;
+        while (a > std::numbers::pi) a -= 2 * std::numbers::pi;
+
+        return a;
+    }
+
+    double inverse_angle(double a)
+    {
+        return normailze_angle(a - std::numbers::pi);
     }
 
     void calculate_joined_n_walls_borders(
@@ -338,6 +350,84 @@ namespace
     )
     {
         const auto& w_joints = joints.at(fid);
+
+        struct wf_direction
+        {
+            wall_finish_id wfid;
+            double direction;
+        };
+        std::vector<wf_direction> w_joints_directions;
+
+        for (const auto& wfid : w_joints)
+        {
+            double a = 0;
+            if (const auto it = wall_directions.find(wfid.wall_index); it != wall_directions.end())
+            {
+                a = it->second;
+            }
+            else
+            {
+                a = calculate_wall_direction(floor.walls().get(wfid.wall_index), floor);
+                wall_directions[wfid.wall_index] = a;
+            }
+
+            if (wfid.location == wall_location::end)
+            {
+                a = inverse_angle(a);
+            }
+
+            w_joints_directions.push_back({ wfid, a });
+        }
+
+        std::ranges::sort(
+            w_joints_directions,
+            [](const wf_direction& lhs, const wf_direction& rhs) { return lhs.direction < rhs.direction; }
+        );
+
+        for (int i = 0; i < w_joints_directions.size(); ++i)
+        {
+            int prev_i = i - 1;
+            if (prev_i < 0)
+            {
+                prev_i = w_joints_directions.size() - 1;
+            }
+
+            const auto& wfid1 = w_joints_directions[i].wfid;
+            const auto& wfid2 = w_joints_directions[prev_i].wfid;
+
+            auto& w1 = floor.walls().get(wfid1.wall_index);
+            auto& w2 = floor.walls().get(wfid2.wall_index);
+
+            const auto& wall1_free_p = floor.points().get(wfid1.location == wall_location::start ? w1.end : w1.start);
+            const auto& walls_common_p = floor.points().get(wfid1.location == wall_location::start ? w1.start : w1.end);
+            const auto& wall2_free_p = floor.points().get(wfid2.location == wall_location::start ? w2.end : w2.start);
+
+            const auto left_intersection_p = calculate_joined_walls_left_border_intersection(
+                w1, w2,
+                wall1_free_p, walls_common_p, wall2_free_p
+            );
+
+            auto left_pid = floor.points().put(left_intersection_p);
+            if (wfid1.location == wall_location::start)
+            {
+                w1.start_left = left_pid;
+            }
+            else
+            {
+                w1.end_right = left_pid;
+            }
+
+            if (wfid2.location == wall_location::start)
+            {
+                w2.start_right = left_pid;
+            }
+            else
+            {
+                w2.end_left = left_pid;
+            }
+        }
+
+        std::ranges::copy(w_joints, std::back_inserter(processed_fids));
     }
 }
 
@@ -350,8 +440,6 @@ void wall_calculator::recalculate_all_walls(model::floor &floor)
     for (auto& w : floor.walls())
     {
         recalculate_wall_joints(w.second, floor, joints);
-
-        wall_directions[w.second.index] = calculate_wall_direction(w.second, floor);
     }
 
     std::vector<wall_finish_id> processed_fids;
@@ -363,14 +451,20 @@ void wall_calculator::recalculate_all_walls(model::floor &floor)
         {
             calculate_stub_wall_start_borders(w.second, floor);
         }
-        else if (w.second.start_joints == 1)
+        else 
         {
-            
-            calculate_joined_2_walls_borders(wall_start_fid, floor, joints, processed_fids);
-        }
-        else
-        {
-            calculate_joined_n_walls_borders(wall_start_fid, floor, joints, wall_directions, processed_fids);
+            if (std::ranges::find(processed_fids, wall_start_fid) == processed_fids.end())
+            {
+                if (w.second.start_joints == 1)
+                {
+                    
+                    calculate_joined_2_walls_borders(wall_start_fid, floor, joints, processed_fids);
+                }
+                else
+                {
+                    calculate_joined_n_walls_borders(wall_start_fid, floor, joints, wall_directions, processed_fids);
+                }
+            }
         }
 
         // end joint points
@@ -379,14 +473,20 @@ void wall_calculator::recalculate_all_walls(model::floor &floor)
         {
             calculate_stub_wall_end_borders(w.second, floor);
         }
-        else if (w.second.end_joints == 1)
-        {
-            
-            calculate_joined_2_walls_borders(wall_end_fid, floor, joints, processed_fids);
-        }
         else
         {
-            calculate_joined_n_walls_borders(wall_end_fid, floor, joints, wall_directions, processed_fids);
+            if (std::ranges::find(processed_fids, wall_end_fid) == processed_fids.end())
+            {
+                if (w.second.end_joints == 1)
+                {
+                    
+                    calculate_joined_2_walls_borders(wall_end_fid, floor, joints, processed_fids);
+                }
+                else
+                {
+                    calculate_joined_n_walls_borders(wall_end_fid, floor, joints, wall_directions, processed_fids);
+                }
+            }
         }
     }
 }

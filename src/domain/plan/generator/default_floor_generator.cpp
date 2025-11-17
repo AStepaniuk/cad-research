@@ -10,14 +10,20 @@ void default_floor_generator::generate_floor(model::floor &floor)
     floor.walls().clear();
 
     vector2d tlp { 1000, 1000 }, trp { 8000, 1000 }, blp { 1000, 5000 }, brp { 8000, 5000 };
+    vector2d top { 10000, 1000 }, bop { 10000, 5000 };
 
     auto tli = floor.points().put(tlp);
     auto tri = floor.points().put(trp);
     auto bli = floor.points().put(blp);
     auto bri = floor.points().put(brp);
+    auto toi = floor.points().put(top);
+    auto boi = floor.points().put(bop);
 
     floor.walls().make(tli, tri, 400.0f);
     floor.walls().make(tri, bri, 400.0f);
     floor.walls().make(bri, bli, 400.0f);
     floor.walls().make(bli, tli, 400.0f);
+
+    floor.walls().make(tri, toi, 400.0f);
+    floor.walls().make(bri, boi, 400.0f);
 }
