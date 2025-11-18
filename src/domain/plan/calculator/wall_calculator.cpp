@@ -250,9 +250,9 @@ namespace
 
         auto intersection_p = calculate_lines_intersection(
             left_w1_offset_p,
-            { left_w1_offset_p.x + (w1_free_p.x - common_p.x), left_w1_offset_p.y + (w1_free_p.y - common_p.y) },
+            left_w1_offset_p + (w1_free_p - common_p),
             right_w2_offset_p,
-            { right_w2_offset_p.x + (w2_free_p.x - common_p.x), right_w2_offset_p.y + (w2_free_p.y - common_p.y) }
+            right_w2_offset_p + (w2_free_p - common_p)
         );
 
         if (intersection_p)

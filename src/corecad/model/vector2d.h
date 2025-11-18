@@ -12,4 +12,8 @@ namespace corecad { namespace model
         double x;
         double y;
     };
+
+    vector2d operator+(const vector2d& lhs, const vector2d& rhs);
+
+    vector2d operator-(const vector2d& lhs, const vector2d& rhs);
 }}
