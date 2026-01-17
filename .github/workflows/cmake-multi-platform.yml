@@ -93,6 +93,6 @@ jobs:
       run: |
         # On Windows, add the consolidated bin folder to the PATH so DLLs are found
         if [ "$RUNNER_OS" == "Windows" ]; then
-          export PATH=$PATH:${{ steps.strings.outputs.build-output-dir }}/bin/${{ matrix.build_type }}
+          export PATH=$PATH:${{ steps.strings.outputs.build-output-dir }}/bin:${{ steps.strings.outputs.build-output-dir }}/bin/${{ matrix.build_type }}
         fi      
         ctest -C ${{ matrix.build_type }} --output-on-failure
