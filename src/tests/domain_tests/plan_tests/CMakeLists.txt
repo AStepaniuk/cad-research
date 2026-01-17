@@ -40,6 +40,4 @@ target_link_libraries(
     plan
 )
 
-add_test(NAME plan_tests COMMAND plan_tests)
-
 gtest_discover_tests(plan_tests)
