@@ -39,7 +39,7 @@ protected:
         ASSERT_TRUE(are_vectors_equal(actual_p, p));
     }
 
-    floor test_floor;
+    domain::plan::model::floor test_floor;
 
     std::vector<vector2d::index_t> points;
     std::vector<wall::index_t> walls;
