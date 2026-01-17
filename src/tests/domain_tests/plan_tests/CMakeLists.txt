@@ -13,6 +13,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 # Make available
 FetchContent_MakeAvailable(googletest)
+include(GoogleTest)
 
 enable_testing()
 
@@ -40,3 +41,5 @@ target_link_libraries(
 )
 
 add_test(NAME plan_tests COMMAND plan_tests)
+
+gtest_discover_tests(plan_tests)
