@@ -40,4 +40,4 @@ target_link_libraries(
     plan
 )
 
-gtest_discover_tests(plan_tests)
+gtest_discover_tests(plan_tests DISCOVERY_MODE PRE_TEST)
