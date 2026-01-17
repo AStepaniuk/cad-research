@@ -116,14 +116,14 @@ namespace
         const auto& ps = f.points().get(w.start);
         const auto& pe = f.points().get(w.end);
 
-        return std::atan2f(pe.y - ps.y, pe.x - ps.x);
+        return std::atan2(pe.y - ps.y, pe.x - ps.x);
     }
 
     vector2d calculate_point_with_offset_from_line(const vector2d& start, const vector2d& end, double left_offset)
     {
         double dx = end.x - start.x;
         double dy = end.y - start.y;
-        double l = std::sqrtf(dx*dx + dy*dy);
+        double l = std::sqrt(dx*dx + dy*dy);
 
         return
         {
