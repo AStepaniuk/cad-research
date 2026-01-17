@@ -10,7 +10,7 @@ int main()
     
     vector2d p { 100, 200 };
 
-    floor f;
+    domain::plan::model::floor f;
     auto id1 = f.points().put(p);
     auto id2 = f.points().put(p);
 
