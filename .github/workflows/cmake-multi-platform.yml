@@ -89,6 +89,7 @@ jobs:
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      shell: bash
       run: |
         # On Windows, add the consolidated bin folder to the PATH so DLLs are found
         if [ "$RUNNER_OS" == "Windows" ]; then
