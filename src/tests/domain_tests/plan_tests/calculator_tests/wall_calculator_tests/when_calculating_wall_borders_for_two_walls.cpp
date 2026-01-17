@@ -38,7 +38,7 @@ protected:
         ASSERT_TRUE(are_vectors_equal(actual_p, p));
     }
 
-    floor test_floor;
+    domain::plan::model::floor test_floor;
     wall::index_t w1;
     wall::index_t w2;
 };
