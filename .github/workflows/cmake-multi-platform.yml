@@ -95,11 +95,6 @@ jobs:
         ls ./bin -l
 
     - name: Test
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}/bin
       shell: bash
-      run: |
-        # On Windows, add the consolidated bin folder to the PATH so DLLs are found
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          export PATH=$PATH:${{ steps.strings.outputs.build-output-dir }}/bin:${{ steps.strings.outputs.build-output-dir }}/bin/${{ matrix.build_type }}
-        fi      
-        ctest -C ${{ matrix.build_type }} --output-on-failure
+      run: ctest -C ${{ matrix.build_type }} --output-on-failure
