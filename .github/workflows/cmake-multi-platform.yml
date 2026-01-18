@@ -87,12 +87,14 @@ jobs:
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
-    - name: Test
+    - name: Research
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       shell: bash
       run: |
-        # On Windows, add the consolidated bin folder to the PATH so DLLs are found
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          export PATH=$PATH:${{ steps.strings.outputs.build-output-dir }}/bin:${{ steps.strings.outputs.build-output-dir }}/bin/${{ matrix.build_type }}
-        fi      
-        ctest -C ${{ matrix.build_type }} --output-on-failure
+        ls -l
+        ls ./bin -l
+
+    - name: Test
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      shell: bash
+      run: ctest -C ${{ matrix.build_type }} --output-on-failure

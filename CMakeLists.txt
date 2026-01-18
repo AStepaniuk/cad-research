@@ -15,5 +15,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # (On Windows, DLLs must be in the same folder as the EXE)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+include(CTest)
+
 # Add subdirectory for source files
 add_subdirectory(src)
