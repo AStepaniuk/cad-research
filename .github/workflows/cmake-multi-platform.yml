@@ -90,7 +90,9 @@ jobs:
     - name: Research
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       shell: bash
-      run: ls -l
+      run: |
+        ls -l
+        ls ./bin -l
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
