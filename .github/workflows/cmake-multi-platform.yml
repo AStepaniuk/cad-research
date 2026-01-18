@@ -95,6 +95,6 @@ jobs:
         ls ./bin -l
 
     - name: Test
-      working-directory: ${{ steps.strings.outputs.build-output-dir }}/bin
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
       shell: bash
       run: ctest -C ${{ matrix.build_type }} --output-on-failure
