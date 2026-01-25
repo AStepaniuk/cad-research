@@ -73,7 +73,6 @@ namespace
 
                 joints[cw] = start_connected_walls;
             }
-            std::cout << std::endl;
         }
 
 
@@ -107,7 +106,6 @@ namespace
 
                 joints[cw] = end_connected_walls;
             }
-            std::cout << std::endl;
         }
     }
 

@@ -21,3 +21,13 @@ floor::walls_t& floor::walls()
 {
     return _walls;
 }
+
+const floor::parameters_t &domain::plan::model::floor::parameters() const
+{
+    return _parameters;
+}
+
+floor::parameters_t &domain::plan::model::floor::parameters()
+{
+    return _parameters;
+}
