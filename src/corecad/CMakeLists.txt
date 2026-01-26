@@ -10,6 +10,12 @@ add_library(
     ${CORE_CALCULATOR_SOURCES}
 )
 
+target_link_libraries(
+    corecad
+    PUBLIC
+    planegcs
+)
+
 target_include_directories(
     corecad
     PUBLIC

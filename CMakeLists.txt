@@ -19,3 +19,6 @@ include(CTest)
 
 # Add subdirectory for source files
 add_subdirectory(src)
+
+# Add subdirectory for 3rd-parties
+add_subdirectory(3rd-party)
