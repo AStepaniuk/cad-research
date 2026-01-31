@@ -3,6 +3,7 @@
 using namespace domain::plan::generator; 
 using namespace domain::plan::model; 
 using namespace corecad::model;
+using namespace corecad::model::constraint;
 
 void default_floor_generator::generate_floor(model::floor &floor)
 {
@@ -19,11 +20,24 @@ void default_floor_generator::generate_floor(model::floor &floor)
     auto toi = floor.points().put(top);
     auto boi = floor.points().put(bop);
 
-    floor.walls().make(tli, tri, 400.0f);
-    floor.walls().make(tri, bri, 400.0f);
-    floor.walls().make(bri, bli, 400.0f);
-    floor.walls().make(bli, tli, 400.0f);
+    floor.walls().make(tli, tri, 400.0);
+    floor.walls().make(tri, bri, 400.0);
+    floor.walls().make(bri, bli, 400.0);
+    floor.walls().make(bli, tli, 400.0);
 
-    floor.walls().make(tri, toi, 400.0f);
-    floor.walls().make(bri, boi, 400.0f);
+    floor.walls().make(tri, toi, 400.0);
+    floor.walls().make(bri, boi, 400.0);
+
+    floor.parameters().put(fixed { tli, 1000, fixed_coordinate::x });
+    floor.parameters().put(fixed { tli, 1000, fixed_coordinate::y });
+    floor.parameters().put(offset { tli, tri, 10000.0, offset_direction::horizontal });
+    floor.parameters().put(offset { tli, tri, 0.0, offset_direction::vertical });
+    floor.parameters().put(offset { tri, toi, 2000.0, offset_direction::horizontal });
+    floor.parameters().put(offset { tri, toi, 0.0, offset_direction::vertical });
+    floor.parameters().put(offset { tli, bli, 1000.0, offset_direction::horizontal });
+    floor.parameters().put(offset { tli, bli, 5000.0, offset_direction::vertical });
+    floor.parameters().put(offset { tri, bri, 0.0, offset_direction::horizontal });
+    floor.parameters().put(offset { bli, bri, 0.0, offset_direction::vertical });
+    floor.parameters().put(offset { bri, boi, 2000.0, offset_direction::horizontal });
+    floor.parameters().put(offset { bri, boi, 0.0, offset_direction::vertical });
 }

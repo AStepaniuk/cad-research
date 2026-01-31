@@ -2,7 +2,7 @@
 
 #include "registry.h"
 
-#include "parameter_offset.h"
+#include "constraint.h"
 #include "vector2d.h"
 #include "wall.h"
 
@@ -11,7 +11,7 @@ namespace domain { namespace plan { namespace model
     class floor
     {
     public:
-        using parameters_t = corecad::model::registry<corecad::model::parameter_offset>;
+        using parameters_t = corecad::model::registry<corecad::model::constraint::constraint>;
         using points2d_t = corecad::model::registry<corecad::model::vector2d>;
         using walls_t = corecad::model::registry<wall>;
 

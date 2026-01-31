@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <functional>
+#include <compare>
 
 namespace corecad { namespace util
 {
@@ -19,6 +21,8 @@ namespace corecad { namespace util
 
         tagged_value& operator=(const tagged_value&) = default;
         tagged_value& operator=(tagged_value&&) = default;
+
+        auto operator<=>(const tagged_value&) const = default;
     };
 
     template<typename T, typename Tag>
@@ -27,3 +31,13 @@ namespace corecad { namespace util
         return os << tagged.value;
     }
 }}
+
+namespace std {
+    template<typename T, typename Tag>
+    struct hash<corecad::util::tagged_value<T, Tag>> {
+        size_t operator()(const corecad::util::tagged_value<T, Tag>& tv) const noexcept {
+            // Use the standard hash for the underlying type T
+            return std::hash<T>{}(tv.value);
+        }
+    };
+}

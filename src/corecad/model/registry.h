@@ -38,6 +38,13 @@ namespace corecad { namespace model
             return _last_index;
         }
 
+        template<typename U>
+        requires std::constructible_from<T, U> && (!std::same_as<std::remove_cvref_t<U>, T>)
+        index_t put(U val)
+        {
+            return put(T { std::move(val) });
+        }
+
         template <typename... TArgs>
         index_t make(TArgs&&... vals)
         {
@@ -79,7 +86,7 @@ namespace corecad { namespace model
             return _data.end();
         }
 
-        size_t size()
+        size_t size() const
         {
             return _data.size();
         }
