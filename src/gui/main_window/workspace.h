@@ -3,18 +3,13 @@
 #include <backends/imgui_impl_glfw.h>
 
 #include "document.h"
-
-#include "floor_view.h"
-#include "mouse.h"
+#include "floor_editor.h"
 
 namespace gui {
     class workspace
     {
         doc::document _document;
-
-        floor_view _view;
-        editor::mouse _mouse;
-
+        editor::floor_editor _editor;
 
     public:
         workspace(GLFWwindow* window);
