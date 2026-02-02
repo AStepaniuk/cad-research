@@ -44,6 +44,11 @@ void floor_editor::process_frame(bool mouse_in_workspace)
         {
             _current_operation->handle_mouse_move(mp.x, mp.y);
         }
+
+        if (ImGui::GetIO().MouseClicked[0])
+        {
+            _current_operation->handle_left_mouse_click(mp.x, mp.y);
+        }
     }
 
     _view.render();

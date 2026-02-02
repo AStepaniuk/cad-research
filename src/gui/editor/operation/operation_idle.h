@@ -19,5 +19,6 @@ namespace gui { namespace editor { namespace operation {
         action_handle_status handle_rollback() override;
 
         action_handle_status handle_mouse_move(float mx, float my) override;
+        action_handle_status handle_left_mouse_click(float mx, float my) override;
     };
 }}}

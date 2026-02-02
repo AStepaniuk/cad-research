@@ -14,12 +14,35 @@ namespace
         constexpr auto WallMidLineThickness = 1.0f;
 
 
-        constexpr auto WallHoveredLineColor = IM_COL32(224, 224, 224, 255);
-        constexpr auto WallHoveredFillColor = IM_COL32(40, 40, 40, 255);
-        constexpr auto WallHoveredLineThickness = 2.5f;
+        constexpr auto WallHoveredLineColor = IM_COL32(192, 192, 255, 255);
+        constexpr auto WallHoveredFillColor = IM_COL32(64, 64, 92, 255);
+        constexpr auto WallHoveredLineThickness = 3.0f;
                 
-        constexpr auto WallHoveredMidLineColor = IM_COL32(96, 96, 96, 255);
+        constexpr auto WallHoveredMidLineColor = IM_COL32(96, 96, 128, 255);
         constexpr auto WallHoveredMidLineThickness = 1.0f;
+
+
+        constexpr auto WallSelectedLineColor = IM_COL32(208, 208, 208, 255);
+        constexpr auto WallSelectedFillColor = IM_COL32(48, 48, 48, 255);
+        constexpr auto WallSelectedLineThickness = 2.5f;
+                
+        constexpr auto WallSelectedMidLineColor = IM_COL32(128, 128, 128, 255);
+        constexpr auto WallSelectedMidLineThickness = 1.0f;
+
+
+        constexpr auto HandleSize = 12.0f;
+        constexpr auto HandleColor = IM_COL32(64, 64, 224, 255);
+        constexpr auto HandleThickness = 2.0f;
+    }
+
+    ImVec2 operator-(const ImVec2& arg, float d)
+    {
+        return ImVec2 { arg.x - d, arg.y - d };
+    }
+
+    ImVec2 operator+(const ImVec2& arg, float d)
+    {
+        return ImVec2 { arg.x + d, arg.y + d };
     }
 }
 
@@ -77,11 +100,26 @@ void gui::floor_view::render()
         const auto& w = wp.second;
         const auto polygon = to_view_polygon(w);
 
-        if (_document.hovered_wall_id == w.index)
+        if (_document.selected_walls.contains(w.index))
         {
-            draw_list->AddConvexPolyFilled(polygon.data(), polygon.size(), Styles::WallHoveredFillColor);
-            draw_list->AddPolyline(polygon.data(), polygon.size(), Styles::WallHoveredLineColor, ImDrawFlags_Closed, Styles::WallHoveredLineThickness);
-            draw_list->AddLine(polygon[0], polygon[3], Styles::WallHoveredMidLineColor, Styles::WallHoveredMidLineThickness);
+            const auto polygon = to_view_polygon(w);
+
+            draw_list->AddConvexPolyFilled(polygon.data(), polygon.size(), Styles::WallSelectedFillColor);
+            draw_list->AddLine(polygon[1], polygon[2], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
+            draw_list->AddLine(polygon[4], polygon[5], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
+            if (w.start_joints == 0)
+            {
+                draw_list->AddLine(polygon[1], polygon[5], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
+            }
+            if (w.end_joints == 0)
+            {
+                draw_list->AddLine(polygon[2], polygon[4], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
+            }
+
+            draw_list->AddLine(polygon[0], polygon[3], Styles::WallSelectedMidLineColor, Styles::WallSelectedMidLineThickness);
+
+            draw_list->AddRect(polygon[0] - Styles::HandleSize*0.5, polygon[0] + Styles::HandleSize*0.5, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
+            draw_list->AddRect(polygon[3] - Styles::HandleSize*0.5, polygon[3] + Styles::HandleSize*0.5, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
         }
         else
         {
@@ -98,6 +136,40 @@ void gui::floor_view::render()
 
             draw_list->AddLine(polygon[0], polygon[3], Styles::WallMidLineColor, Styles::WallMidLineThickness);
         }
+    }
+
+    // hovered wall
+    if (_document.hovered_wall_id)
+    {
+        const auto& w = _document.model.walls().get(_document.hovered_wall_id.value());
+        const auto polygon = to_view_polygon(w);
+
+        draw_list->AddConvexPolyFilled(polygon.data(), polygon.size(), Styles::WallHoveredFillColor);
+        draw_list->AddLine(polygon[1], polygon[2], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
+        draw_list->AddLine(polygon[4], polygon[5], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
+        if (w.start_joints == 0)
+        {
+            draw_list->AddLine(polygon[1], polygon[5], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
+        }
+        if (w.end_joints == 0)
+        {
+            draw_list->AddLine(polygon[2], polygon[4], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
+        }
+
+        draw_list->AddLine(polygon[0], polygon[3], Styles::WallHoveredMidLineColor, Styles::WallHoveredMidLineThickness);
+    }
+
+    for (auto wi : _document.selected_walls)
+    {
+        const auto& w = _document.model.walls().get(wi);
+
+        const auto& sp = _document.model.points().get(w.start);
+        const auto& ep = _document.model.points().get(w.end);
+        const auto s = to_view(sp);
+        const auto e = to_view(ep);
+
+        draw_list->AddRect(s - Styles::HandleSize*0.5, s + Styles::HandleSize*0.5, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
+        draw_list->AddRect(e - Styles::HandleSize*0.5, e + Styles::HandleSize*0.5, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
     }
 }
 

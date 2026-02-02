@@ -1,0 +1,75 @@
+#pragma once
+
+#include <vector>
+#include <concepts>
+#include <ranges>
+#include <algorithm>
+
+#include "registry_index.h"
+#include "model_base.h"
+
+namespace corecad { namespace model
+{
+    template<typename T>
+    requires std::derived_from<T, model_base<T>>
+    class collection
+    {
+    public:
+        using index_t = registry_index_t<T>;
+
+    private:
+        using underlying_contaier_t = std::vector<index_t>;
+
+    public:
+        using const_iterator_t = underlying_contaier_t::const_iterator;
+        using iterator_t = underlying_contaier_t::iterator;
+
+        void clear()
+        {
+            _data.clear();
+        }
+
+        void put(index_t index)
+        {
+            _data.push_back(index);
+        }
+
+        size_t remove(index_t index)
+        {
+            return std::erase(_data, index);
+        }
+
+        bool contains(index_t index) const
+        {
+            return std::ranges::contains(_data, index);
+        }
+
+        const_iterator_t begin() const
+        {
+            return _data.cbegin();
+        }
+
+        const_iterator_t end() const
+        {
+            return _data.cend();
+        }
+
+        iterator_t begin()
+        {
+            return _data.begin();
+        }
+
+        iterator_t end()
+        {
+            return _data.end();
+        }
+
+        size_t size() const
+        {
+            return _data.size();
+        }
+
+    private:
+        underlying_contaier_t _data;
+    };
+}}
