@@ -34,6 +34,13 @@ namespace corecad { namespace model
             _data.push_back(index);
         }
 
+        template <std::ranges::input_range R>
+        requires std::convertible_to<std::ranges::range_value_t<R>, index_t>
+        void put(R&& indexes)
+        {
+            std::ranges::copy(indexes, std::back_inserter(_data));
+        }
+
         size_t remove(index_t index)
         {
             return std::erase(_data, index);

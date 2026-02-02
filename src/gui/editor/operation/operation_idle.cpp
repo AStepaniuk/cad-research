@@ -20,7 +20,19 @@ action_handle_status operation_idle::handle_rollback()
 
 action_handle_status operation_idle::handle_mouse_move(float mx, float my)
 {
-    _document.hovered_wall_id = _view.get_wall(mx, my);
+    auto hovered_handles = _view.get_handles(mx, my);
+
+    if (hovered_handles.empty())
+    {
+        _document.hovered_wall_id = _view.get_wall(mx, my);
+    }
+    else
+    {
+        _document.hovered_wall_id = std::nullopt;
+    }
+    _document.hovered_handles.clear();
+    _document.hovered_handles.put(std::move(hovered_handles));
+
 
     return action_handle_status::operation_continues;
 }

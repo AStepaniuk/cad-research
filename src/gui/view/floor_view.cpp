@@ -2,6 +2,7 @@
 
 using namespace gui;
 using namespace domain::plan::model;
+using namespace corecad::model;
 
 namespace
 {
@@ -30,9 +31,11 @@ namespace
         constexpr auto WallSelectedMidLineThickness = 1.0f;
 
 
-        constexpr auto HandleSize = 12.0f;
+        constexpr auto HandleSize = 14.0f;
+        constexpr auto HandleSize2 = HandleSize * 0.5f;
         constexpr auto HandleColor = IM_COL32(64, 64, 224, 255);
         constexpr auto HandleThickness = 2.0f;
+        constexpr auto HandleHoveredColor = IM_COL32(128, 128, 255, 255);
     }
 
     ImVec2 operator-(const ImVec2& arg, float d)
@@ -117,9 +120,6 @@ void gui::floor_view::render()
             }
 
             draw_list->AddLine(polygon[0], polygon[3], Styles::WallSelectedMidLineColor, Styles::WallSelectedMidLineThickness);
-
-            draw_list->AddRect(polygon[0] - Styles::HandleSize*0.5, polygon[0] + Styles::HandleSize*0.5, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
-            draw_list->AddRect(polygon[3] - Styles::HandleSize*0.5, polygon[3] + Styles::HandleSize*0.5, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
         }
         else
         {
@@ -159,6 +159,7 @@ void gui::floor_view::render()
         draw_list->AddLine(polygon[0], polygon[3], Styles::WallHoveredMidLineColor, Styles::WallHoveredMidLineThickness);
     }
 
+    // handles
     for (auto wi : _document.selected_walls)
     {
         const auto& w = _document.model.walls().get(wi);
@@ -168,8 +169,23 @@ void gui::floor_view::render()
         const auto s = to_view(sp);
         const auto e = to_view(ep);
 
-        draw_list->AddRect(s - Styles::HandleSize*0.5, s + Styles::HandleSize*0.5, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
-        draw_list->AddRect(e - Styles::HandleSize*0.5, e + Styles::HandleSize*0.5, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
+        if (_document.hovered_handles.contains(w.start))
+        {
+            draw_list->AddRect(s - Styles::HandleSize2, s + Styles::HandleSize2, Styles::HandleHoveredColor, 0.0f, 0, Styles::HandleThickness);
+        }
+        else
+        {
+            draw_list->AddRect(s - Styles::HandleSize2, s + Styles::HandleSize2, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
+        }
+
+        if (_document.hovered_handles.contains(w.end))
+        {
+            draw_list->AddRect(e - Styles::HandleSize2, e + Styles::HandleSize2, Styles::HandleHoveredColor, 0.0f, 0, Styles::HandleThickness);
+        }
+        else
+        {
+            draw_list->AddRect(e - Styles::HandleSize2, e + Styles::HandleSize2, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
+        }
     }
 }
 
@@ -187,6 +203,35 @@ std::optional<wall::index_t> gui::floor_view::get_wall(float screen_x, float scr
     }
 
     return {};
+}
+
+std::vector<vector2d::index_t> gui::floor_view::get_handles(float screen_x, float screen_y) const
+{
+    std::vector<vector2d::index_t> result;
+
+    auto check_point = [&](vector2d::index_t pi) {
+        const auto& v = _document.model.points().get(pi);
+        const auto p = to_view(v);
+
+        const auto tl = p - Styles::HandleSize2;
+        const auto br = p + Styles::HandleSize2;
+        if (tl.x <= screen_x && br.x >= screen_x && tl.y <= screen_y && br.y >= screen_y)
+        {
+            if (!std::ranges::contains(result, pi))
+            {
+                result.push_back(pi);
+            }
+        }
+     };
+
+    for (auto wi : _document.selected_walls)
+    {
+        const auto& w = _document.model.walls().get(wi);
+        check_point(w.start);
+        check_point(w.end);
+   }
+
+   return result;
 }
 
 ImVec2 gui::floor_view::to_view(const corecad::model::vector2d &p) const

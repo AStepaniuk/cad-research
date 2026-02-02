@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <vector>
 
 #include <imgui.h>
 
@@ -33,8 +34,9 @@ namespace gui {
         void y_scale(float val);
 
         void render();
-        std::optional<domain::plan::model::wall::index_t> get_wall(float screen_x, float screen_y) const;
 
+        std::optional<domain::plan::model::wall::index_t> get_wall(float screen_x, float screen_y) const;
+        std::vector<corecad::model::vector2d::index_t> get_handles(float screen_x, float screen_y) const;
 
     private:
         ImVec2 to_view(const corecad::model::vector2d& p) const;
