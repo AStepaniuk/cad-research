@@ -16,8 +16,7 @@ namespace corecad { namespace model
         using index_t = registry_index_t<T>;
 
     private:
-        using key_t = typename index_t::value_t;
-        using underlying_contaier_t = std::unordered_map<key_t, T>;
+        using underlying_contaier_t = std::unordered_map<index_t, T>;
 
     public:
         using const_iterator_t = underlying_contaier_t::const_iterator;
@@ -32,7 +31,7 @@ namespace corecad { namespace model
         {
             ++_last_index;
 
-            auto res = _data.emplace(_last_index.value, std::move(val));
+            auto res = _data.emplace(_last_index, std::move(val));
             (*(res.first)).second.index = _last_index;
 
             return _last_index;
@@ -50,7 +49,7 @@ namespace corecad { namespace model
         {
             ++_last_index;
 
-            auto res = _data.emplace(_last_index.value, T { std::forward<TArgs>(vals)...} );
+            auto res = _data.emplace(_last_index, T { std::forward<TArgs>(vals)...} );
             (*(res.first)).second.index = _last_index;
 
             return _last_index;
@@ -58,12 +57,12 @@ namespace corecad { namespace model
 
         const T& get(const index_t& index) const
         {
-            return _data.at(index.value);
+            return _data.at(index);
         }
 
         T& get(const index_t& index)
         {
-            return _data.at(index.value);
+            return _data.at(index);
         }
 
         const_iterator_t begin() const

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <optional>
+
 #include <imgui.h>
+
 #include "document.h"
 
 namespace gui {
@@ -12,7 +15,11 @@ namespace gui {
         float _x_scale = 0.1;
         float _y_scale = 0.1;
 
+        const doc::document& _document;
+
     public:
+        floor_view(const doc::document& doc);
+
         int x_offset() const;
         void x_offset(int val);
 
@@ -25,9 +32,14 @@ namespace gui {
         float y_scale() const;
         void y_scale(float val);
 
-        void render(const doc::document& doc);
+        void render();
+        std::optional<domain::plan::model::wall::index_t> get_wall(float screen_x, float screen_y) const;
+
 
     private:
         ImVec2 to_view(const corecad::model::vector2d& p) const;
+        std::vector<ImVec2> to_view_polygon(const domain::plan::model::wall& w) const;
+
+        bool is_point_in_polygon(const ImVec2& point, const std::vector<ImVec2>& polygon) const;
     };
 }

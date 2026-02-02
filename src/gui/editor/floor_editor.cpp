@@ -4,6 +4,7 @@ using namespace gui::editor;
 
 floor_editor::floor_editor(GLFWwindow *window, doc::document& doc)
     : _document { doc }
+    , _view { doc }
     , _mouse { window }
 {
 }
@@ -36,7 +37,8 @@ void floor_editor::process_frame(bool mouse_in_workspace)
         _view.y_offset(_view.y_offset() + delta.y);
     }
 
-    _view.render(_document);
+    _document.hovered_wall_id = _view.get_wall(mp.x, mp.y);
+    _view.render();
 
     _mouse.process_frame(mouse_in_workspace);
 }
