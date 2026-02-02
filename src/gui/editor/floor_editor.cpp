@@ -6,7 +6,9 @@ floor_editor::floor_editor(GLFWwindow *window, doc::document& doc)
     : _document { doc }
     , _view { doc }
     , _mouse { window }
+    , _operation_idle { _document, _view }
 {
+    _current_operation = &_operation_idle;
 }
 
 void floor_editor::process_frame(bool mouse_in_workspace)
@@ -29,15 +31,21 @@ void floor_editor::process_frame(bool mouse_in_workspace)
         _view.y_offset(_view.y_offset() * scale_factor - mp.y * (scale_factor - 1.0f));
     }
 
+    const auto mouse_delta = ImGui::GetIO().MouseDelta;
     if (ImGui::GetIO().MouseDown[2])
     {
-        const auto delta = ImGui::GetIO().MouseDelta;
-
-        _view.x_offset(_view.x_offset() + delta.x);
-        _view.y_offset(_view.y_offset() + delta.y);
+        _view.x_offset(_view.x_offset() + mouse_delta.x);
+        _view.y_offset(_view.y_offset() + mouse_delta.y);
     }
 
-    _document.hovered_wall_id = _view.get_wall(mp.x, mp.y);
+    if (_current_operation)
+    {
+        if (mouse_delta.x != 0.0f || mouse_delta.y != 0.0f)
+        {
+            _current_operation->handle_mouse_move(mp.x, mp.y);
+        }
+    }
+
     _view.render();
 
     _mouse.process_frame(mouse_in_workspace);
