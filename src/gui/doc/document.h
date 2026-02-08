@@ -15,5 +15,6 @@ namespace gui { namespace doc {
         corecad::model::collection<corecad::model::vector2d> hovered_handles;
 
         corecad::model::collection<domain::plan::model::wall> selected_walls;
+        corecad::model::collection<corecad::model::vector2d> active_handles;
     };
 }}

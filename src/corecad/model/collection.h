@@ -76,6 +76,11 @@ namespace corecad { namespace model
             return _data.size();
         }
 
+        bool empty() const
+        {
+            return _data.empty();
+        }
+
     private:
         underlying_contaier_t _data;
     };

@@ -35,7 +35,8 @@ namespace
         constexpr auto HandleSize2 = HandleSize * 0.5f;
         constexpr auto HandleColor = IM_COL32(64, 64, 224, 255);
         constexpr auto HandleThickness = 2.0f;
-        constexpr auto HandleHoveredColor = IM_COL32(128, 128, 255, 255);
+        constexpr auto HandleHoveredColor = IM_COL32(128, 128, 192, 255);
+        constexpr auto HandleActiveColor = IM_COL32(156, 156, 224, 255);
     }
 
     ImVec2 operator-(const ImVec2& arg, float d)
@@ -47,6 +48,8 @@ namespace
     {
         return ImVec2 { arg.x + d, arg.y + d };
     }
+
+    constexpr float MinScale = 0.0001;
 }
 
 gui::floor_view::floor_view(const doc::document &doc)
@@ -81,7 +84,14 @@ float gui::floor_view::x_scale() const
 
 void gui::floor_view::x_scale(float val)
 {
-    _x_scale = val;
+    if (val >= MinScale)
+    {
+        _x_scale = val;
+    }
+    else
+    {
+        _x_scale = MinScale;
+    }
 }
 
 float gui::floor_view::y_scale() const
@@ -91,7 +101,14 @@ float gui::floor_view::y_scale() const
 
 void gui::floor_view::y_scale(float val)
 {
-    _y_scale = val;
+    if (val >= MinScale)
+    {
+        _y_scale = val;
+    }
+    else
+    {
+        _y_scale = MinScale;
+    }
 }
 
 void gui::floor_view::render()
@@ -173,6 +190,10 @@ void gui::floor_view::render()
         {
             draw_list->AddRect(s - Styles::HandleSize2, s + Styles::HandleSize2, Styles::HandleHoveredColor, 0.0f, 0, Styles::HandleThickness);
         }
+        else if (_document.active_handles.contains(w.start))
+        {
+            draw_list->AddRect(s - Styles::HandleSize2, s + Styles::HandleSize2, Styles::HandleActiveColor, 0.0f, 0, Styles::HandleThickness);
+        }
         else
         {
             draw_list->AddRect(s - Styles::HandleSize2, s + Styles::HandleSize2, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
@@ -182,11 +203,24 @@ void gui::floor_view::render()
         {
             draw_list->AddRect(e - Styles::HandleSize2, e + Styles::HandleSize2, Styles::HandleHoveredColor, 0.0f, 0, Styles::HandleThickness);
         }
+        else if (_document.active_handles.contains(w.end))
+        {
+            draw_list->AddRect(e - Styles::HandleSize2, e + Styles::HandleSize2, Styles::HandleActiveColor, 0.0f, 0, Styles::HandleThickness);
+        }
         else
         {
             draw_list->AddRect(e - Styles::HandleSize2, e + Styles::HandleSize2, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
         }
     }
+}
+
+vector2d floor_view::to_model(float screen_x, float screen_y) const
+{
+    return vector2d
+    {
+        (static_cast<double>(screen_x) - _x_offset) / _x_scale,
+        (static_cast<double>(screen_y) - _y_offset) / _y_scale
+    };
 }
 
 std::optional<wall::index_t> gui::floor_view::get_wall(float screen_x, float screen_y) const

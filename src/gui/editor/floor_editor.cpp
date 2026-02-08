@@ -6,7 +6,7 @@ floor_editor::floor_editor(GLFWwindow *window, doc::document& doc)
     : _document { doc }
     , _view { doc }
     , _mouse { window }
-    , _operation_idle { _document, _view }
+    , _operation_idle { _document, _view, _tools }
 {
     _current_operation = &_operation_idle;
 }
