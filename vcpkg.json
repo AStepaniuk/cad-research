@@ -1,7 +1,7 @@
 {
   "name": "corecad",
   "version": "0.1.0",
-  "builtin-baseline": "36453915750d0322c36640c634062f6b5b5c907a",
+  "builtin-baseline": "66c0373dc7fca549e5803087b9487edfe3aca0a1",
   "dependencies": [
     "boost",
     "eigen3"
