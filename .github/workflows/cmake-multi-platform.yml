@@ -29,14 +29,14 @@ jobs:
             c_compiler: cl
             cpp_compiler: cl
           - os: ubuntu-latest
-            c_compiler: gcc
-            cpp_compiler: g++
+            c_compiler: gcc-14
+            cpp_compiler: g++-14
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
         exclude:
           - os: windows-latest
-            c_compiler: gcc
+            c_compiler: gcc-14
           - os: windows-latest
             c_compiler: clang
           - os: ubuntu-latest
@@ -80,6 +80,12 @@ jobs:
       if: runner.os == 'Windows'
       shell: powershell
       run: vcpkg install eigen3:x64-windows
+      
+    - name: Install GCC 14
+      if: matrix.cpp_compiler == 'g++-14'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-14 g++-14
         
     - name: Set reusable strings
       id: strings
