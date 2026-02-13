@@ -44,6 +44,7 @@ action_handle_status operation_move_wall_handle::handle_mouse_move(float mx, flo
         p.y = model_pos.y;
     }
 
+    _tools.constraints_calculator.recalculate_all(_document.model.parameters(), _document.model.points());
     _tools.wall_calculator.recalculate_all_walls(_document.model);
 
     return action_handle_status::operation_continues;
