@@ -78,7 +78,7 @@ jobs:
       uses: johnwason/vcpkg-action@v6
       with:
         triplet: x64-windows
-        token: ${{ matrix.os }}-${{ matrix.build_type }}-${{ hashFiles('vcpkg.json') }}
+        token: ${{ github.token }}
         
     - name: Set reusable strings
       id: strings
