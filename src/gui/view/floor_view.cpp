@@ -48,67 +48,52 @@ namespace
     {
         return ImVec2 { arg.x + d, arg.y + d };
     }
-
-    constexpr float MinScale = 0.0001;
 }
 
 gui::floor_view::floor_view(const doc::document &doc)
     : _document { doc }
+    , _translator { _document.model.points() }
 {
 }
 
 int floor_view::x_offset() const
 {
-    return _x_offset;
+    return _translator.x_offset();
 }
 
 void gui::floor_view::x_offset(int val)
 {
-    _x_offset = val;
+    _translator.x_offset(val);
 }
 
 int gui::floor_view::y_offset() const
 {
-    return _y_offset;
+    return _translator.y_offset();
 }
 
 void gui::floor_view::y_offset(int val)
 {
-    _y_offset = val;
+    _translator.y_offset(val);
 }
 
 float gui::floor_view::x_scale() const
 {
-    return _x_scale;
+    return _translator.x_scale();
 }
 
 void gui::floor_view::x_scale(float val)
 {
-    if (val >= MinScale)
-    {
-        _x_scale = val;
-    }
-    else
-    {
-        _x_scale = MinScale;
-    }
+    _translator.x_scale(val);
 }
 
 float gui::floor_view::y_scale() const
 {
-    return _y_scale;
+    return _translator.y_scale();
 }
 
 void gui::floor_view::y_scale(float val)
 {
-    if (val >= MinScale)
-    {
-        _y_scale = val;
-    }
-    else
-    {
-        _y_scale = MinScale;
-    }
+    _translator.y_scale(val);
 }
 
 void gui::floor_view::render()
@@ -181,10 +166,8 @@ void gui::floor_view::render()
     {
         const auto& w = _document.model.walls().get(wi);
 
-        const auto& sp = _document.model.points().get(w.start);
-        const auto& ep = _document.model.points().get(w.end);
-        const auto s = to_view(sp);
-        const auto e = to_view(ep);
+        const auto s = _translator.to_view(w.start);
+        const auto e = _translator.to_view(w.end);
 
         if (_document.hovered_handles.contains(w.start))
         {
@@ -216,11 +199,7 @@ void gui::floor_view::render()
 
 vector2d floor_view::to_model(float screen_x, float screen_y) const
 {
-    return vector2d
-    {
-        (static_cast<double>(screen_x) - _x_offset) / _x_scale,
-        (static_cast<double>(screen_y) - _y_offset) / _y_scale
-    };
+    return _translator.to_model({ screen_x, screen_y });
 }
 
 std::optional<wall::index_t> gui::floor_view::get_wall(float screen_x, float screen_y) const
@@ -244,8 +223,7 @@ std::vector<vector2d::index_t> gui::floor_view::get_handles(float screen_x, floa
     std::vector<vector2d::index_t> result;
 
     auto check_point = [&](vector2d::index_t pi) {
-        const auto& v = _document.model.points().get(pi);
-        const auto p = to_view(v);
+        const auto p = _translator.to_view(pi);
 
         const auto tl = p - Styles::HandleSize2;
         const auto br = p + Styles::HandleSize2;
@@ -268,25 +246,17 @@ std::vector<vector2d::index_t> gui::floor_view::get_handles(float screen_x, floa
    return result;
 }
 
-ImVec2 gui::floor_view::to_view(const corecad::model::vector2d &p) const
-{
-    return ImVec2
-    {
-        static_cast<float>((p.x * _x_scale) + _x_offset),
-        static_cast<float>((p.y * _y_scale) + _y_offset)
-    };
-}
-
 std::vector<ImVec2> gui::floor_view::to_view_polygon(const domain::plan::model::wall &w) const
 {
-    const auto& ps = _document.model.points().get(w.start);
-    const auto& pe = _document.model.points().get(w.end);
-    const auto& sl = _document.model.points().get(w.start_left);
-    const auto& sr = _document.model.points().get(w.start_right);
-    const auto& el = _document.model.points().get(w.end_left);
-    const auto& er = _document.model.points().get(w.end_right);
-
-    return std::vector<ImVec2> { to_view(ps), to_view(sl), to_view(el), to_view(pe), to_view(er), to_view(sr) };
+    return std::vector<ImVec2>
+    {
+        _translator.to_view(w.start),
+        _translator.to_view(w.start_left),
+        _translator.to_view(w.end_left),
+        _translator.to_view(w.end),
+        _translator.to_view(w.end_right),
+        _translator.to_view(w.start_right) 
+    };
 }
 
 bool gui::floor_view::is_point_in_polygon(const ImVec2 &point, const std::vector<ImVec2> &polygon) const

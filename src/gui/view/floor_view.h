@@ -6,17 +6,14 @@
 #include <imgui.h>
 
 #include "document.h"
+#include "coord_translator.h"
 
 namespace gui {
     class floor_view
     {
-        int _x_offset = 0;
-        int _y_offset = 0;
-
-        float _x_scale = 0.1;
-        float _y_scale = 0.1;
-
         const doc::document& _document;
+
+        coord_translator _translator;
 
     public:
         floor_view(const doc::document& doc);
@@ -41,7 +38,6 @@ namespace gui {
         std::vector<corecad::model::vector2d::index_t> get_handles(float screen_x, float screen_y) const;
 
     private:
-        ImVec2 to_view(const corecad::model::vector2d& p) const;
         std::vector<ImVec2> to_view_polygon(const domain::plan::model::wall& w) const;
 
         bool is_point_in_polygon(const ImVec2& point, const std::vector<ImVec2>& polygon) const;
