@@ -79,6 +79,7 @@ jobs:
       with:
         triplet: x64-windows
         token: ${{ github.token }}
+        depth: 0
         
     - name: Set reusable strings
       id: strings
