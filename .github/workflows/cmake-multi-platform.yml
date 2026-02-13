@@ -25,19 +25,17 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
-            build_type: release
-            extra_flags: >-
-              -DCMAKE_TOOLCHAIN_FILE=C:/smoketest/vcpkg/scripts/buildsystems/vcpkg.cmake
-              -DVCPKG_TARGET_TRIPLET=x64-windows
+            build_type: Release
+            extra_flags: "-DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
           - os: ubuntu-latest
             c_compiler: gcc-14
             cpp_compiler: g++-14
-            build_type: release
+            build_type: Release
             extra_flags: ""
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
-            build_type: release
+            build_type: Release
             extra_flags: ""
 
     steps:
@@ -92,13 +90,14 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Configure CMake
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ steps.strings.outputs.build-output-dir }}/bin
-         ${{ matrix.extra_flags }}
+      shell: bash
+      run: |
+        cmake -B ${{ steps.strings.outputs.build-output-dir }} \
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+        -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ steps.strings.outputs.build-output-dir }}/bin \
+         ${{ matrix.extra_flags }} \
         -S ${{ github.workspace }}
 
     - name: Build
