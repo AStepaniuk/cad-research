@@ -63,25 +63,25 @@ jobs:
       if: runner.os == 'Linux'
       run: sudo apt-get update && sudo apt-get install -y libboost-all-dev
 
-    - name: Install Boost (Windows)
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: vcpkg install boost:x64-windows
-
     - name: Install Eigen (Linux)
       if: runner.os == 'Linux'
       run: sudo apt-get update && sudo apt-get install -y libeigen3-dev
-
-    - name: Install Eigen (Windows)
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: vcpkg install eigen3:x64-windows
       
     - name: Install GCC 14
       if: matrix.cpp_compiler == 'g++-14'
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-14 g++-14
+        
+    - name: Run vcpkg and Cache (Windows Only)
+      if: matrix.os == 'windows-latest'
+      uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgJsonGlob: 'vcpkg.json'
+        # Optional: Specify the triplet to match your CMake flags
+        runVcpkgInstall: true
+      env:
+        VCPKG_DEFAULT_TRIPLET: x64-windows     
         
     - name: Set reusable strings
       id: strings
