@@ -33,7 +33,7 @@ void default_floor_generator::generate_floor(model::floor &floor)
     floor.parameters().put(offset { tli, tri, 10000.0, offset_direction::horizontal });
     floor.parameters().put(offset { tli, tri, 0.0, offset_direction::vertical });
     //floor.parameters().put(offset { tri, toi, 2000.0, offset_direction::horizontal });
-    //floor.parameters().put(offset { tri, toi, 0.0, offset_direction::vertical });
+    floor.parameters().put(offset { tri, toi, 1000.0, offset_direction::vertical });
     //floor.parameters().put(offset { tli, bli, 1000.0, offset_direction::horizontal });
     //floor.parameters().put(offset { tli, bli, 5000.0, offset_direction::vertical });
     //floor.parameters().put(offset { tri, bri, 0.0, offset_direction::horizontal });

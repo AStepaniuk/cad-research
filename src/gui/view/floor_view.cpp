@@ -54,6 +54,7 @@ gui::floor_view::floor_view(const doc::document &doc)
     : _document { doc }
     , _translator { _document.model.points() }
     , _walls_view { _document, _translator }
+    , _constraints_view{ _document, _translator }
 {
 }
 
@@ -102,6 +103,7 @@ void gui::floor_view::render()
     ImDrawList* draw_list = ImGui::GetBackgroundDrawList();
 
     _walls_view.render(draw_list);
+    _constraints_view.render(draw_list);
 
 }
 

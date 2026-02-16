@@ -8,6 +8,7 @@
 #include "document.h"
 #include "coord_translator.h"
 #include "walls_view.h"
+#include "constraints_view.h"
 
 namespace gui {
     class floor_view
@@ -17,6 +18,7 @@ namespace gui {
         coord_translator _translator;
 
         walls_view _walls_view;
+        constraints_view _constraints_view;
 
     public:
         floor_view(const doc::document& doc);
