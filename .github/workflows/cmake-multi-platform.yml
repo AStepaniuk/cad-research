@@ -93,7 +93,7 @@ jobs:
         WORKSPACE=$(echo "${{ github.workspace }}" | sed 's/\\/\//g')
         BUILD_DIR=$(echo "${{ steps.strings.outputs.build-output-dir }}" | sed 's/\\/\//g')
         
-        cmake -B ${{ steps.strings.outputs.build-output-dir }} \
+        cmake -B "$BUILD_DIR" \
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
