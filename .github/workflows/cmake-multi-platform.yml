@@ -90,13 +90,16 @@ jobs:
     - name: Configure CMake
       shell: bash
       run: |
+        WORKSPACE=$(echo "${{ github.workspace }}" | sed 's/\\/\//g')
+        BUILD_DIR=$(echo "${{ steps.strings.outputs.build-output-dir }}" | sed 's/\\/\//g')
+        
         cmake -B ${{ steps.strings.outputs.build-output-dir }} \
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-        -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ steps.strings.outputs.build-output-dir }}/bin \
+        -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$BUILD_DIR/bin" \
          ${{ matrix.extra_flags }} \
-        -S ${{ github.workspace }}
+        -S "$WORKSPACE"
 
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
