@@ -25,19 +25,17 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
-            build_type: release
-            extra_flags: >-
-              -DCMAKE_TOOLCHAIN_FILE=C:/smoketest/vcpkg/scripts/buildsystems/vcpkg.cmake
-              -DVCPKG_TARGET_TRIPLET=x64-windows
+            build_type: Release
+            extra_flags: "-DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows"
           - os: ubuntu-latest
             c_compiler: gcc-14
             cpp_compiler: g++-14
-            build_type: release
+            build_type: Release
             extra_flags: ""
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
-            build_type: release
+            build_type: Release
             extra_flags: ""
 
     steps:
@@ -65,25 +63,23 @@ jobs:
       if: runner.os == 'Linux'
       run: sudo apt-get update && sudo apt-get install -y libboost-all-dev
 
-    - name: Install Boost (Windows)
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: vcpkg install boost:x64-windows
-
     - name: Install Eigen (Linux)
       if: runner.os == 'Linux'
       run: sudo apt-get update && sudo apt-get install -y libeigen3-dev
-
-    - name: Install Eigen (Windows)
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: vcpkg install eigen3:x64-windows
       
     - name: Install GCC 14
       if: matrix.cpp_compiler == 'g++-14'
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-14 g++-14
+        
+    - name: Restore vcpkg and Install Dependencies (Windows)
+      if: matrix.os == 'windows-latest'
+      uses: johnwason/vcpkg-action@v6
+      with:
+        triplet: x64-windows
+        token: ${{ github.token }}
+        fetch-depth: '0'
         
     - name: Set reusable strings
       id: strings
@@ -92,14 +88,18 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Configure CMake
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ steps.strings.outputs.build-output-dir }}/bin
-         ${{ matrix.extra_flags }}
-        -S ${{ github.workspace }}
+      shell: bash
+      run: |
+        WORKSPACE=$(echo "${{ github.workspace }}" | sed 's/\\/\//g')
+        BUILD_DIR=$(echo "${{ steps.strings.outputs.build-output-dir }}" | sed 's/\\/\//g')
+        
+        cmake -B "$BUILD_DIR" \
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+        -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$BUILD_DIR/bin" \
+         ${{ matrix.extra_flags }} \
+        -S "$WORKSPACE"
 
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
