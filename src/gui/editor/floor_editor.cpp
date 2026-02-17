@@ -2,13 +2,25 @@
 
 using namespace gui::editor;
 
-floor_editor::floor_editor(GLFWwindow *window, doc::document& doc)
-    : _document { doc }
-    , _view { doc }
-    , _mouse { window }
-    , _operation_idle { _document, _view, _tools }
+floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
+    :_document{doc}
+    , _view{doc}
+    , _mouse{window}
+    , _operation_idle{_document, _view, _tools}
+    , _operation_add_wall{_document, _view, _tools}
 {
     _current_operation = &_operation_idle;
+}
+
+void floor_editor::switch_operation(operation::i_operation *op)
+{
+    if (_current_operation)
+    {
+        _current_operation->stop();
+    }
+
+    _current_operation = op;
+    _current_operation->start();
 }
 
 void floor_editor::process_frame(bool mouse_in_workspace)
@@ -54,4 +66,9 @@ void floor_editor::process_frame(bool mouse_in_workspace)
     _view.render();
 
     _mouse.process_frame(mouse_in_workspace);
+}
+
+void floor_editor::start_operation_add_wall()
+{
+    switch_operation(&_operation_add_wall);
 }

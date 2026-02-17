@@ -20,6 +20,7 @@ namespace gui { namespace editor { namespace operation {
     public:
         operation_idle(doc::document& doc, floor_view& v, calc_tools& _t);
 
+        void start() override;
         void stop() override;
         action_handle_status handle_rollback() override;
 

@@ -55,6 +55,11 @@ namespace corecad { namespace model
             return _last_index;
         }
 
+        bool erase(const index_t& index)
+        {
+            return _data.erase(index) > 0;
+        }
+
         const T& get(const index_t& index) const
         {
             return _data.at(index);

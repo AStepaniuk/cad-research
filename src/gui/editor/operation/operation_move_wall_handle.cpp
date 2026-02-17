@@ -9,12 +9,6 @@ operation_move_wall_handle::operation_move_wall_handle(doc::document &doc, floor
     : _document { doc }
     , _view { v }
     , _tools { t }
-    , _active_points { _document.hovered_handles | std::ranges::to<std::vector>() }
-    , _initial_positions {
-        _active_points
-            | std::views::transform([this](auto pid) { return _document.model.points().get(pid); })
-            | std::ranges::to<std::vector>()
-    }
 {
     _document.active_handles.clear();
     _document.active_handles.put(_document.hovered_handles);
@@ -22,7 +16,15 @@ operation_move_wall_handle::operation_move_wall_handle(doc::document &doc, floor
     _document.hovered_handles.clear();
 }
 
-void gui::editor::operation::operation_move_wall_handle::stop()
+void operation_move_wall_handle::start()
+{
+    _active_points = _document.hovered_handles | std::ranges::to<std::vector>();
+    _initial_positions = _active_points
+        | std::views::transform([this](auto pid) { return _document.model.points().get(pid); })
+        | std::ranges::to<std::vector>();
+}
+
+void operation_move_wall_handle::stop()
 {
     // TODO: implement revert move operation
 }
@@ -57,6 +59,5 @@ action_handle_status operation_move_wall_handle::handle_left_mouse_click(float m
 
     _document.active_handles.clear();
 
-    // TODO: implement fixing changes
     return action_handle_status::operation_finished;
 }

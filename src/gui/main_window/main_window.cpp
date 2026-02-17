@@ -30,13 +30,13 @@ void main_window::run()
     ImGui::StyleColorsDark(); // Or Light
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 130"); // Adjust GLSL version if needed
+    ImGui_ImplOpenGL3_Init("#version 130");
 
     main_menu mm;
 
     // workspace init
     // TODO: consider creation multi-workspace environments
-    workspace ws { window };
+    workspace ws { window, mm };
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();

@@ -6,6 +6,7 @@ namespace gui { namespace editor { namespace operation {
     class i_operation
     {
     public:
+        virtual void start() = 0;
         virtual void stop() = 0;
         virtual action_handle_status handle_rollback() = 0;
 

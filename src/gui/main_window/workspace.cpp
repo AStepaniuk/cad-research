@@ -8,8 +8,9 @@
 
 using namespace gui;
 
-workspace::workspace(GLFWwindow* window)
-    : _document {}
+workspace::workspace(GLFWwindow* window, main_menu& mm)
+    : _main_menu { mm }
+    , _document {}
     , _editor { window, _document }
 {
     domain::plan::generator::default_floor_generator fg;
@@ -26,5 +27,10 @@ workspace::workspace(GLFWwindow* window)
 
 void workspace::process_frame(bool mouse_in_workspace)
 {
+    if (_main_menu.choosen_item() == main_menu::item::add_wall)
+    {
+        _editor.start_operation_add_wall();
+    }
+
     _editor.process_frame(mouse_in_workspace);
 }

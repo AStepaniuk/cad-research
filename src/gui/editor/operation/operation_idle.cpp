@@ -11,6 +11,10 @@ operation_idle::operation_idle(doc::document &doc, floor_view &v, calc_tools &t)
 {
 }
 
+void gui::editor::operation::operation_idle::start()
+{
+}
+
 void operation_idle::stop()
 {
     if (sub_operation)
@@ -78,6 +82,7 @@ action_handle_status gui::editor::operation::operation_idle::handle_left_mouse_c
             // start move wall handle sub-operation
 
             sub_operation = std::make_unique<operation_move_wall_handle>(_document, _view, _tools);
+            sub_operation->start();
 
             return action_handle_status::operation_continues;
         }
