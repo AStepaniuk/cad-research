@@ -43,3 +43,6 @@
 #build folder
 build/
 
+#imgui debug file
+imgui.ini
+
