@@ -26,16 +26,32 @@ void operation_move_wall_handle::start()
 
 void operation_move_wall_handle::stop()
 {
-    // TODO: implement revert move operation
+    // TODO: implement commit move operation
 }
 
-action_handle_status operation_move_wall_handle::handle_rollback()
+void gui::editor::operation::operation_move_wall_handle::cancel()
+{
+    for (size_t i = 0; i < _active_points.size(); ++i)
+    {
+        const auto& pid = _active_points[i];
+        const auto& initial_pos = _initial_positions[i];
+
+        auto& point = _document.model.points().get(pid);
+        point.x = initial_pos.x;
+        point.y = initial_pos.y;
+    }
+
+    _initial_positions.clear();
+    _active_points.clear();
+}
+
+action_handle_status operation_move_wall_handle::rollback()
 {
     // TODO: implement revert move operation
     return action_handle_status::operation_finished;
 }
 
-action_handle_status operation_move_wall_handle::handle_mouse_move(float mx, float my)
+action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
 {
     const auto model_pos = _view.to_model(mx, my);
 
@@ -52,7 +68,7 @@ action_handle_status operation_move_wall_handle::handle_mouse_move(float mx, flo
     return action_handle_status::operation_continues;
 }
 
-action_handle_status operation_move_wall_handle::handle_left_mouse_click(float mx, float my)
+action_handle_status operation_move_wall_handle::left_mouse_click(float mx, float my)
 {
     _document.hovered_handles.clear();
     _document.hovered_handles.put(_document.active_handles);

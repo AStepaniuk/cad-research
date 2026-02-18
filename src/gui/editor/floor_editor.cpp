@@ -54,12 +54,20 @@ void floor_editor::process_frame(bool mouse_in_workspace)
     {
         if (mouse_delta.x != 0.0f || mouse_delta.y != 0.0f)
         {
-            _current_operation->handle_mouse_move(mp.x, mp.y);
+            _current_operation->mouse_move(mp.x, mp.y);
         }
 
         if (ImGui::GetIO().MouseClicked[0])
         {
-            _current_operation->handle_left_mouse_click(mp.x, mp.y);
+            _current_operation->left_mouse_click(mp.x, mp.y);
+        }
+
+        if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+        {
+            _current_operation->cancel();
+
+            _current_operation = &_operation_idle;
+            _current_operation->start();
         }
     }
 

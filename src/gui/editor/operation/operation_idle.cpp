@@ -21,13 +21,27 @@ void operation_idle::stop()
     {
         sub_operation->stop();
     }
+
+    _document.selected_walls.clear();
+    _document.hovered_wall_id = std::nullopt;
 }
 
-action_handle_status operation_idle::handle_rollback()
+void gui::editor::operation::operation_idle::cancel()
 {
     if (sub_operation)
     {
-        auto res = sub_operation->handle_rollback();
+        sub_operation->cancel();
+    }
+
+    _document.selected_walls.clear();
+    _document.hovered_wall_id = std::nullopt;
+}
+
+action_handle_status operation_idle::rollback()
+{
+    if (sub_operation)
+    {
+        auto res = sub_operation->rollback();
 
         if (res == action_handle_status::operation_finished)
         {
@@ -38,11 +52,11 @@ action_handle_status operation_idle::handle_rollback()
     return action_handle_status::operation_finished;
 }
 
-action_handle_status operation_idle::handle_mouse_move(float mx, float my)
+action_handle_status operation_idle::mouse_move(float mx, float my)
 {
     if (sub_operation)
     {
-        return sub_operation->handle_mouse_move(mx, my);
+        return sub_operation->mouse_move(mx, my);
     } 
     else
     {
@@ -63,11 +77,11 @@ action_handle_status operation_idle::handle_mouse_move(float mx, float my)
     }
 }
 
-action_handle_status gui::editor::operation::operation_idle::handle_left_mouse_click(float mx, float my)
+action_handle_status gui::editor::operation::operation_idle::left_mouse_click(float mx, float my)
 {
     if (sub_operation)
     {
-        auto res = sub_operation->handle_left_mouse_click(mx, my);
+        auto res = sub_operation->left_mouse_click(mx, my);
         if (res == action_handle_status::operation_finished)
         {
             sub_operation.reset();
