@@ -6,6 +6,7 @@ floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
     :_document{doc}
     , _view{doc}
     , _mouse{window}
+    , _tools { _document.model }
     , _operation_idle{_document, _view, _tools}
     , _operation_add_wall{_document, _view, _tools}
 {

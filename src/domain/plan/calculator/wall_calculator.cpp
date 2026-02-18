@@ -429,25 +429,29 @@ namespace
     }
 }
 
+wall_calculator::wall_calculator(model::floor &floor)
+    : _floor { floor }
+{
+}
 
-void wall_calculator::recalculate_all_walls(model::floor &floor)
+void wall_calculator::recalculate_all_walls()
 {
     walls_joints joints;
     std::map<wall::index_t, double> wall_directions;
 
-    for (auto& w : floor.walls())
+    for (auto& w : _floor.walls())
     {
-        recalculate_wall_joints(w.second, floor, joints);
+        recalculate_wall_joints(w.second, _floor, joints);
     }
 
     std::vector<wall_finish_id> processed_fids;
-    for (auto& w : floor.walls())
+    for (auto& w : _floor.walls())
     {
         // start joint points
         wall_finish_id wall_start_fid { w.second.index, wall_location::start };
         if (w.second.start_joints == 0)
         {
-            calculate_stub_wall_start_borders(w.second, floor);
+            calculate_stub_wall_start_borders(w.second, _floor);
         }
         else 
         {
@@ -456,11 +460,11 @@ void wall_calculator::recalculate_all_walls(model::floor &floor)
                 if (w.second.start_joints == 1)
                 {
                     
-                    calculate_joined_2_walls_borders(wall_start_fid, floor, joints, processed_fids);
+                    calculate_joined_2_walls_borders(wall_start_fid, _floor, joints, processed_fids);
                 }
                 else
                 {
-                    calculate_joined_n_walls_borders(wall_start_fid, floor, joints, wall_directions, processed_fids);
+                    calculate_joined_n_walls_borders(wall_start_fid, _floor, joints, wall_directions, processed_fids);
                 }
             }
         }
@@ -469,7 +473,7 @@ void wall_calculator::recalculate_all_walls(model::floor &floor)
         wall_finish_id wall_end_fid { w.second.index, wall_location::end };
         if (w.second.end_joints == 0)
         {
-            calculate_stub_wall_end_borders(w.second, floor);
+            calculate_stub_wall_end_borders(w.second, _floor);
         }
         else
         {
@@ -478,11 +482,11 @@ void wall_calculator::recalculate_all_walls(model::floor &floor)
                 if (w.second.end_joints == 1)
                 {
                     
-                    calculate_joined_2_walls_borders(wall_end_fid, floor, joints, processed_fids);
+                    calculate_joined_2_walls_borders(wall_end_fid, _floor, joints, processed_fids);
                 }
                 else
                 {
-                    calculate_joined_n_walls_borders(wall_end_fid, floor, joints, wall_directions, processed_fids);
+                    calculate_joined_n_walls_borders(wall_end_fid, _floor, joints, wall_directions, processed_fids);
                 }
             }
         }

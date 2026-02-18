@@ -6,7 +6,11 @@ namespace domain { namespace plan { namespace calculator
 {
     class wall_calculator
     {
+        model::floor& _floor;
+
     public:
-        void recalculate_all_walls(model::floor& floor);
+        wall_calculator(model::floor& floor);
+
+        void recalculate_all_walls();
     };
 }}}

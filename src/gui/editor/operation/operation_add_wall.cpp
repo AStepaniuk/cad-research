@@ -31,7 +31,7 @@ void operation_add_wall::stop()
     if (_current_wall)
     {
         _document.model.walls().erase(_current_wall.value());
-        _tools.wall_calculator.recalculate_all_walls(_document.model);
+        _tools.wall_calculator.recalculate_all_walls();
 
         _current_wall = std::nullopt;
     }
@@ -48,8 +48,8 @@ void gui::editor::operation::operation_add_wall::cancel()
     if (_current_wall)
     {
         _document.model.walls().erase(_current_wall.value());
-        _tools.wall_calculator.recalculate_all_walls(_document.model);
-        
+        _tools.wall_calculator.recalculate_all_walls();
+
         _current_wall = std::nullopt;
     }
     _document.selected_walls.clear();
@@ -84,7 +84,7 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
 
     _document.selected_walls.clear();
     _document.selected_walls.put(wall_index);
-    _tools.wall_calculator.recalculate_all_walls(_document.model);
+    _tools.wall_calculator.recalculate_all_walls();
     _tools.constraints_calculator.recalculate_all(_document.model.parameters(), _document.model.points());
 
     _current_point = next_index;

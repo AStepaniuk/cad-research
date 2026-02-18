@@ -22,8 +22,8 @@ protected:
 
     void when_recalculating_all_walls()
     {
-        wall_calculator wc;
-        wc.recalculate_all_walls(test_floor);
+        wall_calculator wc { test_floor };
+        wc.recalculate_all_walls();
     }
 
     void then_points_number_should_be(size_t n)

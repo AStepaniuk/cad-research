@@ -63,7 +63,7 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     }
 
     _tools.constraints_calculator.recalculate_all(_document.model.parameters(), _document.model.points());
-    _tools.wall_calculator.recalculate_all_walls(_document.model);
+    _tools.wall_calculator.recalculate_all_walls();
 
     return action_handle_status::operation_continues;
 }

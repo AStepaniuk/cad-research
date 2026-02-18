@@ -16,13 +16,13 @@ workspace::workspace(GLFWwindow* window, main_menu& mm)
     domain::plan::generator::default_floor_generator fg;
     fg.generate_floor(_document.model);
 
-    domain::plan::calculator::wall_calculator wc;
-    wc.recalculate_all_walls(_document.model);
+    domain::plan::calculator::wall_calculator wc { _document.model };
+    wc.recalculate_all_walls();
 
     corecad::calculator::constraints_calculator cc;
     cc.recalculate_all(_document.model.parameters(), _document.model.points());
 
-    wc.recalculate_all_walls(_document.model);
+    wc.recalculate_all_walls();
 }
 
 void workspace::process_frame(bool mouse_in_workspace)
