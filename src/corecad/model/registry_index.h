@@ -21,22 +21,4 @@ namespace corecad { namespace model
         ++tagged.value;
         return temp;
     }
-
-    template <typename Tag>
-    bool operator==(const registry_index_t<Tag>& lhs, const registry_index_t<Tag>& rhs)
-    {
-        return lhs.value == rhs.value;
-    }
-
-    template <typename Tag>
-    bool operator!=(const registry_index_t<Tag>& lhs, const registry_index_t<Tag>& rhs)
-    {
-        return !(lhs == rhs);
-    }
-
-    template <typename Tag>
-    bool operator<(const registry_index_t<Tag>& lhs, const registry_index_t<Tag>& rhs)
-    {
-        return lhs.value < rhs.value;
-    }
 }}
