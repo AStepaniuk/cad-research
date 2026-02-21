@@ -1,8 +1,7 @@
 #pragma once
 
 #include "i_operation.h"
-
-#include <memory>
+#include "operation_move_wall_handle.h"
 
 #include "document.h"
 #include "floor_view.h"
@@ -15,7 +14,8 @@ namespace gui { namespace editor { namespace operation {
         floor_view& _view;
         calc_tools& _tools;
 
-        std::unique_ptr<i_operation> sub_operation;
+        i_operation* _sub_operation;
+        operation_move_wall_handle _sub_operation_move_wall;
 
     public:
         operation_idle(doc::document& doc, floor_view& v, calc_tools& _t);

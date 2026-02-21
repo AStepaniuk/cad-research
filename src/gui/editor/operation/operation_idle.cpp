@@ -8,6 +8,7 @@ operation_idle::operation_idle(doc::document &doc, floor_view &v, calc_tools &t)
     : _document { doc }
     , _view { v }
     , _tools { t }
+    , _sub_operation_move_wall { doc, v, t }
 {
 }
 
@@ -17,9 +18,9 @@ void gui::editor::operation::operation_idle::start()
 
 void operation_idle::stop()
 {
-    if (sub_operation)
+    if (_sub_operation)
     {
-        sub_operation->stop();
+        _sub_operation->stop();
     }
 
     _document.selected_walls.clear();
@@ -28,9 +29,9 @@ void operation_idle::stop()
 
 void gui::editor::operation::operation_idle::cancel()
 {
-    if (sub_operation)
+    if (_sub_operation)
     {
-        sub_operation->cancel();
+        _sub_operation->cancel();
     }
 
     _document.selected_walls.clear();
@@ -39,14 +40,16 @@ void gui::editor::operation::operation_idle::cancel()
 
 action_handle_status operation_idle::rollback()
 {
-    if (sub_operation)
+    if (_sub_operation)
     {
-        auto res = sub_operation->rollback();
+        const auto res = _sub_operation->rollback();
 
         if (res == action_handle_status::operation_finished)
         {
-            sub_operation.reset();
+            _sub_operation = nullptr;
         }
+
+        return res;
     }
 
     return action_handle_status::operation_finished;
@@ -54,9 +57,9 @@ action_handle_status operation_idle::rollback()
 
 action_handle_status operation_idle::mouse_move(float mx, float my)
 {
-    if (sub_operation)
+    if (_sub_operation)
     {
-        return sub_operation->mouse_move(mx, my);
+        return _sub_operation->mouse_move(mx, my);
     } 
     else
     {
@@ -79,12 +82,12 @@ action_handle_status operation_idle::mouse_move(float mx, float my)
 
 action_handle_status gui::editor::operation::operation_idle::left_mouse_click(float mx, float my)
 {
-    if (sub_operation)
+    if (_sub_operation)
     {
-        auto res = sub_operation->left_mouse_click(mx, my);
+        auto res = _sub_operation->left_mouse_click(mx, my);
         if (res == action_handle_status::operation_finished)
         {
-            sub_operation.reset();
+            _sub_operation = nullptr;
         }
 
         return action_handle_status::operation_continues;
@@ -95,8 +98,8 @@ action_handle_status gui::editor::operation::operation_idle::left_mouse_click(fl
         {
             // start move wall handle sub-operation
 
-            sub_operation = std::make_unique<operation_move_wall_handle>(_document, _view, _tools);
-            sub_operation->start();
+            _sub_operation = &_sub_operation_move_wall;
+            _sub_operation->start();
 
             return action_handle_status::operation_continues;
         }
