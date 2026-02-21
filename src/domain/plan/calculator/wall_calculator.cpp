@@ -119,6 +119,13 @@ wall_calculator::wall_calculator(model::floor &floor)
 
 void wall_calculator::recalculate_all_walls()
 {
+    // clean-up ref count for previously generated points
+    for (auto& pair : _points_cache)
+    {
+        pair.second.refcount = 0;
+    }
+
+    // recalculate new wall points
     walls_joints joints;
     std::map<wall::index_t, double> wall_directions;
 
@@ -172,6 +179,21 @@ void wall_calculator::recalculate_all_walls()
                     calculate_joined_n_walls_borders(wall_end_fid, joints, wall_directions, processed_fids);
                 }
             }
+        }
+    }
+
+    // erase unreacheable points
+    for (auto it = _points_cache.begin(); it != _points_cache.end(); ) 
+    {
+        if (it->second.refcount == 0)
+        {
+            // cached point is not used anymore
+            _floor.points().erase(it->second.index);
+            it = _points_cache.erase(it); 
+        }
+        else
+        {
+            ++it;
         }
     }
 }

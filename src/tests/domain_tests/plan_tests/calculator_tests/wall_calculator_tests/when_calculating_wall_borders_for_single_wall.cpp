@@ -8,7 +8,8 @@ using namespace domain::plan::model;
 using namespace domain::plan;
 using namespace corecad::model;
 
-class when_calculating_wall_borders_for_single_wall : public ::testing::Test {
+class when_calculating_wall_borders_for_single_wall : public ::testing::Test
+{
 protected:
     void given_single_wall_floor_generated(vector2d start, vector2d end, float width)
     {
@@ -18,9 +19,22 @@ protected:
         w = test_floor.walls().make(s, e, width);
     }
 
+    void given_recalculating_all_walls()
+    {
+        wc.recalculate_all_walls();
+    }
+
+    void given_wall_point_is_moved_to(vector2d::index_t wall::*point_definition, vector2d p)
+    {
+        const auto& wall = test_floor.walls().get(w);
+        auto& point = test_floor.points().get(wall.*point_definition);
+
+        point.x = p.x;
+        point.y = p.y;
+    }
+
     void when_recalculating_all_walls()
     {
-        wall_calculator wc { test_floor };
         wc.recalculate_all_walls();
     }
 
@@ -38,6 +52,8 @@ protected:
     }
 
     model::floor test_floor;
+    wall_calculator wc { test_floor };
+
     wall::index_t w;
 };
 
@@ -140,4 +156,15 @@ TEST_F(when_calculating_wall_borders_for_single_wall, should_generate_stubs_diag
 
     then_wall_point_should_be(&wall::end_left, {979.69, 1045.69});
     then_wall_point_should_be(&wall::end_right, {1020.31, 954.31});
+}
+
+TEST_F(when_calculating_wall_borders_for_single_wall, should_not_add_points_after_second_calculation)
+{
+    given_single_wall_floor_generated({10000, 5000}, {1000, 1000}, 100);
+    given_recalculating_all_walls();
+    given_wall_point_is_moved_to(&wall::start, {2000, 2000});
+
+    when_recalculating_all_walls();
+
+    then_points_number_should_be(6);
 }

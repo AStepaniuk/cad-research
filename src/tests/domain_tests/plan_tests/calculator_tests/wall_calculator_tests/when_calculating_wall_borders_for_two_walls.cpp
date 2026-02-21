@@ -7,7 +7,8 @@ using namespace domain::plan::model;
 using namespace domain::plan::calculator;
 using namespace corecad::model;
 
-class when_calculating_wall_borders_for_two_walls : public ::testing::Test {
+class when_calculating_wall_borders_for_two_walls : public ::testing::Test
+{
 protected:
     void given_two_walls_floor_generated(vector2d start, vector2d common, vector2d end, float width1, float width2)
     {
@@ -19,9 +20,22 @@ protected:
         w2 = test_floor.walls().make(c, e, width2);
     }
 
+    void given_recalculating_all_walls()
+    {
+        wc.recalculate_all_walls();
+    }
+
+    void given_wall_point_is_moved_to(wall::index_t w, vector2d::index_t wall::*point_definition, vector2d p)
+    {
+        const auto& wall = test_floor.walls().get(w);
+        auto& point = test_floor.points().get(wall.*point_definition);
+
+        point.x = p.x;
+        point.y = p.y;
+    }
+
     void when_recalculating_all_walls()
     {
-        wall_calculator wc { test_floor };
         wc.recalculate_all_walls();
     }
 
@@ -39,6 +53,8 @@ protected:
     }
 
     domain::plan::model::floor test_floor;
+    wall_calculator wc { test_floor };
+
     wall::index_t w1;
     wall::index_t w2;
 };
@@ -154,4 +170,15 @@ TEST_F(when_calculating_wall_borders_for_two_walls, should_generate_straight_joi
 
     then_wall_point_should_be(w2, &wall::start_left, {3045.69, 5520.31});
     then_wall_point_should_be(w2, &wall::start_right, {2954.31, 5479.69});
+}
+
+TEST_F(when_calculating_wall_borders_for_two_walls, should_not_add_points_after_second_calculation)
+{
+    given_two_walls_floor_generated({1000, 1000}, {10000, 1000}, {10000, 10000}, 100, 100);
+    given_recalculating_all_walls();
+    given_wall_point_is_moved_to(w1, &wall::end, {2000, 2000});
+
+    when_recalculating_all_walls();
+
+    then_points_number_should_be(9);
 }
