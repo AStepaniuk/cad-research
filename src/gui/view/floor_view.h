@@ -38,6 +38,7 @@ namespace gui {
         void render();
 
         corecad::model::vector2d to_model(float screen_x, float screen_y) const;
+        corecad::model::vector2d model_interaction_tolerance() const;
 
         std::optional<domain::plan::model::wall::index_t> get_wall(float screen_x, float screen_y) const;
         std::vector<corecad::model::vector2d::index_t> get_handles(float screen_x, float screen_y) const;

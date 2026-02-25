@@ -7,6 +7,7 @@
 #include "document.h"
 #include "floor_view.h"
 #include "calc_tools.h"
+#include "handler/wall_join_handler.h"
 
 namespace gui { namespace editor { namespace operation {
     class operation_move_wall_handle : public i_operation
@@ -18,6 +19,10 @@ namespace gui { namespace editor { namespace operation {
         // operation state
         std::vector<corecad::model::vector2d::index_t> _active_points;
         std::vector<corecad::model::vector2d> _initial_positions;
+
+        handler::wall_join_handler _wall_join_handler;
+
+        std::vector<handler::i_mmove_wall_handler*> _move_wall_handlers;
 
     public:
         operation_move_wall_handle(doc::document& doc, floor_view& v, calc_tools& t);

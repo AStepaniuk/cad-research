@@ -112,6 +112,11 @@ vector2d floor_view::to_model(float screen_x, float screen_y) const
     return _translator.to_model({ screen_x, screen_y });
 }
 
+corecad::model::vector2d gui::floor_view::model_interaction_tolerance() const
+{
+    return _translator.to_model({ Styles::HandleSize2, Styles::HandleSize2 });
+}
+
 std::optional<wall::index_t> gui::floor_view::get_wall(float screen_x, float screen_y) const
 {
     return _walls_view.get_wall(screen_x, screen_y);

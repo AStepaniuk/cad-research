@@ -34,7 +34,7 @@ namespace corecad { namespace model
             _data.push_back(index);
         }
 
-        template <std::ranges::input_range R>
+        template <std::ranges::viewable_range R>
         requires std::convertible_to<std::ranges::range_value_t<R>, index_t>
         void put(R&& indexes)
         {
