@@ -74,8 +74,14 @@ action_handle_status operation_add_wall::mouse_move(float mx, float my)
 
 action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
 {
+    auto sub_result = _sub_operation_move_handle.left_mouse_click(mx, my);
+    if (sub_result != action_handle_status::operation_finished)
+    {
+        return action_handle_status::operation_continues;
+    }
+
     _sub_operation_move_handle.stop();
-    
+   
     auto m_model = _view.to_model(mx, my);
     auto next_index = _document.model.points().make(m_model.x, m_model.y);
  

@@ -11,5 +11,7 @@ namespace gui { namespace editor { namespace handler {
             float view_pos_x, float view_pos_y,
             corecad::model::vector2d& model_pos
         ) = 0;
+
+        virtual void apply() = 0;
     };
 }}}

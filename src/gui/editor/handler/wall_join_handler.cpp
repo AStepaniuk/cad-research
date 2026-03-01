@@ -1,6 +1,7 @@
 #include "wall_join_handler.h"
 
 #include <ranges>
+#include <iostream>
 
 using namespace gui::editor::handler;
 using namespace domain::plan::model;
@@ -31,6 +32,8 @@ bool wall_join_handler::wall_move(
         if (model_pos.x > sp.x - tol.x && model_pos.x < sp.x + tol.x
         && model_pos.y > sp.y - tol.y && model_pos.y < sp.y + tol.y)
         {
+            _target_point_index = sp.index;
+
             model_pos.x = sp.x;
             model_pos.y = sp.y;
 
@@ -42,6 +45,8 @@ bool wall_join_handler::wall_move(
         if (model_pos.x > ep.x - tol.x && model_pos.x < ep.x + tol.x
         && model_pos.y > ep.y - tol.y && model_pos.y < ep.y + tol.y)
         {
+            _target_point_index = ep.index;
+
             model_pos.x = ep.x;
             model_pos.y = ep.y;
 
@@ -49,5 +54,29 @@ bool wall_join_handler::wall_move(
         }
     }
 
+    _target_point_index = std::nullopt;
+
     return false;
+}
+
+void wall_join_handler::apply()
+{
+    if (!_target_point_index)
+    {
+        return;
+    }
+
+    for (const auto wid : _document.active_walls)
+    {
+        auto& wall = _document.model.walls().get(wid);
+
+        if (std::ranges::any_of(_document.active_handles, [&wall](const auto& h) { return wall.start == h; }))
+        {
+            wall.start = _target_point_index.value();
+        }
+        else
+        {
+            wall.end = _target_point_index.value();
+        }
+    }
 }

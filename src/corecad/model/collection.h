@@ -84,4 +84,22 @@ namespace corecad { namespace model
     private:
         underlying_contaier_t _data;
     };
+
+    template<typename T>
+    std::ostream& operator<<(std::ostream& os, const collection<T>& collection)
+    {
+        bool first = true;
+        for (const auto& index : collection)
+        {
+            if (!first)
+            {
+                os << ", ";
+            }
+            os << index;
+
+            first = false;
+        }
+
+        return os;
+    }
 }}

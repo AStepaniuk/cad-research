@@ -76,10 +76,12 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     auto model_pos = _view.to_model(mx, my);
 
     // check if model pos is applicable to any handler
+    _last_worked_move_wall_handler = nullptr;
     for (auto handler : _move_wall_handlers)
     {
         if (handler->wall_move(mx, my, model_pos))
         {
+            _last_worked_move_wall_handler = handler;
             break;
         }
     }
@@ -101,6 +103,15 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
 
 action_handle_status operation_move_wall_handle::left_mouse_click(float mx, float my)
 {
+    if (_last_worked_move_wall_handler)
+    {
+        _last_worked_move_wall_handler->apply();
+        _last_worked_move_wall_handler = nullptr;
+
+        _tools.constraints_calculator.recalculate_all(_document.model.parameters(), _document.model.points());
+        _tools.wall_calculator.recalculate_all_walls();
+    }
+
     _document.hovered_handles.clear();
     _document.hovered_handles.put(_document.active_handles);
 

@@ -13,16 +13,12 @@ namespace gui { namespace editor { namespace handler {
         doc::document& _document;
         floor_view& _view;
 
-        std::optional<corecad::model::vector2d::index_t> _joined_point_index;
-        
-
+        std::optional<corecad::model::vector2d::index_t> _target_point_index;
 
     public:
         wall_join_handler(doc::document &doc, floor_view& v);
 
-        bool wall_move(
-            float view_pos_x, float view_pos_y,
-            corecad::model::vector2d& model_pos
-        ) override;
+        bool wall_move(float view_pos_x, float view_pos_y, corecad::model::vector2d& model_pos) override;
+        void apply() override;
     };
 }}}
