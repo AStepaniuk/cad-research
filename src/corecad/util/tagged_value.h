@@ -10,6 +10,7 @@ namespace corecad { namespace util
     struct tagged_value
     {
         using value_t = T;
+        using tag_t = Tag;
 
         T value = T {};
 

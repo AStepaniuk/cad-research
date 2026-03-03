@@ -2,14 +2,24 @@
 
 using namespace domain::plan::model;
 
-const floor::points2d_t& floor::points() const
+const floor::wall_axis_points_t& floor::wall_axis_points() const
 {
-    return _points;
+    return _wall_axis_points;
 }
 
-floor::points2d_t& floor::points()
+floor::wall_axis_points_t& floor::wall_axis_points()
 {
-    return _points;
+    return _wall_axis_points;
+}
+
+const floor::wall_border_points_t& floor::wall_border_points() const
+{
+    return _wall_border_points;
+}
+
+floor::wall_border_points_t& floor::wall_border_points()
+{
+    return _wall_border_points;
 }
 
 const floor::walls_t& floor::walls() const
@@ -22,12 +32,12 @@ floor::walls_t& floor::walls()
     return _walls;
 }
 
-const floor::parameters_t &domain::plan::model::floor::parameters() const
+const floor::constraints_t &domain::plan::model::floor::parameters() const
 {
     return _parameters;
 }
 
-floor::parameters_t &domain::plan::model::floor::parameters()
+floor::constraints_t &domain::plan::model::floor::parameters()
 {
     return _parameters;
 }

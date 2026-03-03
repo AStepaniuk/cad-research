@@ -35,7 +35,7 @@ namespace corecad { namespace model
         }
 
         template <std::ranges::viewable_range R>
-        requires std::convertible_to<std::ranges::range_value_t<R>, index_t>
+        requires std::constructible_from<index_t, std::ranges::range_value_t<R>>
         void put(R&& indexes)
         {
             std::ranges::copy(indexes, std::back_inserter(_data));

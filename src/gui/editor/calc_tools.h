@@ -2,6 +2,7 @@
 
 #include "wall_calculator.h"
 #include "constraints_calculator.h"
+#include "wall.h"
 
 namespace gui { namespace editor {
     class calc_tools
@@ -13,6 +14,6 @@ namespace gui { namespace editor {
 
         domain::plan::calculator::wall_calculator wall_calculator;
 
-        corecad::calculator::constraints_calculator constraints_calculator;
+        corecad::calculator::constraints_calculator<domain::plan::model::wall_axis_point> constraints_calculator;
     };
 }}

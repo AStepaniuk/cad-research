@@ -7,7 +7,7 @@
 
 using namespace gui;
 using namespace corecad::model::constraint;
-
+using namespace domain::plan::model;
 
 namespace
 {
@@ -45,7 +45,7 @@ namespace
     }
 }
 
-constraints_view::constraints_view(const doc::document &doc, const coord_translator &t)
+constraints_view::constraints_view(const doc::document &doc, const coord_translator_t &t)
     : _document { doc }
     , _translator { t }
 {
@@ -57,7 +57,7 @@ void constraints_view::render(ImDrawList *draw_list)
     {
         std::visit(corecad::util::overloaded
             {
-                [&](const offset& offs) {
+                [&](const offset<wall_axis_point>& offs) {
                     ImVec2 pf = _translator.to_view(offs.from);
                     ImVec2 pt = _translator.to_view(offs.to);
 
@@ -108,7 +108,7 @@ void constraints_view::render(ImDrawList *draw_list)
                         }
                     }
                 },
-                [&](const fixed& fix) {
+                [&](const fixed<domain::plan::model::wall_axis_point>& fix) {
                     ImVec2 p = _translator.to_view(fix.point);
                     if (fix.coordinate == fixed_coordinate::x)
                     {

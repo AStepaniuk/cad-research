@@ -6,9 +6,10 @@ namespace corecad { namespace model { namespace constraint
 {
     enum class fixed_coordinate { x, y };
     
+    template<IsVector2D TVector>
     struct fixed
     {
-        fixed(vector2d::index_t p, double v, fixed_coordinate c)
+        fixed(TVector::index_t p, double v, fixed_coordinate c)
             : coordinate { c }
             , value { v }
             , point { p }
@@ -17,6 +18,6 @@ namespace corecad { namespace model { namespace constraint
         fixed_coordinate coordinate;
         double value;
 
-        vector2d::index_t point;
+        TVector::index_t point;
     };
 }}}

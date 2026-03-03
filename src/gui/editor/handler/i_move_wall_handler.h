@@ -9,7 +9,7 @@ namespace gui { namespace editor { namespace handler {
     public:
         virtual bool wall_move(
             float view_pos_x, float view_pos_y,
-            corecad::model::vector2d& model_pos
+            domain::plan::model::wall_axis_point& model_pos
         ) = 0;
 
         virtual void apply() = 0;

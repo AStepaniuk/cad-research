@@ -17,8 +17,8 @@ namespace gui { namespace editor { namespace operation {
         calc_tools& _tools;
 
         // operation state
-        std::vector<corecad::model::vector2d::index_t> _active_points;
-        std::vector<corecad::model::vector2d> _initial_positions;
+        std::vector<domain::plan::model::wall_axis_point::index_t> _active_points;
+        std::vector<domain::plan::model::wall_axis_point> _initial_positions;
 
         handler::wall_join_handler _wall_join_handler;
 

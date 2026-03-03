@@ -18,13 +18,13 @@ namespace
 {
     double calculate_wall_direction(const wall& w, const model::floor& f)
     {
-        const auto& ps = f.points().get(w.start);
-        const auto& pe = f.points().get(w.end);
+        const auto& ps = f.wall_axis_points().get(w.start);
+        const auto& pe = f.wall_axis_points().get(w.end);
 
         return std::atan2(pe.y - ps.y, pe.x - ps.x);
     }
 
-    vector2d calculate_point_with_offset_from_line(const vector2d& start, const vector2d& end, double left_offset)
+    wall_border_point calculate_point_with_offset_from_line(const wall_axis_point& start, const wall_axis_point& end, double left_offset)
     {
         double dx = end.x - start.x;
         double dy = end.y - start.y;
@@ -37,9 +37,9 @@ namespace
         };
     }
 
-    std::optional<vector2d> calculate_lines_intersection(
-        const vector2d& start1, const vector2d& end1,
-        const vector2d& start2, const vector2d& end2
+    std::optional<wall_border_point> calculate_lines_intersection(
+        const wall_border_point& start1, const wall_border_point& end1,
+        const wall_border_point& start2, const wall_border_point& end2
     )
     {
         double A1 = end1.y - start1.y;
@@ -59,12 +59,12 @@ namespace
         double x = (B2 * C1 - B1 * C2) / det;
         double y = (A1 * C2 - A2 * C1) / det;
 
-        return vector2d {x, y};
+        return wall_border_point {x, y};
     }
 
-    vector2d calculate_joined_walls_left_border_intersection(
+    wall_border_point calculate_joined_walls_left_border_intersection(
         const wall& w1, const wall& w2,
-        const vector2d& w1_free_p, const vector2d& common_p, const vector2d& w2_free_p
+        const wall_axis_point& w1_free_p, const wall_axis_point& common_p, const wall_axis_point& w2_free_p
     )
     {
         double w1_offset = w1.width * 0.5;
@@ -75,9 +75,9 @@ namespace
 
         auto intersection_p = calculate_lines_intersection(
             left_w1_offset_p,
-            left_w1_offset_p + (w1_free_p - common_p),
+            left_w1_offset_p + wall_border_point(w1_free_p - common_p),
             right_w2_offset_p,
-            right_w2_offset_p + (w2_free_p - common_p)
+            right_w2_offset_p + wall_border_point(w2_free_p - common_p)
         );
 
         if (intersection_p)
@@ -188,7 +188,7 @@ void wall_calculator::recalculate_all_walls()
         if (it->second.refcount == 0)
         {
             // cached point is not used anymore
-            _floor.points().erase(it->second.index);
+            _floor.wall_border_points().erase(it->second.index);
             it = _points_cache.erase(it); 
         }
         else
@@ -200,8 +200,8 @@ void wall_calculator::recalculate_all_walls()
 
 void wall_calculator::calculate_stub_wall_start_borders(wall& w)
 {
-    const auto& start_p = _floor.points().get(w.start);
-    const auto& end_p = _floor.points().get(w.end);
+    const auto& start_p = _floor.wall_axis_points().get(w.start);
+    const auto& end_p = _floor.wall_axis_points().get(w.end);
 
     double left_offset = w.width * 0.5;
     double right_offset = -w.width * 0.5;
@@ -215,8 +215,8 @@ void wall_calculator::calculate_stub_wall_start_borders(wall& w)
 
 void wall_calculator::calculate_stub_wall_end_borders(wall& w)
 {
-    const auto& start_p = _floor.points().get(w.start);
-    const auto& end_p = _floor.points().get(w.end);
+    const auto& start_p = _floor.wall_axis_points().get(w.start);
+    const auto& end_p = _floor.wall_axis_points().get(w.end);
 
     double left_offset = -w.width * 0.5;
     double right_offset = w.width * 0.5;
@@ -305,9 +305,9 @@ void wall_calculator::calculate_joined_2_walls_borders(
 {
     auto jw = get_joined_walls_points(fid, joints);
 
-    const auto& wall1_free_p = _floor.points().get(jw.wall1_free_p);
-    const auto& walls_common_p = _floor.points().get(jw.walls_common_p);
-    const auto& wall2_free_p = _floor.points().get(jw.wall2_free_p);
+    const auto& wall1_free_p = _floor.wall_axis_points().get(jw.wall1_free_p);
+    const auto& walls_common_p = _floor.wall_axis_points().get(jw.walls_common_p);
+    const auto& wall2_free_p = _floor.wall_axis_points().get(jw.wall2_free_p);
 
     auto& wall1 = _floor.walls().get(fid.wall_index);
     auto& wall2 = _floor.walls().get(jw.wall2_fid.wall_index);
@@ -385,9 +385,9 @@ void wall_calculator::calculate_joined_n_walls_borders(
         auto& w1 = _floor.walls().get(wfid1.wall_index);
         auto& w2 = _floor.walls().get(wfid2.wall_index);
 
-        const auto& wall1_free_p = _floor.points().get(wfid1.location == wall_location::start ? w1.end : w1.start);
-        const auto& walls_common_p = _floor.points().get(wfid1.location == wall_location::start ? w1.start : w1.end);
-        const auto& wall2_free_p = _floor.points().get(wfid2.location == wall_location::start ? w2.end : w2.start);
+        const auto& wall1_free_p = _floor.wall_axis_points().get(wfid1.location == wall_location::start ? w1.end : w1.start);
+        const auto& walls_common_p = _floor.wall_axis_points().get(wfid1.location == wall_location::start ? w1.start : w1.end);
+        const auto& wall2_free_p = _floor.wall_axis_points().get(wfid2.location == wall_location::start ? w2.end : w2.start);
 
         const auto left_intersection_p = calculate_joined_walls_left_border_intersection(
             w1, w2,
@@ -442,21 +442,21 @@ wall_calculator::joined_walls wall_calculator::get_joined_walls_points(const wal
     return result;
 }
 
-corecad::model::vector2d::index_t wall_calculator::find_or_create_point(
+wall_border_point::index_t wall_calculator::find_or_create_point(
     const wall_point_geometry_id& id,
-    const corecad::model::vector2d& p
+    const wall_border_point& p
 )
 {
     auto [it, inserted] = _points_cache.try_emplace(id);
 
     if (inserted)
     {
-        it->second.index = _floor.points().put(p);
+        it->second.index = _floor.wall_border_points().put(p);
         it->second.refcount = 1;
     }
     else
     {
-        auto& existing = _floor.points().get(it->second.index);
+        auto& existing = _floor.wall_border_points().get(it->second.index);
         existing.x = p.x;
         existing.y = p.y;
 
@@ -469,7 +469,7 @@ corecad::model::vector2d::index_t wall_calculator::find_or_create_point(
 void wall_calculator::assign_left_intersection_point(
     wall &wall1, wall_location wall1_location, 
     wall &wall2, wall_location wall2_location, 
-    const vector2d left_intersection_p
+    const wall_border_point& left_intersection_p
 )
 {
     if (wall1_location == wall_location::start && wall2_location == wall_location::start)

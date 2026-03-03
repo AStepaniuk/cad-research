@@ -33,9 +33,9 @@ namespace domain { namespace plan { namespace calculator
 
         struct joined_walls
         {
-            corecad::model::vector2d::index_t wall1_free_p;
-            corecad::model::vector2d::index_t walls_common_p;
-            corecad::model::vector2d::index_t wall2_free_p;
+            model::wall_axis_point::index_t wall1_free_p;
+            model::wall_axis_point::index_t walls_common_p;
+            model::wall_axis_point::index_t wall2_free_p;
 
             wall_finish_id wall2_fid;
         };
@@ -88,21 +88,21 @@ namespace domain { namespace plan { namespace calculator
 
         struct wall_point_info
         {
-            corecad::model::vector2d::index_t index;
+            model::wall_border_point::index_t index;
             size_t refcount;
         };
 
         std::unordered_map<wall_point_geometry_id, wall_point_info, wall_point_geometry_id_hasher> _points_cache;
 
-        corecad::model::vector2d::index_t find_or_create_point(
+        model::wall_border_point::index_t find_or_create_point(
             const wall_point_geometry_id& id,
-            const corecad::model::vector2d& p
+            const model::wall_border_point& p
         );
 
         void assign_left_intersection_point(
             model::wall& wall1, wall_location wall1_location,
             model::wall& wall2, wall_location wall2_location,
-            const corecad::model::vector2d left_intersection_p
+            const model::wall_border_point& left_intersection_p
         );
     };
 }}}

@@ -13,15 +13,15 @@ namespace gui {
     {
         const doc::document& _document;
 
-        const coord_translator& _translator;
+        const translator_t& _translator;
 
     public:
-        walls_view(const doc::document& doc, const coord_translator& t);
+        walls_view(const doc::document& doc, const translator_t& t);
 
         void render(ImDrawList* draw_list);
 
         std::optional<domain::plan::model::wall::index_t> get_wall(float screen_x, float screen_y) const;
-        std::vector<corecad::model::vector2d::index_t> get_handles(float screen_x, float screen_y) const;
+        std::vector<domain::plan::model::wall_axis_point::index_t> get_handles(float screen_x, float screen_y) const;
 
     private:
         std::vector<ImVec2> to_view_polygon(const domain::plan::model::wall& w) const;

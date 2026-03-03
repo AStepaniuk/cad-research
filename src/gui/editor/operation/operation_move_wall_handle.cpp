@@ -4,6 +4,7 @@
 #include <ranges>
 
 using namespace gui::editor::operation;
+using namespace domain::plan::model;
 
 operation_move_wall_handle::operation_move_wall_handle(doc::document &doc, floor_view& v, calc_tools& t)
     : _document { doc }
@@ -23,7 +24,7 @@ void operation_move_wall_handle::start()
 
     _active_points = _document.active_handles | std::ranges::to<std::vector>();
     _initial_positions = _active_points
-        | std::views::transform([this](auto pid) { return _document.model.points().get(pid); })
+        | std::views::transform([this](auto pid) { return _document.model.wall_axis_points().get(pid); })
         | std::ranges::to<std::vector>();
 
     _document.active_walls.clear();
@@ -56,7 +57,7 @@ void gui::editor::operation::operation_move_wall_handle::cancel()
         const auto& pid = _active_points[i];
         const auto& initial_pos = _initial_positions[i];
 
-        auto& point = _document.model.points().get(pid);
+        auto& point = _document.model.wall_axis_points().get(pid);
         point.x = initial_pos.x;
         point.y = initial_pos.y;
     }
@@ -73,7 +74,7 @@ action_handle_status operation_move_wall_handle::rollback()
 
 action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
 {
-    auto model_pos = _view.to_model(mx, my);
+    auto model_pos = wall_axis_point { _view.to_model(mx, my) };
 
     // check if model pos is applicable to any handler
     _last_worked_move_wall_handler = nullptr;
@@ -89,13 +90,13 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     // spply model pos to all active points
     for (const auto pid : _active_points)
     {
-        auto& p = _document.model.points().get(pid);
+        auto& p = _document.model.wall_axis_points().get(pid);
         p.x = model_pos.x;
         p.y = model_pos.y;
     }
 
     // update model
-    _tools.constraints_calculator.recalculate_all(_document.model.parameters(), _document.model.points());
+    _tools.constraints_calculator.recalculate_all(_document.model.parameters(), _document.model.wall_axis_points());
     _tools.wall_calculator.recalculate_all_walls();
 
     return action_handle_status::operation_continues;
@@ -108,7 +109,7 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
         _last_worked_move_wall_handler->apply();
         _last_worked_move_wall_handler = nullptr;
 
-        _tools.constraints_calculator.recalculate_all(_document.model.parameters(), _document.model.points());
+        _tools.constraints_calculator.recalculate_all(_document.model.parameters(), _document.model.wall_axis_points());
         _tools.wall_calculator.recalculate_all_walls();
     }
 

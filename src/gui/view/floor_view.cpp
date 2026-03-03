@@ -50,9 +50,9 @@ namespace
     }
 }
 
-gui::floor_view::floor_view(const doc::document &doc)
+floor_view::floor_view(const doc::document &doc)
     : _document { doc }
-    , _translator { _document.model.points() }
+    , _translator { _document.model.wall_axis_points(), _document.model.wall_border_points() }
     , _walls_view { _document, _translator }
     , _constraints_view{ _document, _translator }
 {
@@ -63,42 +63,42 @@ int floor_view::x_offset() const
     return _translator.x_offset();
 }
 
-void gui::floor_view::x_offset(int val)
+void floor_view::x_offset(int val)
 {
     _translator.x_offset(val);
 }
 
-int gui::floor_view::y_offset() const
+int floor_view::y_offset() const
 {
     return _translator.y_offset();
 }
 
-void gui::floor_view::y_offset(int val)
+void floor_view::y_offset(int val)
 {
     _translator.y_offset(val);
 }
 
-float gui::floor_view::x_scale() const
+float floor_view::x_scale() const
 {
     return _translator.x_scale();
 }
 
-void gui::floor_view::x_scale(float val)
+void floor_view::x_scale(float val)
 {
     _translator.x_scale(val);
 }
 
-float gui::floor_view::y_scale() const
+float floor_view::y_scale() const
 {
     return _translator.y_scale();
 }
 
-void gui::floor_view::y_scale(float val)
+void floor_view::y_scale(float val)
 {
     _translator.y_scale(val);
 }
 
-void gui::floor_view::render()
+void floor_view::render()
 {
     ImDrawList* draw_list = ImGui::GetBackgroundDrawList();
 
@@ -107,12 +107,12 @@ void gui::floor_view::render()
 
 }
 
-vector2d floor_view::to_model(float screen_x, float screen_y) const
+abstract_point floor_view::to_model(float screen_x, float screen_y) const
 {
     return _translator.to_model({ screen_x, screen_y });
 }
 
-corecad::model::vector2d gui::floor_view::model_interaction_tolerance() const
+abstract_point floor_view::model_interaction_tolerance() const
 {
     return _translator.to_model({ Styles::HandleSize2, Styles::HandleSize2 });
 }
@@ -122,7 +122,7 @@ std::optional<wall::index_t> gui::floor_view::get_wall(float screen_x, float scr
     return _walls_view.get_wall(screen_x, screen_y);
 }
 
-std::vector<vector2d::index_t> gui::floor_view::get_handles(float screen_x, float screen_y) const
+std::vector<wall_axis_point::index_t> floor_view::get_handles(float screen_x, float screen_y) const
 {
     return _walls_view.get_handles(screen_x, screen_y);
 }

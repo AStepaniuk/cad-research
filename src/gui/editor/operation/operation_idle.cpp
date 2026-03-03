@@ -74,7 +74,7 @@ action_handle_status operation_idle::mouse_move(float mx, float my)
             _document.hovered_wall_id = std::nullopt;
         }
         _document.hovered_handles.clear();
-        _document.hovered_handles.put(std::move(hovered_handles));
+        _document.hovered_handles.put(hovered_handles);
 
         return action_handle_status::operation_continues;
     }

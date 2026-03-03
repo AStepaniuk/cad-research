@@ -50,7 +50,7 @@ namespace
     }
 }
 
-walls_view::walls_view(const doc::document &doc, const coord_translator& t)
+walls_view::walls_view(const doc::document &doc, const translator_t& t)
     : _document { doc }
     , _translator { t }
 {
@@ -171,11 +171,11 @@ std::optional<wall::index_t> walls_view::get_wall(float screen_x, float screen_y
     return {};
 }
 
-std::vector<vector2d::index_t> walls_view::get_handles(float screen_x, float screen_y) const
+std::vector<wall_axis_point::index_t> walls_view::get_handles(float screen_x, float screen_y) const
 {
-    std::vector<vector2d::index_t> result;
+    std::vector<wall_axis_point::index_t> result;
 
-    auto check_point = [&](vector2d::index_t pi) {
+    auto check_point = [&](wall_axis_point::index_t pi) {
         const auto p = _translator.to_view(pi);
 
         const auto tl = p - Styles::HandleSize2;

@@ -19,8 +19,8 @@ workspace::workspace(GLFWwindow* window, main_menu& mm)
     domain::plan::calculator::wall_calculator wc { _document.model };
     wc.recalculate_all_walls();
 
-    corecad::calculator::constraints_calculator cc;
-    cc.recalculate_all(_document.model.parameters(), _document.model.points());
+    corecad::calculator::constraints_calculator<domain::plan::model::wall_axis_point> cc;
+    cc.recalculate_all(_document.model.parameters(), _document.model.wall_axis_points());
 
     wc.recalculate_all_walls();
 }

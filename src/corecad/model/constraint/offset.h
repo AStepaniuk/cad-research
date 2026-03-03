@@ -6,9 +6,10 @@ namespace corecad { namespace model { namespace constraint
 {
     enum class offset_direction { horizontal, vertical };
     
+    template<IsVector2D TVector>
     struct offset
     {
-        offset(vector2d::index_t f, vector2d::index_t t, double o, offset_direction d)
+        offset(TVector::index_t f, TVector::index_t t, double o, offset_direction d)
             : direction { d }
             , from { f }
             , to { t }
@@ -17,8 +18,8 @@ namespace corecad { namespace model { namespace constraint
 
         offset_direction direction;
 
-        vector2d::index_t from;
-        vector2d::index_t to;
+        TVector::index_t from;
+        TVector::index_t to;
 
         double distance;
     };

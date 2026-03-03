@@ -15,7 +15,7 @@ namespace gui {
     {
         const doc::document& _document;
 
-        coord_translator _translator;
+        translator_t _translator;
 
         walls_view _walls_view;
         constraints_view _constraints_view;
@@ -37,10 +37,10 @@ namespace gui {
 
         void render();
 
-        corecad::model::vector2d to_model(float screen_x, float screen_y) const;
-        corecad::model::vector2d model_interaction_tolerance() const;
+        abstract_point to_model(float screen_x, float screen_y) const;
+        abstract_point model_interaction_tolerance() const;
 
         std::optional<domain::plan::model::wall::index_t> get_wall(float screen_x, float screen_y) const;
-        std::vector<corecad::model::vector2d::index_t> get_handles(float screen_x, float screen_y) const;
+        std::vector<domain::plan::model::wall_axis_point::index_t> get_handles(float screen_x, float screen_y) const;
     };
 }

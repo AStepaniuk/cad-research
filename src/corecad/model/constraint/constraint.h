@@ -3,14 +3,13 @@
 #include <variant>
 
 #include "model_base.h"
-#include "fixed.h"
-#include "offset.h"
 
 namespace corecad { namespace model { namespace constraint
 {
-    struct constraint : public model_base<constraint>
+    template<typename... TConstraints>
+    struct constraint : public model_base<constraint<TConstraints...>>
     {
-        using instance_t = std::variant<fixed, offset>;
+        using instance_t = std::variant<TConstraints...>;
 
         constraint(instance_t i)
             : instance { std::move(i) }

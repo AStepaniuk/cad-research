@@ -19,7 +19,7 @@ namespace gui { namespace editor { namespace operation {
         floor_view& _view;
         calc_tools& _tools;
 
-        std::optional<corecad::model::vector2d::index_t> _current_point = std::nullopt;
+        std::optional<domain::plan::model::wall_axis_point::index_t> _current_point = std::nullopt;
         std::optional<domain::plan::model::wall::index_t> _current_wall = std::nullopt;
 
         operation_move_wall_handle _sub_operation_move_handle;
