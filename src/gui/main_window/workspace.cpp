@@ -7,6 +7,7 @@
 #include "constraints_calculator.h"
 
 using namespace gui;
+using namespace domain::plan::model;
 
 workspace::workspace(GLFWwindow* window, main_menu& mm)
     : _main_menu { mm }
@@ -19,8 +20,8 @@ workspace::workspace(GLFWwindow* window, main_menu& mm)
     domain::plan::calculator::wall_calculator wc { _document.model };
     wc.recalculate_all_walls();
 
-    corecad::calculator::constraints_calculator<domain::plan::model::wall_axis_point> cc;
-    cc.recalculate_all(_document.model.parameters(), _document.model.wall_axis_points());
+    corecad::calculator::constraints_calculator<wall_axis_point> cc;
+    cc.recalculate_all(_document.model.parameters(), _document.model.data().items<wall_axis_point>());
 
     wc.recalculate_all_walls();
 }

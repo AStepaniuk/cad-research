@@ -27,7 +27,7 @@ bool wall_join_handler::wall_move(
             continue;
         }
 
-        const auto& sp = _document.model.wall_axis_points().get(p.second.start);
+        const auto& sp = _document.model.data().get(p.second.start);
     
         if (model_pos.x > sp.x - tol.x && model_pos.x < sp.x + tol.x
         && model_pos.y > sp.y - tol.y && model_pos.y < sp.y + tol.y)
@@ -40,7 +40,7 @@ bool wall_join_handler::wall_move(
             return true;
         }
 
-        const auto& ep = _document.model.wall_axis_points().get(p.second.end);
+        const auto& ep = _document.model.data().get(p.second.end);
     
         if (model_pos.x > ep.x - tol.x && model_pos.x < ep.x + tol.x
         && model_pos.y > ep.y - tol.y && model_pos.y < ep.y + tol.y)

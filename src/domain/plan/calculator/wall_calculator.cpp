@@ -18,8 +18,8 @@ namespace
 {
     double calculate_wall_direction(const wall& w, const model::floor& f)
     {
-        const auto& ps = f.wall_axis_points().get(w.start);
-        const auto& pe = f.wall_axis_points().get(w.end);
+        const auto& ps = f.data().get(w.start);
+        const auto& pe = f.data().get(w.end);
 
         return std::atan2(pe.y - ps.y, pe.x - ps.x);
     }
@@ -188,7 +188,7 @@ void wall_calculator::recalculate_all_walls()
         if (it->second.refcount == 0)
         {
             // cached point is not used anymore
-            _floor.wall_border_points().erase(it->second.index);
+            _floor.data().erase(it->second.index);
             it = _points_cache.erase(it); 
         }
         else
@@ -200,8 +200,8 @@ void wall_calculator::recalculate_all_walls()
 
 void wall_calculator::calculate_stub_wall_start_borders(wall& w)
 {
-    const auto& start_p = _floor.wall_axis_points().get(w.start);
-    const auto& end_p = _floor.wall_axis_points().get(w.end);
+    const auto& start_p = _floor.data().get(w.start);
+    const auto& end_p = _floor.data().get(w.end);
 
     double left_offset = w.width * 0.5;
     double right_offset = -w.width * 0.5;
@@ -215,8 +215,8 @@ void wall_calculator::calculate_stub_wall_start_borders(wall& w)
 
 void wall_calculator::calculate_stub_wall_end_borders(wall& w)
 {
-    const auto& start_p = _floor.wall_axis_points().get(w.start);
-    const auto& end_p = _floor.wall_axis_points().get(w.end);
+    const auto& start_p = _floor.data().get(w.start);
+    const auto& end_p = _floor.data().get(w.end);
 
     double left_offset = -w.width * 0.5;
     double right_offset = w.width * 0.5;
@@ -305,9 +305,9 @@ void wall_calculator::calculate_joined_2_walls_borders(
 {
     auto jw = get_joined_walls_points(fid, joints);
 
-    const auto& wall1_free_p = _floor.wall_axis_points().get(jw.wall1_free_p);
-    const auto& walls_common_p = _floor.wall_axis_points().get(jw.walls_common_p);
-    const auto& wall2_free_p = _floor.wall_axis_points().get(jw.wall2_free_p);
+    const auto& wall1_free_p = _floor.data().get(jw.wall1_free_p);
+    const auto& walls_common_p = _floor.data().get(jw.walls_common_p);
+    const auto& wall2_free_p = _floor.data().get(jw.wall2_free_p);
 
     auto& wall1 = _floor.data().get(fid.wall_index);
     auto& wall2 = _floor.data().get(jw.wall2_fid.wall_index);
@@ -385,9 +385,9 @@ void wall_calculator::calculate_joined_n_walls_borders(
         auto& w1 = _floor.data().get(wfid1.wall_index);
         auto& w2 = _floor.data().get(wfid2.wall_index);
 
-        const auto& wall1_free_p = _floor.wall_axis_points().get(wfid1.location == wall_location::start ? w1.end : w1.start);
-        const auto& walls_common_p = _floor.wall_axis_points().get(wfid1.location == wall_location::start ? w1.start : w1.end);
-        const auto& wall2_free_p = _floor.wall_axis_points().get(wfid2.location == wall_location::start ? w2.end : w2.start);
+        const auto& wall1_free_p = _floor.data().get(wfid1.location == wall_location::start ? w1.end : w1.start);
+        const auto& walls_common_p = _floor.data().get(wfid1.location == wall_location::start ? w1.start : w1.end);
+        const auto& wall2_free_p = _floor.data().get(wfid2.location == wall_location::start ? w2.end : w2.start);
 
         const auto left_intersection_p = calculate_joined_walls_left_border_intersection(
             w1, w2,
@@ -451,12 +451,12 @@ wall_border_point::index_t wall_calculator::find_or_create_point(
 
     if (inserted)
     {
-        it->second.index = _floor.wall_border_points().put(p);
+        it->second.index = _floor.data().put(p);
         it->second.refcount = 1;
     }
     else
     {
-        auto& existing = _floor.wall_border_points().get(it->second.index);
+        auto& existing = _floor.data().get(it->second.index);
         existing.x = p.x;
         existing.y = p.y;
 

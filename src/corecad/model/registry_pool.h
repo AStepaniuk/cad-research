@@ -41,7 +41,7 @@ namespace corecad { namespace model
         requires IsOneOf<T, TModel...>
         T::index_t put(T val)
         {
-            return items<T>().put(val);
+            return items<T>().put(std::move(val));
         }
 
         template<typename U>
@@ -78,6 +78,12 @@ namespace corecad { namespace model
         typename TIndex::tag_t& get(const TIndex& index)
         {
             return items<typename TIndex::tag_t>().get(index);
+        }
+
+        template <typename T>
+        size_t size()
+        {
+            return items<T>().size();
         }
 
     private:

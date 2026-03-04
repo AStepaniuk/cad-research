@@ -52,7 +52,11 @@ namespace
 
 floor_view::floor_view(const doc::document &doc)
     : _document { doc }
-    , _translator { _document.model.wall_axis_points(), _document.model.wall_border_points() }
+    , _translator
+    {
+        _document.model.data().items<wall_axis_point>(),
+        _document.model.data().items<wall_border_point>()
+    }
     , _walls_view { _document, _translator }
     , _constraints_view{ _document, _translator }
 {

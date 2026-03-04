@@ -6,7 +6,7 @@ using namespace corecad::model;
 
 void wall_calculator_base_fixture::given_floor_has_wall_axis_point(const wall_axis_point &p)
 {
-    points.push_back(test_floor.wall_axis_points().put(p));
+    points.push_back(test_floor.data().put(p));
 }
 
 void wall_calculator_base_fixture::given_floor_has_wall(size_t sp, size_t ep, double w)
@@ -54,7 +54,7 @@ void wall_calculator_base_fixture::given_wall_point_is_moved_to(
 )
 {
     const auto& wall = test_floor.data().get(walls[w]);
-    auto& point = test_floor.wall_axis_points().get(wall.*point_definition);
+    auto& point = test_floor.data().get(wall.*point_definition);
 
     point.x = p.x;
     point.y = p.y;
@@ -67,7 +67,7 @@ void wall_calculator_base_fixture::when_recalculating_all_walls()
 
 void wall_calculator_base_fixture::then_border_points_number_should_be(size_t n)
 {
-    ASSERT_EQ(test_floor.wall_border_points().size(), n);
+    ASSERT_EQ(test_floor.data().size<wall_border_point>(), n);
 }
 
 void wall_calculator_base_fixture::then_border_point_should_be(
@@ -77,7 +77,7 @@ void wall_calculator_base_fixture::then_border_point_should_be(
 )
 {
     const auto& wall = test_floor.data().get(walls[w]);
-    const auto& actual_p = test_floor.wall_border_points().get(wall.*point_definition);
+    const auto& actual_p = test_floor.data().get(wall.*point_definition);
 
     ASSERT_TRUE(are_vectors_equal(actual_p, p));
 }
