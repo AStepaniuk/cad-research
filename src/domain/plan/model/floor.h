@@ -1,6 +1,6 @@
 #pragma once
 
-#include "registry.h"
+#include "registry_pool.h"
 
 #include "constraint.h"
 #include "fixed.h"
@@ -15,6 +15,13 @@ namespace domain { namespace plan { namespace model
         using constraint_t = corecad::model::constraint::constraint<
             corecad::model::constraint::fixed<wall_axis_point>,
             corecad::model::constraint::offset<wall_axis_point>
+        >;
+
+        using data_t = corecad::model::registry_pool<
+            constraint_t,
+            wall_axis_point,
+            wall_border_point,
+            wall
         >;
 
         using constraints_t = corecad::model::registry<constraint_t>;
@@ -32,8 +39,8 @@ namespace domain { namespace plan { namespace model
         const wall_border_points_t& wall_border_points() const;
         wall_border_points_t& wall_border_points();
 
-        const walls_t& walls() const;
-        walls_t& walls();
+        const data_t& data() const;
+        data_t& data();
     
     private:
         constraints_t _parameters;
@@ -41,5 +48,7 @@ namespace domain { namespace plan { namespace model
         wall_axis_points_t _wall_axis_points;
         wall_border_points_t _wall_border_points;
         walls_t _walls;
+
+        data_t _data;
     };
 }}}

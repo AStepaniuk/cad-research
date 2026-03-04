@@ -8,7 +8,7 @@ using namespace corecad::model::constraint;
 void default_floor_generator::generate_floor(model::floor &floor)
 {
     floor.wall_axis_points().clear();
-    floor.walls().clear();
+    floor.data().clear<wall>();
 
     wall_axis_point tlp { 1000, 1000 }, trp { 8000, 1000 }, blp { 1000, 5000 }, brp { 8000, 5000 };
     wall_axis_point top { 12000, 1000 }, bop { 10000, 5000 };
@@ -20,13 +20,13 @@ void default_floor_generator::generate_floor(model::floor &floor)
     auto toi = floor.wall_axis_points().put(top);
     auto boi = floor.wall_axis_points().put(bop);
 
-    floor.walls().make(tli, tri, 400.0);
-    floor.walls().make(tri, bri, 400.0);
-    floor.walls().make(bri, bli, 400.0);
-    floor.walls().make(bli, tli, 400.0);
+    floor.data().make<wall>(tli, tri, 400.0);
+    floor.data().make<wall>(tri, bri, 400.0);
+    floor.data().make<wall>(bri, bli, 400.0);
+    floor.data().make<wall>(bli, tli, 400.0);
 
-    floor.walls().make(tri, toi, 400.0);
-    floor.walls().make(bri, boi, 400.0);
+    floor.data().make<wall>(tri, toi, 400.0);
+    floor.data().make<wall>(bri, boi, 400.0);
 
     //floor.parameters().put(fixed { tli, 1000, fixed_coordinate::x });
     //floor.parameters().put(fixed { tli, 1000, fixed_coordinate::y });

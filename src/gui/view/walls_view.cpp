@@ -58,7 +58,7 @@ walls_view::walls_view(const doc::document &doc, const translator_t& t)
 
 void walls_view::render(ImDrawList* draw_list)
 {
-    for (const auto& wp : _document.model.walls())
+    for (const auto& wp : _document.model.data().items<wall>())
     {
         const auto& w = wp.second;
         const auto polygon = to_view_polygon(w);
@@ -101,7 +101,7 @@ void walls_view::render(ImDrawList* draw_list)
     // hovered wall
     if (_document.hovered_wall_id)
     {
-        const auto& w = _document.model.walls().get(_document.hovered_wall_id.value());
+        const auto& w = _document.model.data().get(_document.hovered_wall_id.value());
         const auto polygon = to_view_polygon(w);
 
         draw_list->AddConvexPolyFilled(polygon.data(), polygon.size(), Styles::WallHoveredFillColor);
@@ -122,7 +122,7 @@ void walls_view::render(ImDrawList* draw_list)
     // handles
     for (auto wi : _document.selected_walls)
     {
-        const auto& w = _document.model.walls().get(wi);
+        const auto& w = _document.model.data().get(wi);
 
         const auto s = _translator.to_view(w.start);
         const auto e = _translator.to_view(w.end);
@@ -159,7 +159,7 @@ std::optional<wall::index_t> walls_view::get_wall(float screen_x, float screen_y
 {
     ImVec2 p { screen_x, screen_y };
 
-    for (const auto& wp : _document.model.walls())
+    for (const auto& wp : _document.model.data().items<wall>())
     {
         const auto polygon = to_view_polygon(wp.second);
         if (is_point_in_polygon(p, polygon))
@@ -191,7 +191,7 @@ std::vector<wall_axis_point::index_t> walls_view::get_handles(float screen_x, fl
 
     for (auto wi : _document.selected_walls)
     {
-        const auto& w = _document.model.walls().get(wi);
+        const auto& w = _document.model.data().get(wi);
         check_point(w.start);
         check_point(w.end);
    }

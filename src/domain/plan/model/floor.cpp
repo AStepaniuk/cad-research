@@ -22,14 +22,14 @@ floor::wall_border_points_t& floor::wall_border_points()
     return _wall_border_points;
 }
 
-const floor::walls_t& floor::walls() const
+const floor::data_t& floor::data() const
 {
-    return _walls;
+    return _data;
 }
 
-floor::walls_t& floor::walls()
+floor::data_t& floor::data()
 {
-    return _walls;
+    return _data;
 }
 
 const floor::constraints_t &domain::plan::model::floor::parameters() const

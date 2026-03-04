@@ -29,7 +29,7 @@ void operation_move_wall_handle::start()
 
     _document.active_walls.clear();
     _document.active_walls.put(
-        _document.model.walls()
+        _document.model.data().items<wall>()
             | std::views::transform([] (const auto& p) { return p.second; })
             | std::views::filter([this](const auto& w) {
                 return std::ranges::any_of(

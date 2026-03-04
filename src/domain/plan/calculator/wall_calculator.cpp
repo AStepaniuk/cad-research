@@ -129,13 +129,13 @@ void wall_calculator::recalculate_all_walls()
     walls_joints joints;
     std::map<wall::index_t, double> wall_directions;
 
-    for (auto& w : _floor.walls())
+    for (auto& w : _floor.data().items<wall>())
     {
         recalculate_wall_joints(w.second, joints);
     }
 
     std::vector<wall_finish_id> processed_fids;
-    for (auto& w : _floor.walls())
+    for (auto& w : _floor.data().items<wall>())
     {
         // start joint points
         if (w.second.start_joints == 0)
@@ -236,7 +236,7 @@ void wall_calculator::recalculate_wall_joints(wall& w, walls_joints& joints)
     {
         std::vector<wall_finish_id> start_connected_walls;
 
-        for (auto& w2 : _floor.walls())
+        for (auto& w2 : _floor.data().items<wall>())
         {
             if (w.start == w2.second.start)
             {
@@ -252,11 +252,11 @@ void wall_calculator::recalculate_wall_joints(wall& w, walls_joints& joints)
         {
             if (cw.location == wall_location::start)
             {
-                _floor.walls().get(cw.wall_index).start_joints = start_connected_walls.size() - 1;
+                _floor.data().get(cw.wall_index).start_joints = start_connected_walls.size() - 1;
             }
             else
             {
-                _floor.walls().get(cw.wall_index).end_joints = start_connected_walls.size() - 1;
+                _floor.data().get(cw.wall_index).end_joints = start_connected_walls.size() - 1;
             }
 
             joints[cw] = start_connected_walls;
@@ -269,7 +269,7 @@ void wall_calculator::recalculate_wall_joints(wall& w, walls_joints& joints)
     {
         std::vector<wall_finish_id> end_connected_walls;
 
-        for (auto& w2 : _floor.walls())
+        for (auto& w2 : _floor.data().items<wall>())
         {
             if (w.end == w2.second.start)
             {
@@ -285,11 +285,11 @@ void wall_calculator::recalculate_wall_joints(wall& w, walls_joints& joints)
         {
             if (cw.location == wall_location::start)
             {
-                _floor.walls().get(cw.wall_index).start_joints = end_connected_walls.size() - 1;
+                _floor.data().get(cw.wall_index).start_joints = end_connected_walls.size() - 1;
             }
             else
             {
-                _floor.walls().get(cw.wall_index).end_joints = end_connected_walls.size() - 1;
+                _floor.data().get(cw.wall_index).end_joints = end_connected_walls.size() - 1;
             }
 
             joints[cw] = end_connected_walls;
@@ -309,8 +309,8 @@ void wall_calculator::calculate_joined_2_walls_borders(
     const auto& walls_common_p = _floor.wall_axis_points().get(jw.walls_common_p);
     const auto& wall2_free_p = _floor.wall_axis_points().get(jw.wall2_free_p);
 
-    auto& wall1 = _floor.walls().get(fid.wall_index);
-    auto& wall2 = _floor.walls().get(jw.wall2_fid.wall_index);
+    auto& wall1 = _floor.data().get(fid.wall_index);
+    auto& wall2 = _floor.data().get(jw.wall2_fid.wall_index);
 
     const auto left_intersection_p = calculate_joined_walls_left_border_intersection(
         wall1, wall2,
@@ -354,7 +354,7 @@ void wall_calculator::calculate_joined_n_walls_borders(
         }
         else
         {
-            a = calculate_wall_direction(_floor.walls().get(wfid.wall_index), _floor);
+            a = calculate_wall_direction(_floor.data().get(wfid.wall_index), _floor);
             wall_directions[wfid.wall_index] = a;
         }
 
@@ -382,8 +382,8 @@ void wall_calculator::calculate_joined_n_walls_borders(
         const auto& wfid1 = w_joints_directions[i].wfid;
         const auto& wfid2 = w_joints_directions[prev_i].wfid;
 
-        auto& w1 = _floor.walls().get(wfid1.wall_index);
-        auto& w2 = _floor.walls().get(wfid2.wall_index);
+        auto& w1 = _floor.data().get(wfid1.wall_index);
+        auto& w2 = _floor.data().get(wfid2.wall_index);
 
         const auto& wall1_free_p = _floor.wall_axis_points().get(wfid1.location == wall_location::start ? w1.end : w1.start);
         const auto& walls_common_p = _floor.wall_axis_points().get(wfid1.location == wall_location::start ? w1.start : w1.end);
@@ -404,7 +404,7 @@ wall_calculator::joined_walls wall_calculator::get_joined_walls_points(const wal
 {
     joined_walls result;
 
-    const wall& wall1 = _floor.walls().get(wfid.wall_index);
+    const wall& wall1 = _floor.data().get(wfid.wall_index);
     if (wfid.location == wall_location::start)
     {
         result.wall1_free_p = wall1.end;
@@ -422,7 +422,7 @@ wall_calculator::joined_walls wall_calculator::get_joined_walls_points(const wal
         // assuming wall1 has exactly one joined wall. i.e. w1_joints.size() == 2
         if (w2fid.wall_index != wfid.wall_index)
         {
-            const wall& wall2 = _floor.walls().get(w2fid.wall_index);
+            const wall& wall2 = _floor.data().get(w2fid.wall_index);
 
             if (w2fid.location == wall_location::start)
             {

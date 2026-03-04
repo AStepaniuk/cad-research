@@ -20,7 +20,7 @@ bool wall_join_handler::wall_move(
 {
     const auto tol = _view.model_interaction_tolerance();
 
-    for (auto& p : _document.model.walls())
+    for (auto& p : _document.model.data().items<wall>())
     {
         if (std::ranges::any_of(_document.active_walls, [&p](const auto& w_index) { return w_index == p.second.index; }))
         {
@@ -68,7 +68,7 @@ void wall_join_handler::apply()
 
     for (const auto wid : _document.active_walls)
     {
-        auto& wall = _document.model.walls().get(wid);
+        auto& wall = _document.model.data().get(wid);
 
         if (std::ranges::any_of(_document.active_handles, [&wall](const auto& h) { return wall.start == h; }))
         {

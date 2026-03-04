@@ -4,6 +4,7 @@
 
 using namespace gui::editor::operation;
 using namespace corecad::model;
+using namespace domain::plan::model;
 
 operation_add_wall::operation_add_wall(doc::document &doc, floor_view &v, calc_tools &t)
     : _document { doc }
@@ -30,7 +31,7 @@ void operation_add_wall::stop()
 
     if (_current_wall)
     {
-        _document.model.walls().erase(_current_wall.value());
+        _document.model.data().erase(_current_wall.value());
         _tools.wall_calculator.recalculate_all_walls();
 
         _current_wall = std::nullopt;
@@ -47,7 +48,7 @@ void gui::editor::operation::operation_add_wall::cancel()
 
     if (_current_wall)
     {
-        _document.model.walls().erase(_current_wall.value());
+        _document.model.data().erase(_current_wall.value());
         _tools.wall_calculator.recalculate_all_walls();
 
         _current_wall = std::nullopt;
@@ -85,7 +86,7 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
     auto m_model = _view.to_model(mx, my);
     auto next_index = _document.model.wall_axis_points().make(m_model.x, m_model.y);
  
-    auto wall_index = _document.model.walls().make(_current_point.value(), next_index, 400.0);
+    auto wall_index = _document.model.data().make<wall>(_current_point.value(), next_index, 400.0);
     _current_wall = wall_index;
 
     _document.selected_walls.clear();

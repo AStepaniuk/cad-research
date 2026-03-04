@@ -11,7 +11,7 @@ void wall_calculator_base_fixture::given_floor_has_wall_axis_point(const wall_ax
 
 void wall_calculator_base_fixture::given_floor_has_wall(size_t sp, size_t ep, double w)
 {
-    walls.push_back(test_floor.walls().make(points[sp], points[ep], w));
+    walls.push_back(test_floor.data().make<wall>(points[sp], points[ep], w));
 }
 
 void wall_calculator_base_fixture::given_single_wall_floor_generated(
@@ -53,7 +53,7 @@ void wall_calculator_base_fixture::given_wall_point_is_moved_to(
     const wall_axis_point& p
 )
 {
-    const auto& wall = test_floor.walls().get(walls[w]);
+    const auto& wall = test_floor.data().get(walls[w]);
     auto& point = test_floor.wall_axis_points().get(wall.*point_definition);
 
     point.x = p.x;
@@ -76,7 +76,7 @@ void wall_calculator_base_fixture::then_border_point_should_be(
     const wall_border_point &p
 )
 {
-    const auto& wall = test_floor.walls().get(walls[w]);
+    const auto& wall = test_floor.data().get(walls[w]);
     const auto& actual_p = test_floor.wall_border_points().get(wall.*point_definition);
 
     ASSERT_TRUE(are_vectors_equal(actual_p, p));
