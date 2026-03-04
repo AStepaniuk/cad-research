@@ -5,18 +5,34 @@
 
 namespace corecad { namespace util
 {
+    namespace impl
+    {
+        template<typename U, typename First, typename... Rest>
+        struct find_constructible_type {
+            using type = std::conditional_t<
+                std::is_constructible_v<First, U>,
+                First,
+                typename find_constructible_type<U, Rest...>::type
+            >;
+        };
+
+        template<typename U, typename Last>
+        struct find_constructible_type<U, Last> {
+            using type = Last;
+        };
+    }
+
     template<typename U, typename... Ts>
     struct unique_constructible
     {
         // Count how many types in the pack can be built from U
         static constexpr size_t count = (std::is_constructible_v<Ts, U> + ...);
         
-        static_assert(count == 1, "Ambiguous or no Ts can be constructed from type U");
+        static_assert(count > 0, "No Ts is constructible from type U");
+        static_assert(count == 1, "Ambiguity: Multiple Ts are constructible from type U");
 
-        // Extract the one type that matched
-        using type = typename decltype([]<typename... Us>(Us...) {
-            return [](auto... flags) { }(std::is_constructible_v<Us, U>...);
-        }.template operator()<Ts...>())::type;
+        // Extract first type that matched
+        using type = typename impl::find_constructible_type<U, Ts...>::type;
     };
 
     template<typename U, typename... Ts>

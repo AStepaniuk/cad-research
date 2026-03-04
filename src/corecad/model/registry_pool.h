@@ -45,7 +45,7 @@ namespace corecad { namespace model
         }
 
         template<typename U>
-        requires util::ConstructibleIntoExactlyOne<U, TModel...>
+        requires (util::ConstructibleIntoExactlyOne<U, TModel...> && !IsOneOf<U, TModel...>)
         util::unique_constructible_t<U, TModel...>::index_t put(U val)
         {
             using T = util::unique_constructible_t<U, TModel...>;

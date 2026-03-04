@@ -96,7 +96,10 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     }
 
     // update model
-    _tools.constraints_calculator.recalculate_all(_document.model.parameters(), _document.model.data().items<wall_axis_point>());
+    _tools.constraints_calculator.recalculate_all(
+        _document.model.data().items<floor::constraint_t>(),
+        _document.model.data().items<wall_axis_point>()
+    );
     _tools.wall_calculator.recalculate_all_walls();
 
     return action_handle_status::operation_continues;
@@ -109,7 +112,10 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
         _last_worked_move_wall_handler->apply();
         _last_worked_move_wall_handler = nullptr;
 
-        _tools.constraints_calculator.recalculate_all(_document.model.parameters(), _document.model.data().items<wall_axis_point>());
+        _tools.constraints_calculator.recalculate_all(
+            _document.model.data().items<floor::constraint_t>(),
+            _document.model.data().items<wall_axis_point>()
+        );
         _tools.wall_calculator.recalculate_all_walls();
     }
 

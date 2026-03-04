@@ -92,7 +92,10 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
     _document.selected_walls.clear();
     _document.selected_walls.put(wall_index);
     _tools.wall_calculator.recalculate_all_walls();
-    _tools.constraints_calculator.recalculate_all(_document.model.parameters(), _document.model.data().items<wall_axis_point>());
+    _tools.constraints_calculator.recalculate_all(
+        _document.model.data().items<floor::constraint_t>(),
+        _document.model.data().items<wall_axis_point>()
+    );
 
     _current_point = next_index;
 

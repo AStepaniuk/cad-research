@@ -21,7 +21,10 @@ workspace::workspace(GLFWwindow* window, main_menu& mm)
     wc.recalculate_all_walls();
 
     corecad::calculator::constraints_calculator<wall_axis_point> cc;
-    cc.recalculate_all(_document.model.parameters(), _document.model.data().items<wall_axis_point>());
+    cc.recalculate_all(
+        _document.model.data().items<floor::constraint_t>(),
+        _document.model.data().items<wall_axis_point>()
+    );
 
     wc.recalculate_all_walls();
 }

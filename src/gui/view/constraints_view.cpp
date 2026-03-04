@@ -53,7 +53,7 @@ constraints_view::constraints_view(const doc::document &doc, const coord_transla
 
 void constraints_view::render(ImDrawList *draw_list)
 {
-    for (const auto& c : _document.model.parameters())
+    for (const auto& c : _document.model.data().items<floor::constraint_t>())
     {
         std::visit(corecad::util::overloaded
             {

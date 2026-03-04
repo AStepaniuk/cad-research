@@ -11,13 +11,3 @@ floor::data_t& floor::data()
 {
     return _data;
 }
-
-const floor::constraints_t &domain::plan::model::floor::parameters() const
-{
-    return _parameters;
-}
-
-floor::constraints_t &domain::plan::model::floor::parameters()
-{
-    return _parameters;
-}

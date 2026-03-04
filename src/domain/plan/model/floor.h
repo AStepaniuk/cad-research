@@ -24,17 +24,13 @@ namespace domain { namespace plan { namespace model
             wall
         >;
 
-        using constraints_t = corecad::model::registry<constraint_t>;
-
-        const constraints_t& parameters() const;
-        constraints_t& parameters();
-
         const data_t& data() const;
         data_t& data();
     
     private:
-        constraints_t _parameters;
-
         data_t _data;
+
+    public:
+        using constraints_t = std::remove_cvref_t<decltype(_data.items<constraint_t>())>;        
     };
 }}}
