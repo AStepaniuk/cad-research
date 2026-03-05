@@ -102,9 +102,6 @@ void constraints_view::render(ImDrawList *draw_list)
                         
                             const auto text = std::format("{:.0f}", std::abs(offs.distance));
                             draw_text_vertical(draw_list, text.c_str(), { bx, (pt.y + pf.y)*0.5f }, Styles::CColor);
-
-                            //auto text_size = ImGui::CalcTextSize(text.c_str());
-                            //draw_list->AddText({ bx - text_size.x*0.5f, (pt.y + pf.y)*0.5f - text_size.y }, Styles::CColor, text.c_str());
                         }
                     }
                 },
