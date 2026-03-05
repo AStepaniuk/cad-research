@@ -3,6 +3,7 @@
 #include <type_traits>
 
 #include "model_base.h"
+#include "property.h"
 
 namespace corecad { namespace model
 {
@@ -11,23 +12,36 @@ namespace corecad { namespace model
     {
     public:
         vector2d(double x, double y)
-            : x { x }
-            , y { y }
+            : x { *this, x }
+            , y { *this, y }
+        {
+        }
+
+        vector2d(const vector2d& other) 
+            : x { *this, static_cast<double>(other.x) }
+            , y { *this, static_cast<double>(other.y) } 
+        {
+        }
+
+        vector2d(vector2d&& other) noexcept
+            : x { *this, static_cast<double>(other.x) }
+            , y { *this, static_cast<double>(other.y) }
         {
         }
 
         template<typename TagOther>
         explicit vector2d(const vector2d<TagOther>& other)
-            : x { other.x }
-            , y { other.y }
+            : x { *this, static_cast<double>(other.x) }
+            , y { *this, static_cast<double>(other.y) }
         {
         }
 
-        double x;
-        double y;
-    };
+        vector2d& operator=(const vector2d& other) = default;
+        vector2d& operator=(vector2d&& other) noexcept = default;
 
-    
+        property<double, vector2d> x { *this };
+        property<double, vector2d> y { *this };
+    };  
 
     template<typename Tag>
     vector2d<Tag> operator+(const vector2d<Tag>& lhs, const vector2d<Tag>& rhs)
