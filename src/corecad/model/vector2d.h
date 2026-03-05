@@ -18,13 +18,15 @@ namespace corecad { namespace model
         }
 
         vector2d(const vector2d& other) 
-            : x { *this, static_cast<double>(other.x) }
+            : corecad::model::model_base<vector2d<Tag>> { other }
+            , x { *this, static_cast<double>(other.x) }
             , y { *this, static_cast<double>(other.y) } 
         {
         }
 
         vector2d(vector2d&& other) noexcept
-            : x { *this, static_cast<double>(other.x) }
+            : corecad::model::model_base<vector2d<Tag>> { other }
+            , x { *this, static_cast<double>(other.x) }
             , y { *this, static_cast<double>(other.y) }
         {
         }

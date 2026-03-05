@@ -9,6 +9,7 @@
 #include "vector2d.h"
 #include "abstract_point.h"
 #include "one_of.h"
+#include "property.h"
 
 namespace gui {
     template <corecad::model::IsVector2D... TVector>
@@ -78,13 +79,22 @@ namespace gui {
         }
 
         template<typename TIndex>
-        requires IsOneOf<typename TIndex::tag_t, TVector...>
+        requires (!corecad::model::IsProperty<TIndex> && IsOneOf<typename TIndex::tag_t, TVector...>)
         ImVec2 to_view(TIndex index) const
         {
             const auto& p = std::get<registry_ref_t<typename TIndex::tag_t>>(_points).get().get(index);
 
             return to_view(p);
         }
+
+        template <corecad::model::IsProperty TProperty>
+        requires (corecad::model::IsRegistryIndex<typename TProperty::value_t>
+            && IsOneOf<typename TProperty::value_t::tag_t, TVector...>)
+        ImVec2 to_view(TProperty property) const
+        {
+            return to_view(property.val());
+        }
+
 
     private:
         std::tuple<registry_ref_t<TVector>...> _points;

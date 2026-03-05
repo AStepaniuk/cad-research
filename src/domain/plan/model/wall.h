@@ -1,7 +1,8 @@
 #pragma once
 
 #include "model_base.h"
-#include "vector2d.h" 
+#include "vector2d.h"
+#include "property.h"
 
 namespace domain { namespace plan { namespace model
 {
@@ -14,13 +15,34 @@ namespace domain { namespace plan { namespace model
     class wall : public corecad::model::model_base<wall>
     {
     public:
-        wall(wall_axis_point::index_t b, wall_axis_point::index_t e, double w);
+        wall(wall_axis_point::index_t s, wall_axis_point::index_t e, double w)
+            : start { *this, s }
+            , end { *this, e }
+            , width { *this, w }
+        {
+        }
+
+        wall(const wall& other)
+            : corecad::model::model_base<wall> { other }
+            , start { *this, other.start }
+            , end { *this, other.end }
+            , width { *this, other.width }
+        {
+        }
+
+        wall(wall&& other)
+            : corecad::model::model_base<wall> { other }
+            , start { *this, other.start }
+            , end { *this, other.end }
+            , width { *this, other.width }
+        {
+        }
 
         // primary model properties
-        wall_axis_point::index_t start;
-        wall_axis_point::index_t end;
+        corecad::model::property<wall_axis_point::index_t, wall> start;
+        corecad::model::property<wall_axis_point::index_t, wall> end;
 
-        double width;
+        corecad::model::property<double, wall> width;
 
         // calculated properties
         wall_border_point::index_t start_left;

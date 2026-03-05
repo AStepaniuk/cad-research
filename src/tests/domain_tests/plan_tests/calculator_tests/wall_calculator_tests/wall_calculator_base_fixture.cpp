@@ -49,7 +49,7 @@ void wall_calculator_base_fixture::given_recalculating_all_walls()
 
 void wall_calculator_base_fixture::given_wall_point_is_moved_to(
     size_t w,
-    wall_axis_point::index_t wall::*point_definition,
+    wall_axis_point_index_property_t wall::*point_definition,
     const wall_axis_point& p
 )
 {

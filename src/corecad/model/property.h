@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include <type_traits>
 
 namespace corecad { namespace model
 {
@@ -13,6 +13,8 @@ namespace corecad { namespace model
         bool updated = false;
 
     public:
+        using value_t = TValue;
+
         property(TModel& parent, TValue value)
             : _value { std::move(value) }
             , _parent { &parent }
@@ -78,6 +80,23 @@ namespace corecad { namespace model
         }
 
         operator const TValue& () const { return _value; }
+        const TValue& val() const { return _value; }
+
+        auto operator<=>(const property& other) const { return _value <=> other._value; }
+        bool operator==(const property& other) const { return _value == other._value; }
+
+        auto operator<=>(const TValue& rhs) const { return _value <=> rhs; }
+        bool operator==(const TValue& rhs) const { return _value == rhs; }
+
+        friend auto operator<=>(const TValue& lhs, const property& rhs)
+        {
+            return lhs <=> rhs._value;
+        }
+
+        friend bool operator==(const TValue& lhs, const property& rhs)
+        {
+            return lhs == rhs._value;
+        }
 
         void reset_updated()
         {
@@ -96,5 +115,14 @@ namespace corecad { namespace model
 
             updated = true;
         }
-    };    
+    };  
+      
+    template <typename T>
+    struct is_property : std::false_type {};
+
+    template <typename TValue, typename TModel>
+    struct is_property<property<TValue, TModel>> : std::true_type {};
+
+    template <typename T>
+    concept IsProperty = is_property<std::remove_cvref_t<T>>::value;
 }}

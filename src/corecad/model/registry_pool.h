@@ -8,6 +8,7 @@
 #include "model_base.h"
 #include "one_of.h"
 #include "traits.h"
+#include "property.h"
 
 namespace corecad { namespace model
 {
@@ -67,17 +68,33 @@ namespace corecad { namespace model
         }
 
         template <typename TIndex>
-        requires IsOneOf<typename TIndex::tag_t, TModel...>
+        requires (!IsProperty<TIndex> && IsOneOf<typename TIndex::tag_t, TModel...>)
         const typename TIndex::tag_t& get(const TIndex& index) const
         {
             return items<typename TIndex::tag_t>().get(index);
         }
  
         template <typename TIndex>
-        requires IsOneOf<typename TIndex::tag_t, TModel...>
+        requires (!IsProperty<TIndex> && IsOneOf<typename TIndex::tag_t, TModel...>)
         typename TIndex::tag_t& get(const TIndex& index)
         {
             return items<typename TIndex::tag_t>().get(index);
+        }
+
+        template <IsProperty TProperty>
+        requires (IsRegistryIndex<typename TProperty::value_t>
+            && IsOneOf<typename TProperty::value_t::tag_t, TModel...>)
+        const typename TProperty::value_t::tag_t& get(const TProperty& index_prop) const
+        {
+            return items<typename TProperty::value_t::tag_t>().get(index_prop.val());
+        }
+
+        template <IsProperty TProperty>
+        requires (IsRegistryIndex<typename TProperty::value_t>
+            && IsOneOf<typename TProperty::value_t::tag_t, TModel...>)
+        typename TProperty::value_t::tag_t& get(const TProperty& index_prop)
+        {
+            return items<typename TProperty::value_t::tag_t>().get(index_prop.val());
         }
 
         template <typename T>
