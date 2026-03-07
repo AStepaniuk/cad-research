@@ -20,7 +20,7 @@ workspace::workspace(GLFWwindow* window, main_menu& mm)
     domain::plan::calculator::wall_calculator wc { _document.model };
     wc.recalculate_all_walls();
 
-    corecad::calculator::constraints_calculator<wall_axis_point> cc;
+    corecad::calculator::constraints_calculator<wall_axis_point, floor::constraint_t> cc;
     cc.recalculate_all(
         _document.model.data().items<floor::constraint_t>(),
         _document.model.data().items<wall_axis_point>()

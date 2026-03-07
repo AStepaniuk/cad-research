@@ -57,7 +57,7 @@ void constraints_view::render(ImDrawList *draw_list)
     {
         std::visit(corecad::util::overloaded
             {
-                [&](const offset<wall_axis_point>& offs) {
+                [&](const offset<wall_axis_point, floor::constraint_t>& offs) {
                     ImVec2 pf = _translator.to_view(offs.from);
                     ImVec2 pt = _translator.to_view(offs.to);
 
@@ -105,7 +105,7 @@ void constraints_view::render(ImDrawList *draw_list)
                         }
                     }
                 },
-                [&](const fixed<domain::plan::model::wall_axis_point>& fix) {
+                [&](const fixed<wall_axis_point, floor::constraint_t>& fix) {
                     ImVec2 p = _translator.to_view(fix.point);
                     if (fix.coordinate == fixed_coordinate::x)
                     {

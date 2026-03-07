@@ -12,9 +12,15 @@ namespace domain { namespace plan { namespace model
     class floor
     {
     public:
+        template <typename TModel>
+        using fixed_wall_axis_point_t = corecad::model::constraint::fixed<wall_axis_point, TModel>;
+
+        template <typename TModel>
+        using offset_wall_axis_point_t = corecad::model::constraint::offset<wall_axis_point, TModel>;
+
         using constraint_t = corecad::model::constraint::constraint<
-            corecad::model::constraint::fixed<wall_axis_point>,
-            corecad::model::constraint::offset<wall_axis_point>
+            fixed_wall_axis_point_t,
+            offset_wall_axis_point_t
         >;
 
         using data_t = corecad::model::registry_pool<

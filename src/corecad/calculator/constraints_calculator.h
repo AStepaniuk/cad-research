@@ -16,7 +16,7 @@
 
 namespace corecad { namespace calculator
 {
-    template<corecad::model::IsVector2D TVector>
+    template<corecad::model::IsVector2D TVector, typename TConstraintModel>
     class constraints_calculator
     {
     public:
@@ -64,7 +64,7 @@ namespace corecad { namespace calculator
             {
                 std::visit(util::overloaded
                     {
-                        [&](const model::constraint::offset<TVector>& offs) {
+                        [&](const model::constraint::offset<TVector, TConstraintModel>& offs) {
                             auto f_gcs_p = get_or_add_gcs_point(offs.from);
                             auto t_gcs_p = get_or_add_gcs_point(offs.to);
 
@@ -81,7 +81,7 @@ namespace corecad { namespace calculator
 
                             next_p++;
                         },
-                        [&](const model::constraint::fixed<TVector>& fix) {
+                        [&](const model::constraint::fixed<TVector, TConstraintModel>& fix) {
                             auto gcs_p = get_or_add_gcs_point(fix.point);
 
                             if (fix.coordinate == model::constraint::fixed_coordinate::x)

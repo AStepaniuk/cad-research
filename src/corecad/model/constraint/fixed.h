@@ -1,23 +1,31 @@
 #pragma once
 
 #include "vector2d.h"
+#include "property.h"
 
 namespace corecad { namespace model { namespace constraint
 {
     enum class fixed_coordinate { x, y };
     
-    template<IsVector2D TVector>
+    template<IsVector2D TVector, typename TModel>
     struct fixed
     {
         fixed(TVector::index_t p, double v, fixed_coordinate c)
-            : coordinate { c }
-            , value { v }
-            , point { p }
+            : coordinate { nullptr, c }
+            , value { nullptr, v }
+            , point { nullptr, p }
         {}
 
-        fixed_coordinate coordinate;
-        double value;
+        property<fixed_coordinate, TModel> coordinate;
+        property<double, TModel> value;
 
-        TVector::index_t point;
+        property<typename TVector::index_t, TModel> point;
+
+        void bind(TModel& parent)
+        {
+            coordinate.bind(parent);
+            value.bind(parent);
+            point.bind(parent);
+        }
     };
 }}}

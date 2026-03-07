@@ -12,29 +12,29 @@ namespace corecad { namespace model
     {
     public:
         vector2d(double x, double y)
-            : x { *this, x }
-            , y { *this, y }
+            : x { this, x }
+            , y { this, y }
         {
         }
 
         vector2d(const vector2d& other) 
             : corecad::model::model_base<vector2d<Tag>> { other }
-            , x { *this, static_cast<double>(other.x) }
-            , y { *this, static_cast<double>(other.y) } 
+            , x { this, static_cast<double>(other.x) }
+            , y { this, static_cast<double>(other.y) } 
         {
         }
 
         vector2d(vector2d&& other) noexcept
             : corecad::model::model_base<vector2d<Tag>> { other }
-            , x { *this, static_cast<double>(other.x) }
-            , y { *this, static_cast<double>(other.y) }
+            , x { this, static_cast<double>(other.x) }
+            , y { this, static_cast<double>(other.y) }
         {
         }
 
         template<typename TagOther>
         explicit vector2d(const vector2d<TagOther>& other)
-            : x { *this, static_cast<double>(other.x) }
-            , y { *this, static_cast<double>(other.y) }
+            : x { this, static_cast<double>(other.x) }
+            , y { this, static_cast<double>(other.y) }
         {
         }
 

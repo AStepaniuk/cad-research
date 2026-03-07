@@ -15,14 +15,14 @@ namespace corecad { namespace model
     public:
         using value_t = TValue;
 
-        property(TModel& parent, TValue value)
+        property(TModel* parent, TValue value)
             : _value { std::move(value) }
-            , _parent { &parent }
+            , _parent { parent }
         {}
 
-        property(TModel& parent)
+        property(TModel* parent)
             : _value { }
-            , _parent { &parent }
+            , _parent { parent }
         {}
 
         property(const property& other)

@@ -1,26 +1,35 @@
 #pragma once
 
 #include "vector2d.h"
+#include "property.h"
 
 namespace corecad { namespace model { namespace constraint
 {
     enum class offset_direction { horizontal, vertical };
     
-    template<IsVector2D TVector>
+    template<IsVector2D TVector, typename TModel>
     struct offset
     {
         offset(TVector::index_t f, TVector::index_t t, double o, offset_direction d)
-            : direction { d }
-            , from { f }
-            , to { t }
-            , distance { o }
+            : direction { nullptr, d }
+            , from { nullptr, f }
+            , to { nullptr, t }
+            , distance { nullptr, o }
         {}
 
-        offset_direction direction;
+        property<offset_direction, TModel> direction;
 
-        TVector::index_t from;
-        TVector::index_t to;
+        property<typename TVector::index_t, TModel> from;
+        property<typename TVector::index_t, TModel> to;
 
-        double distance;
+        property<double, TModel> distance;
+
+        void bind(TModel& parent)
+        {
+            direction.bind(parent);
+            from.bind(parent);
+            to.bind(parent);
+            distance.bind(parent);
+        }
     };
 }}}

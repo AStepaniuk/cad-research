@@ -14,6 +14,9 @@ namespace gui { namespace editor {
 
         domain::plan::calculator::wall_calculator wall_calculator;
 
-        corecad::calculator::constraints_calculator<domain::plan::model::wall_axis_point> constraints_calculator;
+        corecad::calculator::constraints_calculator<
+            domain::plan::model::wall_axis_point,
+            domain::plan::model::floor::constraint_t
+        > constraints_calculator;
     };
 }}

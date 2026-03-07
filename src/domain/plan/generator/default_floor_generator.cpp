@@ -30,14 +30,14 @@ void default_floor_generator::generate_floor(model::floor &floor)
 
     //floor.parameters().put(fixed { tli, 1000, fixed_coordinate::x });
     //floor.parameters().put(fixed { tli, 1000, fixed_coordinate::y });
-    floor.data().put(offset<wall_axis_point> { tli, tri, 10000.0, offset_direction::horizontal });
-    floor.data().put(offset<wall_axis_point> { tli, tri, 0.0, offset_direction::vertical });
+    floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(tli, tri, 10000.0, offset_direction::horizontal));
+    floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(tli, tri, 0.0, offset_direction::vertical));
     //floor.parameters().put(offset { tri, toi, 2000.0, offset_direction::horizontal });
-    floor.data().put(offset<wall_axis_point> { tri, toi, 1000.0, offset_direction::vertical });
+    floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(tri, toi, 1000.0, offset_direction::vertical));
     //floor.parameters().put(offset { tli, bli, 1000.0, offset_direction::horizontal });
     //floor.parameters().put(offset { tli, bli, 5000.0, offset_direction::vertical });
     //floor.parameters().put(offset { tri, bri, 0.0, offset_direction::horizontal });
-    floor.data().put(offset<wall_axis_point> { bli, bri, 0.0, offset_direction::vertical });
-    floor.data().put(offset<wall_axis_point> { bri, boi, 2000.0, offset_direction::horizontal });
-    floor.data().put(offset<wall_axis_point> { bri, boi, 0.0, offset_direction::vertical });
+    floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(bli, bri, 0.0, offset_direction::vertical));
+    floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(bri, boi, 2000.0, offset_direction::horizontal));
+    floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(bri, boi, 0.0, offset_direction::vertical));
 }
