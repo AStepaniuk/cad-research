@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model_base.h"
+#include "registry.h"
 #include "vector2d.h"
 #include "property.h"
 

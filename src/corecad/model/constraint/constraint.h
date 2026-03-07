@@ -3,6 +3,7 @@
 #include <variant>
 
 #include "model_base.h"
+#include "registry.h"
 #include "one_of.h"
 
 namespace corecad { namespace model { namespace constraint

@@ -10,7 +10,7 @@ namespace corecad { namespace model
         TValue _value;
         TModel* _parent;
 
-        bool updated = false;
+        bool _updated = false;
 
     public:
         using value_t = TValue;
@@ -98,22 +98,18 @@ namespace corecad { namespace model
             return lhs == rhs._value;
         }
 
-        void reset_updated()
-        {
-            updated = false;
-        }
-
+        void reset_updated() { _updated = false; }
         void bind(TModel& parent) { _parent = &parent; }
 
     private:
         void handle_update()
         {
-            if (!updated && _parent)
+            if (!_updated && _parent)
             {
                 _parent->notify_updated();
             }
 
-            updated = true;
+            _updated = true;
         }
     };  
       

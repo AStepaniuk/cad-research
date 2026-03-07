@@ -4,12 +4,10 @@
 #include <concepts>
 
 #include "registry_index.h"
-#include "model_base.h"
 
 namespace corecad { namespace model
 {
     template<typename T>
-    requires std::derived_from<T, model_base<T>>
     class registry
     {
     public:
@@ -93,6 +91,11 @@ namespace corecad { namespace model
         size_t size() const
         {
             return _data.size();
+        }
+
+        void notify_updated(const index_t& index)
+        {
+            // TODO: handle item notification here
         }
      
     private:

@@ -3,6 +3,7 @@
 #include <type_traits>
 
 #include "model_base.h"
+#include "registry.h"
 #include "property.h"
 
 namespace corecad { namespace model
