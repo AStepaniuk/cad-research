@@ -15,7 +15,12 @@ namespace corecad { namespace model {
         
         index_t index;
 
-        void reset_updated() { _updated = false; }
+        void reset_updated()
+        {
+            static_cast<TModel&>(*this).reset_properties_updated();
+            _updated = false;
+        }
+        
         void bind(registry_t* owner) { _owner = owner; }
 
     private:
@@ -23,7 +28,7 @@ namespace corecad { namespace model {
         {
             if (!_updated && _owner)
             {
-                _owner->notify_updated(index);
+                _owner->notify_updating(static_cast<TModel&>(*this));
             }
 
             _updated = true;

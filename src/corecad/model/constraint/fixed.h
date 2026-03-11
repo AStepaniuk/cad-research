@@ -27,5 +27,12 @@ namespace corecad { namespace model { namespace constraint
             value.bind(parent);
             point.bind(parent);
         }
+
+        void reset_properties_updated()
+        {
+            coordinate.reset_updated();
+            value.reset_updated();
+            point.reset_updated();
+        }
     };
 }}}

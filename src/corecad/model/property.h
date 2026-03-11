@@ -39,8 +39,8 @@ namespace corecad { namespace model
         {
             if (this != &other && _value != other._value)
             {
-                _value = other._value;
                 handle_update();
+                _value = other._value;
             }
 
             return *this;
@@ -50,8 +50,8 @@ namespace corecad { namespace model
         {
             if (this != &other && _value != other._value)
             {
-                _value = std::move(other._value);
                 handle_update();
+                _value = std::move(other._value);
             }
 
             return *this;
@@ -61,8 +61,8 @@ namespace corecad { namespace model
         {
             if (_value != other)
             {
-                _value = other;
                 handle_update();
+                _value = other;
             }
 
             return *this;
@@ -72,8 +72,8 @@ namespace corecad { namespace model
         {
             if (_value != other)
             {
-                _value = std::move(other);
                 handle_update();
+                _value = std::move(other);
             }
 
             return *this;

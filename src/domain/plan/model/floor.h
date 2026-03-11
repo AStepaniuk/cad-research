@@ -6,6 +6,7 @@
 #include "fixed.h"
 #include "offset.h"
 #include "wall.h"
+#include "history/history.h"
 
 namespace domain { namespace plan { namespace model
 {
@@ -30,11 +31,19 @@ namespace domain { namespace plan { namespace model
             wall
         >;
 
+        using history_t = corecad::model::history::history<
+            constraint_t,
+            wall_axis_point,
+            wall_border_point,
+            wall
+        >;
+
         const data_t& data() const;
         data_t& data();
     
     private:
         data_t _data;
+        history_t _history { _data };
 
     public:
         using constraints_t = std::remove_cvref_t<decltype(_data.items<constraint_t>())>;        

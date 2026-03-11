@@ -40,6 +40,13 @@ namespace corecad { namespace model { namespace constraint
         constraint& operator=(const constraint& other) = default;
         constraint& operator=(constraint&& other) = default;
 
+        void reset_properties_updated()
+        {
+           std::visit([this](auto& impl) {
+                impl.reset_properties_updated();
+            }, instance);
+        }
+
     private:
         constraint(instance_t i)
             : instance { std::move(i) }

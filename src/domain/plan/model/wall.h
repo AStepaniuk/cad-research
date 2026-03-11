@@ -54,6 +54,13 @@ namespace domain { namespace plan { namespace model
         wall& operator=(const wall& other) = default;
         wall& operator=(wall&& other) = default;
 
+        void reset_properties_updated()
+        {
+            start.reset_updated();
+            end.reset_updated();
+            width.reset_updated();
+        }
+
         // primary model properties
         corecad::model::property<wall_axis_point::index_t, wall> start;
         corecad::model::property<wall_axis_point::index_t, wall> end;

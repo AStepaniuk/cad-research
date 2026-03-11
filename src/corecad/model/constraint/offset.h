@@ -31,5 +31,13 @@ namespace corecad { namespace model { namespace constraint
             to.bind(parent);
             distance.bind(parent);
         }
+
+        void reset_properties_updated()
+        {
+            direction.reset_updated();
+            from.reset_updated();
+            to.reset_updated();
+            distance.reset_updated();
+        }
     };
 }}}
