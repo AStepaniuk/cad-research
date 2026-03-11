@@ -69,6 +69,21 @@ namespace corecad { namespace model
             return _last_index;
         }
 
+        void restore(T val)
+        {
+            const auto existing_it = _data.find(val.index);
+            if (existing_it != _data.end())
+            {
+                throw std::runtime_error("Could not restore item. Given index already exists");
+            }
+
+            auto res = _data.emplace(val.index, std::move(val));
+            auto& item = (*(res.first)).second;
+            item.bind(this);
+
+            notify_created(item);
+        }
+
         bool erase(const index_t& index)
         {
             const auto it = _data.find(index);

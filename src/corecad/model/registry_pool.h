@@ -60,6 +60,13 @@ namespace corecad { namespace model
             return items<T>().make(vals...);
         }
 
+        template <typename T>
+        requires IsOneOf<T, TModel...>
+        void restore(T val)
+        {
+            return items<T>().restore(std::move(val));
+        }
+
         template <typename TIndex>
         requires IsOneOf<typename TIndex::tag_t, TModel...>
         bool erase(const TIndex& index)

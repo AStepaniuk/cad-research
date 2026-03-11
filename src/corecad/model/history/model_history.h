@@ -61,12 +61,18 @@ namespace corecad { namespace model { namespace history
 
         void undo_transaction(const transaction_data<TModel>* transaction)
         {
-            do_undo_transaction(transaction);
+            if (_current_transaction)
+            {
+                do_undo_transaction(transaction);
+            }
         }
 
         void redo_transaction(const transaction_data<TModel>* transaction)
         {
-            do_redo_transaction(transaction);
+            if (_current_transaction)
+            {
+                do_redo_transaction(transaction);
+            }
         }
 
         void item_updating(const TModel& model)
@@ -158,7 +164,7 @@ namespace corecad { namespace model { namespace history
 
             for (const auto& m : transaction->deleted_items)
             {
-                _registry->put(m);
+                _registry->restore(m);
             }
         }
 
@@ -166,7 +172,7 @@ namespace corecad { namespace model { namespace history
         {
             for (const auto& m : transaction->added_items)
             {
-                _registry->put(m);
+                _registry->restore(m);
             }
 
             for (const auto& m : transaction->post_modified_items)
