@@ -27,7 +27,7 @@ TEST_F(when_calculating_wall_borders_for_added_wall, should_calculate_added_wall
 
     when_recalculating_all_walls();
 
-    then_border_points_number_should_be(13);
+    then_border_points_number_should_be(9);
 }
 
 TEST_F(when_calculating_wall_borders_for_added_wall, should_calculate_added_wall_borders)

@@ -4,6 +4,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include "model_base.h"
 #include "registry_pool.h"
@@ -21,73 +22,76 @@ namespace corecad { namespace model { namespace history
         history(registry_pool_t& registry_pool)
             : _registry_pool { registry_pool }
         {
-            std::apply([this](auto&&... args) {
-                ((track_registry(args)), ...);
-            }, _model_histories);
-
-            std::apply([this](auto&&... args) {
-                ((update_transaction(args)), ...);
-            }, _model_histories);
+            start_track_registries();
+            start_new_transaction();
         }
 
         // rolls back changes made in the current transaction
         void cancel()
         {
-            std::apply([this](auto&&... args) {
-                ((cancel_transaction(args)), ...);
-            }, _model_histories);
+            suspend_tracking();
 
-            _current_transaction = {};
+            revert_uncommitted_changes();
+            start_new_transaction();
+
+            resume_tracking();
         }
 
         // fixes current transaction and opens new one
         void commit()
         {
-            if (_last_actual_transaction != no_transaction_index)
+            if (_current_transaction_index != no_transaction_index)
             {
-                _transactions.erase(_transactions.begin() + _last_actual_transaction, _transactions.end());
+                _transactions.erase(_transactions.begin() + _current_transaction_index + 1, _transactions.end());
             }
 
+            finish_transaction();
+
             _transactions.push_back(std::move(_current_transaction));
-            _last_actual_transaction = _transactions.size() - 1;
+            _current_transaction_index = _transactions.size() - 1;
 
-            _current_transaction = {};
-
-            std::apply([this](auto&&... args) {
-                ((update_transaction(args)), ...);
-            }, _model_histories);
+            start_new_transaction();
         }
 
         // rolls back last fixed transaction
         void undo()
         {
-            // ensure current transaction is cancelled
-            cancel();
-
-            if (_last_actual_transaction != no_transaction_index)
+            if (_current_transaction_index == no_transaction_index)
             {
-                std::apply([this](auto&&... args) {
-                    ((revert_transaction(args, _transactions[_last_actual_transaction])), ...);
-                }, _model_histories);
+                throw std::runtime_error("Could not perform UNDO. Transaction stack is empty");
             }
 
-            _last_actual_transaction--;
+            suspend_tracking();
+
+            // ensure current transaction is cancelled
+            revert_uncommitted_changes();
+
+            revert_transaction_changes(_transactions[_current_transaction_index]);
+
+            _current_transaction_index--;
+            start_new_transaction();
+
+            resume_tracking();
         }
 
         // restores next fixed transaction
         void redo()
         {
-            // ensure current transaction is cancelled
-            cancel();
-
-            if (_last_actual_transaction + 1 < _transactions.size())
+            if (_current_transaction_index + 1 >= _transactions.size())
             {
-                _last_actual_transaction++;
-
-                std::apply([this](auto&&... args) {
-                    ((restore_transaction(args, _transactions[_last_actual_transaction])), ...);
-                }, _model_histories);
+                throw std::runtime_error("Could not perform REDO. No undone transactions left");
             }
+
+            suspend_tracking();
+
+            revert_uncommitted_changes();
+
+            _current_transaction_index++;
+            restore_transaction_changes(_transactions[_current_transaction_index]);
+
+            start_new_transaction();
+
+            resume_tracking();
         }
     
     private:
@@ -99,41 +103,111 @@ namespace corecad { namespace model { namespace history
         std::vector<transaction_t> _transactions;
         transaction_t _current_transaction;
 
+        size_t _next_index = 0;
+
         static constexpr size_t no_transaction_index = static_cast<size_t>(-1);
-        size_t _last_actual_transaction = no_transaction_index;
+        size_t _current_transaction_index = no_transaction_index;
+
+        void start_track_registries()
+        {
+            std::apply([this](auto&&... args) {
+                ((track_registry(args)), ...);
+            }, _model_histories);
+        }
 
         template<typename TMod>
         void track_registry(model_history<TMod>& model_history)
         {
             auto& registry = _registry_pool.template items<TMod>();
-            model_history.track(&registry);
+            auto& data = std::get<transaction_data<TMod>>(_current_transaction);
+            model_history.track(&registry, &data);
+        }
+
+        void suspend_tracking()
+        {
+            std::apply([this](auto&&... args) {
+                ((suspend_tracking(args)), ...);
+            }, _model_histories);
         }
 
         template<typename TMod>
-        void update_transaction(model_history<TMod>& model_history)
+        void suspend_tracking(model_history<TMod>& model_history)
+        {
+            model_history.suspend_tracking();
+        }
+
+        void resume_tracking()
+        {
+            std::apply([this](auto&&... args) {
+                ((resume_tracking(args)), ...);
+            }, _model_histories);
+        }
+
+        template<typename TMod>
+        void resume_tracking(model_history<TMod>& model_history)
+        {
+            model_history.resume_tracking();
+        }
+
+        void start_new_transaction()
+        {
+            _current_transaction = {};
+            _next_index++;
+        }
+
+        void finish_transaction()
+        {
+            std::apply([this](auto&&... args) {
+                ((finish_transaction(args)), ...);
+            }, _model_histories);
+        }
+
+        template<typename TMod>
+        void finish_transaction(model_history<TMod>& model_history)
         {
             auto& data = std::get<transaction_data<TMod>>(_current_transaction);
-            model_history.start_transaction(&data);
+            model_history.finish_transaction();
         }
 
-        template<typename TMod>
-        void cancel_transaction(model_history<TMod>& model_history)
+        void revert_uncommitted_changes()
         {
-            model_history.cancel_transaction();
+            std::apply([this](auto&&... args) {
+                ((revert_uncommitted_changes(args)), ...);
+            }, _model_histories);
         }
 
         template<typename TMod>
-        void revert_transaction(model_history<TMod>& model_history, transaction_t& transaction)
+        void revert_uncommitted_changes(model_history<TMod>& model_history)
+        {
+            model_history.revert_current_transaction();
+        }
+
+        void revert_transaction_changes(transaction_t& transaction)
+        {
+            std::apply([this, &transaction](auto&&... args) {
+                ((revert_transaction_changes(args, transaction)), ...);
+            }, _model_histories);
+        }
+
+        template<typename TMod>
+        void revert_transaction_changes(model_history<TMod>& model_history, transaction_t& transaction)
         {
             const auto& data = std::get<transaction_data<TMod>>(transaction);
-            model_history.undo_transaction(*data);
+            model_history.undo_transaction(&data);
+        }
+
+        void restore_transaction_changes(transaction_t& transaction)
+        {
+            std::apply([this, &transaction](auto&&... args) {
+                ((restore_transaction_changes(args, transaction)), ...);
+            }, _model_histories);
         }
 
         template<typename TMod>
-        void restore_transaction(model_history<TMod>& model_history, transaction_t& transaction)
+        void restore_transaction_changes(model_history<TMod>& model_history, transaction_t& transaction)
         {
             const auto& data = std::get<transaction_data<TMod>>(transaction);
-            model_history.redo_transaction(*data);
+            model_history.redo_transaction(&data);
         }
     };
 }}}

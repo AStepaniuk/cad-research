@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <ranges>
+#include <iostream>
 
 #include "trackable_registry.h"
 
@@ -22,125 +23,128 @@ namespace corecad { namespace model { namespace history
     public:
         using registry_t = trackable_registry<TModel, model_history>;
 
-        void track(registry_t* registry)
+        void track(registry_t* registry, transaction_data<TModel>* _transaction_data)
         {
+            _active_transaction = _transaction_data;
             _registry = registry;
             _registry->bind(this);
         }
 
-        void start_transaction(transaction_data<TModel>* transaction)
+        void finish_transaction()
         {
-            if (_current_transaction)
-            {
-                // if there is existing transaction - gather post-updated item first
-                _current_transaction->post_modified_items =
-                    _current_transaction->pre_modified_items
-                    | std::views::transform([this](const TModel& pre_modified) {
-                        return _registry->get(pre_modified.index);
-                    })
-                    | std::ranges::to<std::vector>();
+            // gather post-updated item first
+            _active_transaction->post_modified_items =
+                _active_transaction->pre_modified_items
+                | std::views::transform([this](const TModel& pre_modified) {
+                    return _registry->get(pre_modified.index);
+                })
+                | std::ranges::to<std::vector>();
 
-                // refresh added items as they could be modified after adding
-                for (auto& m : _current_transaction->added_items)
-                {
-                    m = _registry->get(m.index);
-                }
+            // refresh added items as they could be modified after adding
+            for (auto& m : _active_transaction->added_items)
+            {
+                m = _registry->get(m.index);
             }
 
-            _current_transaction = transaction;
             reset_updated();
         }
 
-        void cancel_transaction()
+        void revert_current_transaction()
         {
-            if (_current_transaction)
+            if (_active_transaction)
             {
-                do_undo_transaction(_current_transaction);
+                do_undo_transaction(_active_transaction);
             }
         }
 
         void undo_transaction(const transaction_data<TModel>* transaction)
         {
-            if (_current_transaction)
-            {
-                do_undo_transaction(transaction);
-            }
+            do_undo_transaction(transaction);
         }
 
         void redo_transaction(const transaction_data<TModel>* transaction)
         {
-            if (_current_transaction)
-            {
-                do_redo_transaction(transaction);
-            }
+            do_redo_transaction(transaction);
+        }
+
+        void suspend_tracking()
+        {
+            _suspended = true;
+        }
+
+        void resume_tracking()
+        {
+            _suspended = false;
         }
 
         void item_updating(const TModel& model)
         {
-            if (_current_transaction)
+            if (!_suspended && _active_transaction)
             {
                 auto it = std::ranges::find_if(
-                    _current_transaction->added_items, [&model](const TModel& m) {
+                    _active_transaction->added_items, [&model](const TModel& m) {
                         return m.index == model.index;
                     }
                 );
 
                 // don't track item as modified if it was added in the current transaction
-                if (it == _current_transaction->added_items.end())
+                if (it == _active_transaction->added_items.end())
                 {
-                    _current_transaction->pre_modified_items.push_back(model);
+                    _active_transaction->pre_modified_items.push_back(model);
                 }
             }
         }
 
         void item_created(const TModel& model)
         {
-            if (_current_transaction)
+            if (!_suspended && _active_transaction)
             {
-                _current_transaction->added_items.push_back(model);
+                _active_transaction->added_items.push_back(model);
             }
         }
 
         void item_deleting(const TModel& model)
         {
-            if (_current_transaction)
+            if (!_suspended && _active_transaction)
             {
                 // check if the item was added in the current transaction
                 auto added_it = std::ranges::find_if(
-                    _current_transaction->added_items, [&model](const TModel& m) {
+                    _active_transaction->added_items, [&model](const TModel& m) {
                         return m.index == model.index;
                     }
                 );
 
-                if (added_it != _current_transaction->added_items.end())
+                if (added_it != _active_transaction->added_items.end())
                 {
-                    _current_transaction->added_items.erase(added_it);       
+                    _active_transaction->added_items.erase(added_it);       
                     return;
                 }
                 
                 // check if item was modified before deleting
                 auto modified_it = std::ranges::find_if(
-                    _current_transaction->pre_modified_items, [&model](const TModel& m) {
+                    _active_transaction->pre_modified_items, [&model](const TModel& m) {
                         return m.index == model.index;
                     }
                 );
 
-                if (modified_it == _current_transaction->pre_modified_items.end())
+                if (modified_it == _active_transaction->pre_modified_items.end())
                 {
-                    _current_transaction->deleted_items.push_back(model);
+                    _active_transaction->deleted_items.push_back(model);
                 }
                 else
                 {
                     // move original item from modified to deleted
-                    _current_transaction->deleted_items.push_back(*modified_it);
-                    _current_transaction->pre_modified_items.erase(modified_it);
+                    _active_transaction->deleted_items.push_back(*modified_it);
+                    _active_transaction->pre_modified_items.erase(modified_it);
                 }
             }
         }
 
     private:
         registry_t* _registry;
-        transaction_data<TModel>* _current_transaction;
+        transaction_data<TModel>* _active_transaction;
+
+        bool _suspended = false;
 
         void reset_updated()
         {

@@ -1,2 +1,4 @@
 add_subdirectory(domain_tests)
+add_subdirectory(corecad_tests)
 add_subdirectory(common_test_util)
+

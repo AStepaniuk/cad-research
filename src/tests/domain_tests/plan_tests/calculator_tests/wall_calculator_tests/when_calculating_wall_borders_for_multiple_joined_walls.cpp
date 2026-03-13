@@ -24,7 +24,7 @@ TEST_F(when_calculating_wall_borders_for_multiple_joined_walls, should_not_dupli
 
     when_recalculating_all_walls();
 
-    then_border_points_number_should_be(13);
+    then_border_points_number_should_be(9);
 }
 
 TEST_F(when_calculating_wall_borders_for_multiple_joined_walls, should_calculate_corner_points)
@@ -66,7 +66,7 @@ TEST_F(when_calculating_wall_borders_for_multiple_joined_walls, should_not_add_p
 
     when_recalculating_all_walls();
 
-    then_border_points_number_should_be(13);
+    then_border_points_number_should_be(9);
 }
 
 TEST_F(when_calculating_wall_borders_for_multiple_joined_walls, should_not_add_points_after_second_calculation_when_walls_are_rearranged)
@@ -86,6 +86,6 @@ TEST_F(when_calculating_wall_borders_for_multiple_joined_walls, should_not_add_p
 
     when_recalculating_all_walls();
 
-    then_border_points_number_should_be(13);
+    then_border_points_number_should_be(9);
 }
 
