@@ -42,32 +42,6 @@ void operation_add_wall::stop()
     _current_point = std::nullopt;
 }
 
-void gui::editor::operation::operation_add_wall::cancel()
-{
-    _sub_operation_move_handle.cancel();
-
-    if (_current_wall)
-    {
-        _document.model.data().erase(_current_wall.value());
-        _tools.wall_calculator.recalculate_all_walls();
-
-        _current_wall = std::nullopt;
-    }
-    _document.selected_walls.clear();
-
-    _document.model.data().erase(_current_point.value());
-    _current_point = std::nullopt;
-
-}
-
-action_handle_status operation_add_wall::rollback()
-{
-    _document.model.data().erase(_current_point.value());
-    _current_point = std::nullopt;
-
-    return action_handle_status::operation_finished;
-}
-
 action_handle_status operation_add_wall::mouse_move(float mx, float my)
 {
     return _sub_operation_move_handle.mouse_move(mx, my);

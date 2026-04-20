@@ -22,11 +22,6 @@ void operation_move_wall_handle::start()
 
     _document.hovered_handles.clear();
 
-    _active_points = _document.active_handles | std::ranges::to<std::vector>();
-    _initial_positions = _active_points
-        | std::views::transform([this](auto pid) { return _document.model.data().get(pid); })
-        | std::ranges::to<std::vector>();
-
     _document.active_walls.clear();
     _document.active_walls.put(
         _document.model.data().items<wall>()
@@ -46,30 +41,6 @@ void operation_move_wall_handle::stop()
 
     _document.hovered_handles.put(_document.active_handles);
     _document.active_handles.clear();
-
-    // TODO: implement commit move operation
-}
-
-void gui::editor::operation::operation_move_wall_handle::cancel()
-{
-    for (size_t i = 0; i < _active_points.size(); ++i)
-    {
-        const auto& pid = _active_points[i];
-        const auto& initial_pos = _initial_positions[i];
-
-        auto& point = _document.model.data().get(pid);
-        point.x = initial_pos.x;
-        point.y = initial_pos.y;
-    }
-
-    _initial_positions.clear();
-    _active_points.clear();
-}
-
-action_handle_status operation_move_wall_handle::rollback()
-{
-    // TODO: implement revert move operation
-    return action_handle_status::operation_finished;
 }
 
 action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
@@ -88,7 +59,7 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     }
 
     // spply model pos to all active points
-    for (const auto pid : _active_points)
+    for (const auto pid : _document.active_handles)
     {
         auto& p = _document.model.data().get(pid);
         p.x = model_pos.x;

@@ -65,7 +65,7 @@ void floor_editor::process_frame(bool mouse_in_workspace)
 
         if (ImGui::IsKeyPressed(ImGuiKey_Escape))
         {
-            _current_operation->cancel();
+            _current_operation->stop();
 
             _current_operation = &_operation_idle;
             _current_operation->start();

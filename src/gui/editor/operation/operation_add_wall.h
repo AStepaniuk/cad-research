@@ -30,9 +30,6 @@ namespace gui { namespace editor { namespace operation {
         void start() override;
         void stop() override;
 
-        void cancel() override;
-        action_handle_status rollback() override;
-
         action_handle_status mouse_move(float mx, float my) override;
         action_handle_status left_mouse_click(float mx, float my) override;
     };

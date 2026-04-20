@@ -27,34 +27,6 @@ void operation_idle::stop()
     _document.hovered_wall_id = std::nullopt;
 }
 
-void gui::editor::operation::operation_idle::cancel()
-{
-    if (_sub_operation)
-    {
-        _sub_operation->cancel();
-    }
-
-    _document.selected_walls.clear();
-    _document.hovered_wall_id = std::nullopt;
-}
-
-action_handle_status operation_idle::rollback()
-{
-    if (_sub_operation)
-    {
-        const auto res = _sub_operation->rollback();
-
-        if (res == action_handle_status::operation_finished)
-        {
-            _sub_operation = nullptr;
-        }
-
-        return res;
-    }
-
-    return action_handle_status::operation_finished;
-}
-
 action_handle_status operation_idle::mouse_move(float mx, float my)
 {
     if (_sub_operation)

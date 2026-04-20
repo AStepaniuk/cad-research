@@ -16,10 +16,6 @@ namespace gui { namespace editor { namespace operation {
         floor_view& _view;
         calc_tools& _tools;
 
-        // operation state
-        std::vector<domain::plan::model::wall_axis_point::index_t> _active_points;
-        std::vector<domain::plan::model::wall_axis_point> _initial_positions;
-
         handler::wall_join_handler _wall_join_handler;
 
         std::vector<handler::i_mmove_wall_handler*> _move_wall_handlers;
@@ -30,9 +26,6 @@ namespace gui { namespace editor { namespace operation {
 
         void start() override;
         void stop() override;
-
-        void cancel() override;
-        action_handle_status rollback() override;
 
         action_handle_status mouse_move(float mx, float my) override;
         action_handle_status left_mouse_click(float mx, float my) override;
