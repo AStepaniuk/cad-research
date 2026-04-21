@@ -124,34 +124,29 @@ void walls_view::render(ImDrawList* draw_list)
     {
         const auto& w = _document.model.data().get(wi);
 
-        const auto s = _translator.to_view(w.start);
-        const auto e = _translator.to_view(w.end);
-
-        if (_document.hovered_handles.contains(w.start))
+        if (!_document.hovered_handles.contains(w.start) && !_document.active_handles.contains(w.start))
         {
-            draw_list->AddRect(s - Styles::HandleSize2, s + Styles::HandleSize2, Styles::HandleHoveredColor, 0.0f, 0, Styles::HandleThickness);
-        }
-        else if (_document.active_handles.contains(w.start))
-        {
-            draw_list->AddRect(s - Styles::HandleSize2, s + Styles::HandleSize2, Styles::HandleActiveColor, 0.0f, 0, Styles::HandleThickness);
-        }
-        else
-        {
+            const auto s = _translator.to_view(w.start);
             draw_list->AddRect(s - Styles::HandleSize2, s + Styles::HandleSize2, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
         }
 
-        if (_document.hovered_handles.contains(w.end))
+        if (!_document.hovered_handles.contains(w.end) && !_document.active_handles.contains(w.end))
         {
-            draw_list->AddRect(e - Styles::HandleSize2, e + Styles::HandleSize2, Styles::HandleHoveredColor, 0.0f, 0, Styles::HandleThickness);
-        }
-        else if (_document.active_handles.contains(w.end))
-        {
-            draw_list->AddRect(e - Styles::HandleSize2, e + Styles::HandleSize2, Styles::HandleActiveColor, 0.0f, 0, Styles::HandleThickness);
-        }
-        else
-        {
+            const auto e = _translator.to_view(w.end);
             draw_list->AddRect(e - Styles::HandleSize2, e + Styles::HandleSize2, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
         }
+    }
+
+    for (const auto& hh : _document.hovered_handles)
+    {
+        const auto hp = _translator.to_view(hh);
+        draw_list->AddRect(hp - Styles::HandleSize2, hp + Styles::HandleSize2, Styles::HandleHoveredColor, 0.0f, 0, Styles::HandleThickness);
+    }
+
+    for (const auto& ah : _document.active_handles)
+    {
+        const auto ap = _translator.to_view(ah);
+        draw_list->AddRect(ap - Styles::HandleSize2, ap + Styles::HandleSize2, Styles::HandleActiveColor, 0.0f, 0, Styles::HandleThickness);
     }
 }
 

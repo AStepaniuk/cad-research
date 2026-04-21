@@ -25,6 +25,8 @@ void operation_idle::stop()
 
     _document.selected_walls.clear();
     _document.hovered_wall_id = std::nullopt;
+    
+    _document.hovered_handles.clear();
 }
 
 action_handle_status operation_idle::mouse_move(float mx, float my)
@@ -59,6 +61,7 @@ action_handle_status gui::editor::operation::operation_idle::left_mouse_click(fl
         auto res = _sub_operation->left_mouse_click(mx, my);
         if (res == action_handle_status::operation_finished)
         {
+            _sub_operation->stop();
             _sub_operation = nullptr;
         }
 

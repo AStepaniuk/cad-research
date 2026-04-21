@@ -37,6 +37,7 @@ void operation_add_wall::stop()
         _current_wall = std::nullopt;
     }
     _document.selected_walls.clear();
+    _document.hovered_handles.clear();
 
     _document.model.data().erase(_current_point.value());
     _current_point = std::nullopt;
