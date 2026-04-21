@@ -80,8 +80,14 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
 {
     if (_last_worked_move_wall_handler)
     {
-        _last_worked_move_wall_handler->apply();
+        const auto worked_point_id = _last_worked_move_wall_handler->apply();
         _last_worked_move_wall_handler = nullptr;
+
+        if (worked_point_id)
+        {
+            _document.active_handles.clear();
+            _document.active_handles.put(worked_point_id.value());
+        }
 
         _tools.constraints_calculator.recalculate_all(
             _document.model.data().items<floor::constraint_t>(),

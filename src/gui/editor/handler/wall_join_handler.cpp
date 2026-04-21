@@ -59,11 +59,11 @@ bool wall_join_handler::wall_move(
     return false;
 }
 
-void wall_join_handler::apply()
+std::optional<wall_axis_point::index_t> wall_join_handler::apply()
 {
     if (!_target_point_index)
     {
-        return;
+        return std::nullopt;
     }
 
     for (const auto wid : _document.active_walls)
@@ -79,4 +79,6 @@ void wall_join_handler::apply()
             wall.end = _target_point_index.value();
         }
     }
+
+    return _target_point_index;
 }

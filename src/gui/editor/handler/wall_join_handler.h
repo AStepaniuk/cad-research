@@ -2,8 +2,6 @@
 
 #include "i_move_wall_handler.h"
 
-#include <optional>
-
 #include "document.h"
 #include "floor_view.h"
 
@@ -19,6 +17,6 @@ namespace gui { namespace editor { namespace handler {
         wall_join_handler(doc::document &doc, floor_view& v);
 
         bool wall_move(float view_pos_x, float view_pos_y, domain::plan::model::wall_axis_point& model_pos) override;
-        void apply() override;
+        std::optional<domain::plan::model::wall_axis_point::index_t> apply() override;
     };
 }}}

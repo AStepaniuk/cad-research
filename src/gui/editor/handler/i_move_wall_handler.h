@@ -1,5 +1,7 @@
 #pragma once
 
+#include <optional>
+
 #include "vector2d.h"
 #include "wall.h"
 
@@ -12,6 +14,6 @@ namespace gui { namespace editor { namespace handler {
             domain::plan::model::wall_axis_point& model_pos
         ) = 0;
 
-        virtual void apply() = 0;
+        virtual std::optional<domain::plan::model::wall_axis_point::index_t> apply() = 0;
     };
 }}}

@@ -18,6 +18,7 @@ bool wall_intersection_handler::wall_move(
     return false;
 }
 
-void wall_intersection_handler::apply()
+std::optional<domain::plan::model::wall_axis_point::index_t> wall_intersection_handler::apply()
 {
+    return std::nullopt;
 }
