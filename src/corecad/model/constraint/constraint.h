@@ -26,13 +26,15 @@ namespace corecad { namespace model { namespace constraint
         }
 
         constraint(const constraint& other)
-            : instance { other.instance }
+            : model_base<constraint<TConstraints...>> { other }
+            , instance { other.instance }
         {
             bind_internal();
         }
 
         constraint(constraint&& other)
-            : instance { std::move(other.instance) }
+            : model_base<constraint<TConstraints...>> { other }
+            , instance { std::move(other.instance) }
         {
             bind_internal();
         }
@@ -59,4 +61,16 @@ namespace corecad { namespace model { namespace constraint
             }, instance);
         }
     };
+
+    template<template <typename> typename FirstConstraint, template <typename> typename... TConstraints>
+    std::ostream& operator<<(std::ostream& os, const constraint<FirstConstraint, TConstraints...>& c)
+    {
+        os << static_cast<const model_base<constraint<FirstConstraint, TConstraints...>>&>(c);
+
+        std::visit([&os](auto& impl) {
+            os << ' ' << impl;
+        }, c.instance);
+
+        return os;
+    }
 }}}

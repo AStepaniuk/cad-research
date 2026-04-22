@@ -112,6 +112,12 @@ namespace corecad { namespace model
             _updated = true;
         }
     };  
+
+    template<typename TValue, typename TModel>
+    std::ostream& operator<<(std::ostream& os, const property<TValue, TModel>& p)
+    {
+        return os << p.val();
+    }
       
     template <typename T>
     struct is_property : std::false_type {};

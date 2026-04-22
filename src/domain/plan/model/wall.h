@@ -76,4 +76,6 @@ namespace domain { namespace plan { namespace model
         unsigned int start_joints;
         unsigned int end_joints;
     };  
+
+    std::ostream& operator<<(std::ostream& os, const wall& w);
 }}}

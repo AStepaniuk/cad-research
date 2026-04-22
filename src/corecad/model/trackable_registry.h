@@ -160,4 +160,16 @@ namespace corecad { namespace model
             if (_history) { _history->item_deleting(model); }
         }
     };
+
+    template<typename T, typename THistory>
+    std::ostream& operator<<(std::ostream& os, const trackable_registry<T, THistory>& r)
+    {
+        os << "items:" << std::endl;
+        for (const auto& i : r)
+        {
+            os << "  " << i.first << ": " << i.second << std::endl;
+        }
+
+        return os;
+    }
 }}

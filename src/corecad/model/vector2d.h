@@ -64,6 +64,12 @@ namespace corecad { namespace model
         return vector2d<Tag> { lhs.x - rhs.x, lhs.y - rhs.y };
     }
 
+    template<typename Tag>
+    std::ostream& operator<<(std::ostream& os, const vector2d<Tag>& v)
+    {
+        return os << static_cast<const corecad::model::model_base<vector2d<Tag>>&>(v) << " x:" << v.x << " y:" << v.y;
+    }
+
     // concept to check if a type is a template instantiation of a vector2d
 
     template <typename T>

@@ -40,4 +40,11 @@ namespace corecad { namespace model { namespace constraint
             distance.reset_updated();
         }
     };
+
+    template<IsVector2D TVector, typename TModel>
+    std::ostream& operator<<(std::ostream& os, const offset<TVector, TModel>& o)
+    {
+        return os << (o.direction == offset_direction::vertical ? "vertical" : "horizontal")
+            << " from:" << o.from << " to:" << o.to << " dist:" << o.distance;
+    }
 }}}

@@ -35,4 +35,10 @@ namespace corecad { namespace model { namespace constraint
             point.reset_updated();
         }
     };
+
+    template<IsVector2D TVector, typename TModel>
+    std::ostream& operator<<(std::ostream& os, const fixed<TVector, TModel>& f)
+    {
+        return os << (f.coordinate == fixed_coordinate::x ? "x=" : "y=") << f.value << " p:" << f.point;
+    }
 }}}

@@ -41,4 +41,10 @@ namespace corecad { namespace model {
         template<typename TValue, typename TMod>
         friend class property;
     };
+
+    template<typename TModel>
+    std::ostream& operator<<(std::ostream& os, const model_base<TModel>& model)
+    {
+        return os << "id:" << model.index;
+    }
 }}
