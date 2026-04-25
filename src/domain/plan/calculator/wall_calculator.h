@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <map>
+#include <iostream>
 
 #include "floor.h"
 
@@ -66,14 +67,15 @@ namespace domain { namespace plan { namespace calculator
             point_on_wall_location wall2_location;
         };
 
-        struct wall_point_geometry_id_hasher {
-            size_t operator()(const domain::plan::calculator::wall_calculator::wall_point_geometry_id& obj) const noexcept {
+        struct wall_point_geometry_id_hasher
+        {
+            size_t operator()(const domain::plan::calculator::wall_calculator::wall_point_geometry_id& obj) const noexcept
+            {
                 size_t h1 = std::hash<model::wall::index_t>{}(obj.wall1_id);
                 size_t h2 = std::hash<int>{}(static_cast<int>(obj.wall1_location));
                 size_t h3 = std::hash<model::wall::index_t>{}(obj.wall2_id);
                 size_t h4 = std::hash<int>{}(static_cast<int>(obj.wall2_location));
 
-                // A common way to combine hashes
                 auto hash_combine = [](size_t& seed, size_t v) {
                     seed ^= v + 0x9e3779b9 + (seed << 6) + (seed >> 2);
                 };
@@ -86,6 +88,24 @@ namespace domain { namespace plan { namespace calculator
             }
         };
 
+        friend std::ostream& operator<<(std::ostream& os, point_on_wall_location pow)
+        {
+            switch(pow)
+            {
+                case point_on_wall_location::none: os << 'N'; break;
+                case point_on_wall_location::start_right: os << "SR"; break;
+                case point_on_wall_location::start_left: os << "SL"; break;
+                case point_on_wall_location::end_right: os << "ER"; break;
+                case point_on_wall_location::end_left: os << "EL"; break;
+            }
+            return os;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const wall_point_geometry_id& id)
+        {
+            return os << "wid1:" << id.wall1_id << " wl1:" << id.wall1_location << " wid2:" << id.wall2_id << " wl2:" << id.wall2_location;
+        }
+
         struct wall_point_info
         {
             model::wall_border_point::index_t index;
@@ -93,6 +113,7 @@ namespace domain { namespace plan { namespace calculator
         };
 
         std::unordered_map<wall_point_geometry_id, wall_point_info, wall_point_geometry_id_hasher> _points_cache;
+        // std::map<wall_point_geometry_id, wall_point_info> _points_cache;
 
         model::wall_border_point::index_t find_or_create_point(
             const wall_point_geometry_id& id,
