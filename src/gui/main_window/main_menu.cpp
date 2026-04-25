@@ -33,6 +33,29 @@ main_menu::main_menu()
         },
         menu_meta
         {
+            .caption = "Edit",
+            .items =
+            {
+                menu_item_meta 
+                {
+                    .caption = "Undo",
+                    .hotkey = ImGuiKey_Z,
+                    .key_mods = ImGuiMod_Ctrl,
+                    .hotkey_text = "Ctrl+Z",
+                    .item_choice = item::undo
+                },                
+                menu_item_meta 
+                {
+                    .caption = "Redo",
+                    .hotkey = ImGuiKey_Y,
+                    .key_mods = ImGuiMod_Ctrl,
+                    .hotkey_text = "Ctrl+Y",
+                    .item_choice = item::redo
+                },
+            }
+        },
+        menu_meta
+        {
             .caption = "Draw",
             .items = 
             {
@@ -55,11 +78,11 @@ void main_menu::process_frame()
 
     if (!ImGui::GetIO().WantCaptureKeyboard) 
     {
-        for (const auto& hotkey_pair : _hotkey_items)
+        for (const auto& hotkey_data : _hotkey_items)
         {
-            if (ImGui::IsKeyPressed(hotkey_pair.first))
+            if (ImGui::IsKeyPressed(hotkey_data.key) && ImGui::GetIO().KeyMods == hotkey_data.mod)
             {
-                _choosen_item = hotkey_pair.second;
+                _choosen_item = hotkey_data.choice;
                 break;
             }
         } 
@@ -137,11 +160,14 @@ void gui::main_menu::process_structure_items(std::vector<menu_meta::item_type>& 
                 {
                     if (mim.hotkey)
                     {
-                        mim.hotkey_text = ImGui::GetKeyName(mim.hotkey.value());
+                        if (mim.hotkey_text.empty())
+                        {
+                            mim.hotkey_text = ImGui::GetKeyName(mim.hotkey.value());
+                        }
 
                         if (mim.item_choice != item::none)
                         {
-                            _hotkey_items.push_back({ mim.hotkey.value(), mim.item_choice });
+                            _hotkey_items.push_back(hotkey_item { mim.hotkey.value(), mim.key_mods, mim.item_choice });
                         }
                     }
                 },

@@ -30,5 +30,7 @@ namespace gui { namespace editor {
         void process_frame(bool mouse_in_workspace);
 
         void start_operation_add_wall();
+        void undo();
+        void redo();
     };
 }}

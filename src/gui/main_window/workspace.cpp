@@ -37,6 +37,14 @@ void workspace::process_frame(bool mouse_in_workspace)
     {
         _editor.start_operation_add_wall();
     }
+    else if (_main_menu.choosen_item() == main_menu::item::undo)
+    {
+        _editor.undo();
+    }
+    else if (_main_menu.choosen_item() == main_menu::item::redo)
+    {
+        _editor.redo();
+    }
 
     _editor.process_frame(mouse_in_workspace);
 }

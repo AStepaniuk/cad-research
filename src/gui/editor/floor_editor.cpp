@@ -81,3 +81,19 @@ void floor_editor::start_operation_add_wall()
 {
     switch_operation(&_operation_add_wall);
 }
+
+void gui::editor::floor_editor::undo()
+{
+    switch_operation(&_operation_idle);
+
+    _document.model.history().undo();
+    _tools.wall_calculator.recalculate_all_walls();
+}
+
+void gui::editor::floor_editor::redo()
+{
+    switch_operation(&_operation_idle);
+    
+    _document.model.history().redo();
+    _tools.wall_calculator.recalculate_all_walls();
+}

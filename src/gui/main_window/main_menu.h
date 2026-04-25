@@ -11,7 +11,13 @@ namespace gui {
     class main_menu
     {
     public:
-        enum class item { none, add_wall };
+        enum class item
+        {
+            none,
+            add_wall,
+            undo,
+            redo
+        };
 
         main_menu();
 
@@ -30,6 +36,7 @@ namespace gui {
         {
             std::string caption;
             std::optional<ImGuiKey> hotkey;
+            ImGuiKey key_mods = ImGuiMod_None;
             std::string hotkey_text;
 
             item item_choice = item::none;
@@ -46,7 +53,14 @@ namespace gui {
         };
 
         std::vector<menu_meta> _structure;
-        std::vector<std::pair<ImGuiKey, item>> _hotkey_items;
+
+        struct hotkey_item
+        {
+            ImGuiKey key;
+            ImGuiKey mod;
+            item choice;
+        };
+        std::vector<hotkey_item> _hotkey_items;
 
         void process_menu_meta_frame(const menu_meta& mm);
 
