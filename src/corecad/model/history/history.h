@@ -12,12 +12,12 @@
 
 namespace corecad { namespace model { namespace history
 {
-    template<typename... TModel>
+    template<typename TRegistryPool, typename... TModel>
     requires (std::derived_from<TModel, model_base<TModel>> && ...)
     class history
     {
     public:
-        using registry_pool_t = registry_pool<TModel...>;
+        using registry_pool_t = TRegistryPool;
 
         history(registry_pool_t& registry_pool)
             : _registry_pool { registry_pool }

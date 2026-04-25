@@ -32,14 +32,16 @@ namespace domain { namespace plan { namespace model
         >;
 
         using history_t = corecad::model::history::history<
+            data_t,
             constraint_t,
             wall_axis_point,
-            wall_border_point,
             wall
         >;
 
         const data_t& data() const;
         data_t& data();
+
+        history_t& history();
     
     private:
         data_t _data;

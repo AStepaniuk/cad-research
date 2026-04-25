@@ -101,5 +101,7 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
 
     _document.active_handles.clear();
 
+    _document.model.history().commit();
+
     return action_handle_status::operation_finished;
 }

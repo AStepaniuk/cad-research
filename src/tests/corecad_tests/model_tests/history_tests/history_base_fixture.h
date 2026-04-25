@@ -33,8 +33,9 @@ protected:
     void then_point_should_be(size_t num, const test_point& p);
     void then_runtime_error_should_be_thrown();
 
-    corecad::model::registry_pool<test_point> _registry;
-    corecad::model::history::history<test_point> _history { _registry };
+    using registry_t = corecad::model::registry_pool<test_point>;
+    registry_t _registry;
+    corecad::model::history::history<registry_t, test_point> _history { _registry };
 
     std::vector<test_point::index_t> _points_indexes;
     std::optional<std::runtime_error> _exception_thrown = std::nullopt;

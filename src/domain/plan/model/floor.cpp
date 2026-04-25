@@ -11,3 +11,8 @@ floor::data_t& floor::data()
 {
     return _data;
 }
+
+floor::history_t& floor::history()
+{
+    return _history;
+}

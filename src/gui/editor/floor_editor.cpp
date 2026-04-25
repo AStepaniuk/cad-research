@@ -18,6 +18,9 @@ void floor_editor::switch_operation(operation::i_operation *op)
     if (_current_operation)
     {
         _current_operation->stop();
+        _document.model.history().cancel();
+
+        _tools.wall_calculator.recalculate_all_walls();
     }
 
     _current_operation = op;
@@ -63,12 +66,9 @@ void floor_editor::process_frame(bool mouse_in_workspace)
             _current_operation->left_mouse_click(mp.x, mp.y);
         }
 
-        if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+        if (ImGui::IsKeyPressed(ImGuiKey_Escape) && _current_operation != &_operation_idle)
         {
-            _current_operation->stop();
-
-            _current_operation = &_operation_idle;
-            _current_operation->start();
+            switch_operation(&_operation_idle);
         }
     }
 
