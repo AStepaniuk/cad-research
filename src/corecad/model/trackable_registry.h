@@ -2,6 +2,8 @@
 
 #include <unordered_map>
 #include <concepts>
+#include <ranges>
+#include <algorithm>
 
 #include "registry_index.h"
 
@@ -165,9 +167,18 @@ namespace corecad { namespace model
     std::ostream& operator<<(std::ostream& os, const trackable_registry<T, THistory>& r)
     {
         os << "items:" << std::endl;
-        for (const auto& i : r)
+
+        auto pointers = r 
+            | std::views::transform([](const auto& pair) { return &pair; })
+            | std::ranges::to<std::vector>();
+
+        std::ranges::sort(pointers, [](const auto* a, const auto* b) {
+            return a->first < b->first;
+        });
+
+        for (const auto* pair : pointers)
         {
-            os << "  " << i.first << ": " << i.second << std::endl;
+            std::cout << pair->first << ": " << pair->second << std::endl;
         }
 
         return os;
