@@ -113,7 +113,6 @@ namespace domain { namespace plan { namespace calculator
         };
 
         std::unordered_map<wall_point_geometry_id, wall_point_info, wall_point_geometry_id_hasher> _points_cache;
-        // std::map<wall_point_geometry_id, wall_point_info> _points_cache;
 
         model::wall_border_point::index_t find_or_create_point(
             const wall_point_geometry_id& id,
