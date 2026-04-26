@@ -8,7 +8,7 @@ operation_idle::operation_idle(doc::document &doc, floor_view &v, calc_tools &t)
     : _document { doc }
     , _view { v }
     , _tools { t }
-    , _sub_operation_move_wall { doc, v, t }
+    , _sub_operation_move_wall { doc, v, t, "Move wall" }
 {
 }
 

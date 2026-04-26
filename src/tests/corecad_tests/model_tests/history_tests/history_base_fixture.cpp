@@ -16,7 +16,7 @@ void history_base_fixture::given_point_added_to_registry(test_point p)
 
 void history_base_fixture::given_transaction_committed()
 {
-    _history.commit();
+    _history.commit("test");
 }
 
 void history_base_fixture::given_point_removed_from_registry(size_t p_num)

@@ -10,7 +10,7 @@ operation_add_wall::operation_add_wall(doc::document &doc, floor_view &v, calc_t
     : _document { doc }
     , _view { v }
     , _tools { t }
-    , _sub_operation_move_handle { doc, v, t }
+    , _sub_operation_move_handle { doc, v, t, "Add wall" }
 {
 }
 
@@ -23,6 +23,9 @@ void operation_add_wall::start()
     _document.hovered_handles.put(_current_point.value());
 
     _sub_operation_move_handle.start();
+
+    // first sub-operation click should not cause commit
+    _sub_operation_move_handle.disable_commit_on_click();
 }
 
 void operation_add_wall::stop()
@@ -83,6 +86,7 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
     _document.hovered_handles.clear();
     _document.hovered_handles.put(_current_point.value());
     _sub_operation_move_handle.start();
+    _sub_operation_move_handle.enable_commit_on_click();
 
     return action_handle_status::operation_continues;
 }

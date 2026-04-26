@@ -3,6 +3,7 @@
 #include "i_operation.h"
 
 #include <vector>
+#include <string>
 
 #include "document.h"
 #include "floor_view.h"
@@ -21,13 +22,19 @@ namespace gui { namespace editor { namespace operation {
         std::vector<handler::i_mmove_wall_handler*> _move_wall_handlers;
         handler::i_mmove_wall_handler* _last_worked_move_wall_handler = nullptr;
 
+        std::string _commit_message;
+        bool _do_commit_on_click = true;
+
     public:
-        operation_move_wall_handle(doc::document& doc, floor_view& v, calc_tools& t);
+        operation_move_wall_handle(doc::document& doc, floor_view& v, calc_tools& t, std::string commit_msg);
 
         void start() override;
         void stop() override;
 
         action_handle_status mouse_move(float mx, float my) override;
         action_handle_status left_mouse_click(float mx, float my) override;
+
+        void enable_commit_on_click();
+        void disable_commit_on_click();
     };
 }}}

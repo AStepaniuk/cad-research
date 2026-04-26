@@ -6,12 +6,8 @@
 using namespace gui::editor::operation;
 using namespace domain::plan::model;
 
-operation_move_wall_handle::operation_move_wall_handle(doc::document &doc, floor_view& v, calc_tools& t)
-    : _document { doc }
-    , _view { v }
-    , _tools { t }
-    , _wall_join_handler { _document, _view }
-    , _move_wall_handlers { &_wall_join_handler }
+operation_move_wall_handle::operation_move_wall_handle(doc::document &doc, floor_view &v, calc_tools &t, std::string commit_msg)
+    : _document{doc}, _view{v}, _tools{t}, _wall_join_handler{_document, _view}, _move_wall_handlers{&_wall_join_handler}, _commit_message{std::move(commit_msg)}
 {
 }
 
@@ -101,7 +97,20 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
 
     _document.active_handles.clear();
 
-    _document.model.history().commit();
+    if (_do_commit_on_click)
+    {
+        _document.model.history().commit(_commit_message);
+    }
 
     return action_handle_status::operation_finished;
+}
+
+void operation_move_wall_handle::enable_commit_on_click()
+{
+    _do_commit_on_click = true;
+}
+
+void operation_move_wall_handle::disable_commit_on_click()
+{
+    _do_commit_on_click = false;
 }

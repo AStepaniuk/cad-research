@@ -23,6 +23,7 @@ namespace gui { namespace editor {
         operation::i_operation* _current_operation;
 
         void switch_operation(operation::i_operation *op);
+        void reset_selection();
 
     public:
         floor_editor(GLFWwindow* window, doc::document& doc);

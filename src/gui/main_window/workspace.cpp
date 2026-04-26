@@ -28,7 +28,7 @@ workspace::workspace(GLFWwindow* window, main_menu& mm)
 
     wc.recalculate_all_walls();
 
-    _document.model.history().commit();
+    _document.model.history().commit("Initial setup");
 }
 
 void workspace::process_frame(bool mouse_in_workspace)

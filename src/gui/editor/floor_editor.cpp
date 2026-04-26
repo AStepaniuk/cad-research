@@ -27,6 +27,13 @@ void floor_editor::switch_operation(operation::i_operation *op)
     _current_operation->start();
 }
 
+void gui::editor::floor_editor::reset_selection()
+{
+    _document.selected_walls.clear();
+    _document.active_walls.clear();
+    _document.hovered_handles.clear();
+}
+
 void floor_editor::process_frame(bool mouse_in_workspace)
 {
     const auto mp = ImGui::GetIO().MousePos;
@@ -66,7 +73,7 @@ void floor_editor::process_frame(bool mouse_in_workspace)
             _current_operation->left_mouse_click(mp.x, mp.y);
         }
 
-        if (ImGui::IsKeyPressed(ImGuiKey_Escape) && _current_operation != &_operation_idle)
+        if (ImGui::IsKeyPressed(ImGuiKey_Escape))
         {
             switch_operation(&_operation_idle);
         }

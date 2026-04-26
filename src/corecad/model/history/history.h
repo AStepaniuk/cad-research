@@ -4,6 +4,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <string>
 #include <iostream>
 
 #include "model_base.h"
@@ -38,7 +39,7 @@ namespace corecad { namespace model { namespace history
         }
 
         // fixes current transaction and opens new one
-        void commit()
+        void commit(std::string title)
         {
             if (_current_transaction_index != no_transaction_index)
             {
@@ -47,7 +48,7 @@ namespace corecad { namespace model { namespace history
 
             finish_transaction();
 
-            _transactions.push_back(std::move(_current_transaction));
+            _transactions.push_back(transaction_info { std::move(title), std::move(_current_transaction) });
             _current_transaction_index = _transactions.size() - 1;
 
             start_new_transaction();
@@ -66,7 +67,7 @@ namespace corecad { namespace model { namespace history
             // ensure current transaction is cancelled
             revert_uncommitted_changes();
 
-            revert_transaction_changes(_transactions[_current_transaction_index]);
+            revert_transaction_changes(_transactions[_current_transaction_index].data);
 
             _current_transaction_index--;
             start_new_transaction();
@@ -87,7 +88,7 @@ namespace corecad { namespace model { namespace history
             revert_uncommitted_changes();
 
             _current_transaction_index++;
-            restore_transaction_changes(_transactions[_current_transaction_index]);
+            restore_transaction_changes(_transactions[_current_transaction_index].data);
 
             start_new_transaction();
 
@@ -100,7 +101,13 @@ namespace corecad { namespace model { namespace history
         std::tuple<model_history<TModel>...> _model_histories;
 
         using transaction_t = std::tuple<transaction_data<TModel>...>;
-        std::vector<transaction_t> _transactions;
+
+        struct transaction_info
+        {
+            std::string title;
+            transaction_t data;
+        };
+        std::vector<transaction_info> _transactions;
         transaction_t _current_transaction;
 
         size_t _next_index = 0;
