@@ -9,6 +9,7 @@
 #include "floor_view.h"
 #include "calc_tools.h"
 #include "handler/wall_join_handler.h"
+#include "handler/wall_t_join_handler.h"
 
 namespace gui { namespace editor { namespace operation {
     class operation_move_wall_handle : public i_operation
@@ -18,6 +19,7 @@ namespace gui { namespace editor { namespace operation {
         calc_tools& _tools;
 
         handler::wall_join_handler _wall_join_handler;
+        handler::wall_t_join_handler _wall_t_join_handler;
 
         std::vector<handler::i_mmove_wall_handler*> _move_wall_handlers;
         handler::i_mmove_wall_handler* _last_worked_move_wall_handler = nullptr;

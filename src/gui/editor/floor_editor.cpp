@@ -10,7 +10,7 @@ floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
     , _operation_idle{_document, _view, _tools}
     , _operation_add_wall{_document, _view, _tools}
 {
-    _current_operation = &_operation_idle;
+    switch_operation(&_operation_idle);
 }
 
 void floor_editor::switch_operation(operation::i_operation *op)

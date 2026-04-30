@@ -13,8 +13,8 @@ namespace gui { namespace editor { namespace operation {
         doc::document& _document;
         floor_view& _view;
         calc_tools& _tools;
-
-        i_operation* _sub_operation;
+ 
+        i_operation* _sub_operation { nullptr };
         operation_move_wall_handle _sub_operation_move_wall;
 
     public:

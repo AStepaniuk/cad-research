@@ -7,7 +7,13 @@ using namespace gui::editor::operation;
 using namespace domain::plan::model;
 
 operation_move_wall_handle::operation_move_wall_handle(doc::document &doc, floor_view &v, calc_tools &t, std::string commit_msg)
-    : _document{doc}, _view{v}, _tools{t}, _wall_join_handler{_document, _view}, _move_wall_handlers{&_wall_join_handler}, _commit_message{std::move(commit_msg)}
+    : _document{doc}
+    , _view{v}
+    , _tools{t}
+    , _wall_join_handler{_document, _view}
+    , _wall_t_join_handler{_document, _view}
+    , _move_wall_handlers{&_wall_join_handler, &_wall_t_join_handler}
+    , _commit_message{std::move(commit_msg)}
 {
 }
 
