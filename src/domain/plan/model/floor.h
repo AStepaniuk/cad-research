@@ -5,6 +5,7 @@
 #include "constraint.h"
 #include "fixed.h"
 #include "offset.h"
+#include "aligned.h"
 #include "wall.h"
 #include "history/history.h"
 
@@ -19,9 +20,13 @@ namespace domain { namespace plan { namespace model
         template <typename TModel>
         using offset_wall_axis_point_t = corecad::model::constraint::offset<wall_axis_point, TModel>;
 
+        template <typename TModel>
+        using aligned_wall_axis_point_t = corecad::model::constraint::aligned<wall_axis_point, TModel>;
+
         using constraint_t = corecad::model::constraint::constraint<
             fixed_wall_axis_point_t,
-            offset_wall_axis_point_t
+            offset_wall_axis_point_t,
+            aligned_wall_axis_point_t
         >;
 
         using data_t = corecad::model::registry_pool<

@@ -123,6 +123,9 @@ void constraints_view::render(ImDrawList *draw_list)
                         draw_list->AddLine(s, e, Styles::CColor, Styles::CLineThickness);
                         draw_list->AddCircleFilled(p, Styles::FixedCRadius, Styles::CColor);
                     }
+                },
+                [&](const aligned<wall_axis_point, floor::constraint_t>& al) {
+                    // TODO: draw aligned constraint here
                 }
             },
             c.second.instance

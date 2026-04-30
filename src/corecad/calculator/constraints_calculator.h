@@ -94,6 +94,9 @@ namespace corecad { namespace calculator
                                 *(gcs_p->y) = fix.value;
                                 gcs_constants.emplace(gcs_p->y - gcs_params.data());
                             }
+                        },
+                        [&](const model::constraint::aligned<TVector, TConstraintModel>& fix) {
+                            // TODO: Add aligned constraint handling here
                         }
                     },
                     c.second.instance
