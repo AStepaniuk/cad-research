@@ -93,10 +93,13 @@ std::optional<domain::plan::model::wall_axis_point::index_t> wall_t_join_handler
     // split wall into 2 walls
     auto& w = _document.model.data().get(_t_joint_data->joint_wall_index);
 
-    const auto ep = w.end.val();
+    const auto epid = w.end.val();
     w.end = npid;
 
-    _document.model.data().make<wall>(npid, ep, w.width);
+    _document.model.data().make<wall>(npid, epid, w.width);
+
+    // add constraing to keep both walls aligned
+    _document.model.data().put(floor::constraint_t::create<floor::aligned_wall_axis_point_t>(w.start, npid, epid));
 
     // update active walls points
     for (const auto wid : _document.active_walls)

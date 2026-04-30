@@ -28,6 +28,7 @@ namespace corecad { namespace calculator
             m_sys.clear();
 
             std::vector<GCS::Point> gcs_points;
+            std::vector<GCS::Line> gcs_lines;
             std::vector<double> gcs_params;
             std::unordered_set<size_t> gcs_constants;
 
@@ -95,8 +96,12 @@ namespace corecad { namespace calculator
                                 gcs_constants.emplace(gcs_p->y - gcs_params.data());
                             }
                         },
-                        [&](const model::constraint::aligned<TVector, TConstraintModel>& fix) {
-                            // TODO: Add aligned constraint handling here
+                        [&](const model::constraint::aligned<TVector, TConstraintModel>& al) {
+                            auto gcs_p1 = get_or_add_gcs_point(al.point1);
+                            auto gcs_p2 = get_or_add_gcs_point(al.point2);
+                            auto gcs_p3 = get_or_add_gcs_point(al.point3);
+
+                            m_sys.addConstraintPointOnLine(*gcs_p1, *gcs_p2, *gcs_p3);
                         }
                     },
                     c.second.instance
