@@ -14,12 +14,15 @@ namespace gui { namespace doc {
         // mouse hovered walls
         std::optional<domain::plan::model::wall::index_t> hovered_wall_id;
         // mouse hovered wall handles
-        corecad::model::collection<domain::plan::model::wall_axis_point> hovered_handles;
+        std::optional<domain::plan::model::wall_axis_point::index_t> hovered_handle;
 
         // selected walls
         corecad::model::collection<domain::plan::model::wall> selected_walls;
-        // handles are currenly being moved
-        corecad::model::collection<domain::plan::model::wall_axis_point> active_handles;
+        // selected handles
+        corecad::model::collection<domain::plan::model::wall_axis_point> selected_handles;
+        
+        // handle is currenly being moved
+        std::optional<domain::plan::model::wall_axis_point::index_t> active_handle;
         // walls are currently being moved
         corecad::model::collection<domain::plan::model::wall> active_walls;
     };

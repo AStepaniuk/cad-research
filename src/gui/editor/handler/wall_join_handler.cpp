@@ -61,7 +61,7 @@ bool wall_join_handler::wall_move(
 
 std::optional<wall_axis_point::index_t> wall_join_handler::apply()
 {
-    if (!_target_point_index)
+    if (!_target_point_index || !_document.active_handle)
     {
         return std::nullopt;
     }
@@ -70,7 +70,7 @@ std::optional<wall_axis_point::index_t> wall_join_handler::apply()
     {
         auto& wall = _document.model.data().get(wid);
 
-        if (std::ranges::any_of(_document.active_handles, [&wall](const auto& h) { return wall.start == h; }))
+        if (wall.start == _document.active_handle.value())
         {
             wall.start = _target_point_index.value();
         }

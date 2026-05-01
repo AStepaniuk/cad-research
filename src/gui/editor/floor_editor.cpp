@@ -31,7 +31,7 @@ void gui::editor::floor_editor::reset_selection()
 {
     _document.selected_walls.clear();
     _document.active_walls.clear();
-    _document.hovered_handles.clear();
+    _document.hovered_handle = std::nullopt;
 }
 
 void floor_editor::process_frame(bool mouse_in_workspace)

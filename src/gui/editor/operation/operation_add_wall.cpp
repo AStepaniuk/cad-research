@@ -19,8 +19,7 @@ void operation_add_wall::start()
     _current_point = std::make_optional(_document.model.data().make<wall_axis_point>(0.0, 0.0));
     _current_wall = std::nullopt;
 
-    _document.hovered_handles.clear();
-    _document.hovered_handles.put(_current_point.value());
+    _document.hovered_handle = _current_point;
 
     _sub_operation_move_handle.start();
 
@@ -40,7 +39,7 @@ void operation_add_wall::stop()
         _current_wall = std::nullopt;
     }
     _document.selected_walls.clear();
-    _document.hovered_handles.clear();
+    _document.hovered_handle = std::nullopt;
 
     _document.model.data().erase(_current_point.value());
     _current_point = std::nullopt;
@@ -64,10 +63,10 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
     auto m_model = _view.to_model(mx, my);
     auto next_index = _document.model.data().make<wall_axis_point>(m_model.x, m_model.y);
 
-    if (*(_document.hovered_handles.begin()) != _current_point.value())
+    if (_document.hovered_handle.value() != _current_point.value())
     {
         _document.model.data().erase(_current_point.value());
-        _current_point = *(_document.hovered_handles.begin());
+        _current_point = _document.hovered_handle.value();
     }
 
     auto wall_index = _document.model.data().make<wall>(_current_point.value(), next_index, 400.0);
@@ -83,8 +82,7 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
 
     _current_point = next_index;
 
-    _document.hovered_handles.clear();
-    _document.hovered_handles.put(_current_point.value());
+    _document.hovered_handle = _current_point.value();
     _sub_operation_move_handle.start();
     _sub_operation_move_handle.enable_commit_on_click();
 

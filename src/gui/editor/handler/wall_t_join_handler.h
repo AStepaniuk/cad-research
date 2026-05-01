@@ -6,7 +6,7 @@
 #include "floor_view.h"
 
 namespace gui { namespace editor { namespace handler {
-    class wall_t_join_handler : public i_mmove_wall_handler
+    class wall_t_join_handler : public i_move_wall_handler
     {
         doc::document& _document;
         floor_view& _view;

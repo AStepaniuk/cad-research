@@ -106,7 +106,7 @@ std::optional<domain::plan::model::wall_axis_point::index_t> wall_t_join_handler
     {
         auto& wall = _document.model.data().get(wid);
 
-        if (std::ranges::any_of(_document.active_handles, [&wall](const auto& h) { return wall.start == h; }))
+        if (wall.start == _document.active_handle.value())
         {
             wall.start = npid;
         }

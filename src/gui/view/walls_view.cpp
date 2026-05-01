@@ -120,32 +120,37 @@ void walls_view::render(ImDrawList* draw_list)
     }
 
     // handles
+    auto is_hovered_or_active = [this](wall_axis_point::index_t pid) {
+        return (_document.hovered_handle.has_value() && pid == _document.hovered_handle.value())
+            || (_document.active_handle.has_value() && pid == _document.active_handle.value());
+    };
+
     for (auto wi : _document.selected_walls)
     {
         const auto& w = _document.model.data().get(wi);
 
-        if (!_document.hovered_handles.contains(w.start) && !_document.active_handles.contains(w.start))
+        if (!is_hovered_or_active(w.start))
         {
             const auto s = _translator.to_view(w.start);
             draw_list->AddRect(s - Styles::HandleSize2, s + Styles::HandleSize2, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
         }
 
-        if (!_document.hovered_handles.contains(w.end) && !_document.active_handles.contains(w.end))
+        if (!is_hovered_or_active(w.end))
         {
             const auto e = _translator.to_view(w.end);
             draw_list->AddRect(e - Styles::HandleSize2, e + Styles::HandleSize2, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
         }
     }
 
-    for (const auto& hh : _document.hovered_handles)
+    if(_document.hovered_handle)
     {
-        const auto hp = _translator.to_view(hh);
+        const auto hp = _translator.to_view(_document.hovered_handle.value());
         draw_list->AddRect(hp - Styles::HandleSize2, hp + Styles::HandleSize2, Styles::HandleHoveredColor, 0.0f, 0, Styles::HandleThickness);
     }
 
-    for (const auto& ah : _document.active_handles)
+    if(_document.active_handle)
     {
-        const auto ap = _translator.to_view(ah);
+        const auto ap = _translator.to_view(_document.active_handle.value());
         draw_list->AddRect(ap - Styles::HandleSize2, ap + Styles::HandleSize2, Styles::HandleActiveColor, 0.0f, 0, Styles::HandleThickness);
     }
 }

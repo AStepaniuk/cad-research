@@ -21,8 +21,8 @@ namespace gui { namespace editor { namespace operation {
         handler::wall_join_handler _wall_join_handler;
         handler::wall_t_join_handler _wall_t_join_handler;
 
-        std::vector<handler::i_mmove_wall_handler*> _move_wall_handlers;
-        handler::i_mmove_wall_handler* _last_worked_move_wall_handler = nullptr;
+        std::vector<handler::i_move_wall_handler*> _move_wall_handlers;
+        handler::i_move_wall_handler* _last_worked_move_wall_handler = nullptr;
 
         std::string _commit_message;
         bool _do_commit_on_click = true;

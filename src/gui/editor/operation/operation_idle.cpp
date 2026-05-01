@@ -26,7 +26,7 @@ void operation_idle::stop()
     _document.selected_walls.clear();
     _document.hovered_wall_id = std::nullopt;
     
-    _document.hovered_handles.clear();
+    _document.hovered_handle = std::nullopt;
 }
 
 action_handle_status operation_idle::mouse_move(float mx, float my)
@@ -42,13 +42,13 @@ action_handle_status operation_idle::mouse_move(float mx, float my)
         if (hovered_handles.empty())
         {
             _document.hovered_wall_id = _view.get_wall(mx, my);
+            _document.hovered_handle = std::nullopt;
         }
         else
         {
             _document.hovered_wall_id = std::nullopt;
+            _document.hovered_handle = hovered_handles[0];
         }
-        _document.hovered_handles.clear();
-        _document.hovered_handles.put(hovered_handles);
 
         return action_handle_status::operation_continues;
     }
@@ -69,7 +69,7 @@ action_handle_status gui::editor::operation::operation_idle::left_mouse_click(fl
     } 
     else
     {
-        if (!_document.hovered_handles.empty())
+        if (_document.hovered_handle)
         {
             // start move wall handle sub-operation
 

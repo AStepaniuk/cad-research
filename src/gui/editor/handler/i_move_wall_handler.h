@@ -6,7 +6,7 @@
 #include "wall.h"
 
 namespace gui { namespace editor { namespace handler {
-    class i_mmove_wall_handler
+    class i_move_wall_handler
     {
     public:
         virtual bool wall_move(
