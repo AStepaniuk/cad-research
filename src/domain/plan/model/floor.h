@@ -51,8 +51,5 @@ namespace domain { namespace plan { namespace model
     private:
         data_t _data;
         history_t _history { _data };
-
-    public:
-        using constraints_t = std::remove_cvref_t<decltype(_data.items<constraint_t>())>;        
     };
 }}}

@@ -21,7 +21,7 @@ namespace corecad { namespace calculator
     {
     public:
         void recalculate_all(
-            const domain::plan::model::floor::constraints_t& parameters,        
+            const corecad::model::registry<TConstraintModel>& parameters,        
             model::registry<TVector>& points
         )
         {

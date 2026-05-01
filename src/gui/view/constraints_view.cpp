@@ -144,7 +144,7 @@ void constraints_view::render(ImDrawList *draw_list)
                     auto rndx = -ndy;
                     auto rndy = ndx;
 
-                    // make sure rndy is >0
+                    // make sure rndy is <0
                     if (rndy > 0.0f)
                     {
                         rndx = -rndx;
