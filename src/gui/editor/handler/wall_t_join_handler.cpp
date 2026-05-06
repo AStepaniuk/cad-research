@@ -82,39 +82,21 @@ bool wall_t_join_handler::wall_move(
 
 std::optional<domain::plan::model::wall_axis_point::index_t> wall_t_join_handler::apply()
 {
-    if (!_t_joint_data)
+    if (!_t_joint_data || !_document.active_handle)
     {
         return std::nullopt;
     }
-
-    // register new point
-    const auto npid = _document.model.data().put(_t_joint_data->joint_point);
 
     // split wall into 2 walls
     auto& w = _document.model.data().get(_t_joint_data->joint_wall_index);
 
     const auto epid = w.end.val();
-    w.end = npid;
+    w.end = _document.active_handle.value();
 
-    _document.model.data().make<wall>(npid, epid, w.width);
+    _document.model.data().make<wall>(_document.active_handle.value(), epid, w.width);
 
     // add constraing to keep both walls aligned
-    _document.model.data().put(floor::constraint_t::create<floor::aligned_wall_axis_point_t>(w.start, npid, epid));
+    _document.model.data().put(floor::constraint_t::create<floor::aligned_wall_axis_point_t>(w.start, _document.active_handle.value(), epid));
 
-    // update active walls points
-    for (const auto wid : _document.active_walls)
-    {
-        auto& wall = _document.model.data().get(wid);
-
-        if (wall.start == _document.active_handle.value())
-        {
-            wall.start = npid;
-        }
-        else
-        {
-            wall.end = npid;
-        }
-    }
-
-    return npid;
+    return {};
 }

@@ -10,6 +10,8 @@
 #include "calc_tools.h"
 #include "handler/wall_join_handler.h"
 #include "handler/wall_t_join_handler.h"
+#include "snap/vh_snap_builder.h"
+#include "snap/snap_processor.h"
 
 namespace gui { namespace editor { namespace operation {
     class operation_move_wall_handle : public i_operation
@@ -23,6 +25,10 @@ namespace gui { namespace editor { namespace operation {
 
         std::vector<handler::i_move_wall_handler*> _move_wall_handlers;
         handler::i_move_wall_handler* _last_worked_move_wall_handler = nullptr;
+
+        snap::vh_snap_builder _vh_snap_builder;
+        std::vector<snap::i_snap_builder*> _snap_builders;
+        snap::snap_processor _wall_snap_processor;
 
         std::string _commit_message;
         bool _do_commit_on_click = true;

@@ -10,9 +10,12 @@ operation_move_wall_handle::operation_move_wall_handle(doc::document &doc, floor
     : _document{doc}
     , _view{v}
     , _tools{t}
+    , _wall_snap_processor{doc}
     , _wall_join_handler{_document, _view}
     , _wall_t_join_handler{_document, _view}
     , _move_wall_handlers{&_wall_join_handler, &_wall_t_join_handler}
+    , _vh_snap_builder{_document, _view}
+    , _snap_builders{&_vh_snap_builder}
     , _commit_message{std::move(commit_msg)}
 {
 }
@@ -39,6 +42,8 @@ void operation_move_wall_handle::stop()
 
     _document.hovered_handle = _document.active_handle;
     _document.active_handle = std::nullopt;
+
+    _document.active_wall_snaps.clear();
 }
 
 action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
@@ -50,6 +55,19 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
 
     auto model_pos = wall_axis_point { _view.to_model(mx, my) };
 
+    // apply model pos to active point
+    auto& active_point = _document.model.data().get(_document.active_handle.value());
+    active_point.x = model_pos.x;
+    active_point.y = model_pos.y;
+
+    // recalculate active snaps
+    _document.active_wall_snaps.clear();
+    for (auto wall_snap_builder : _snap_builders)
+    {
+        wall_snap_builder->calculate_snaps(mx, my);
+    }
+    _wall_snap_processor.process();
+
     // check if model pos is applicable to any handler
     _last_worked_move_wall_handler = nullptr;
     for (auto handler : _move_wall_handlers)
@@ -57,14 +75,13 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
         if (handler->wall_move(mx, my, model_pos))
         {
             _last_worked_move_wall_handler = handler;
+
+            // re-apply model pos to active point
+            active_point.x = model_pos.x;
+            active_point.y = model_pos.y;
             break;
         }
     }
-
-    // spply model pos to all active point
-    auto& p = _document.model.data().get(_document.active_handle.value());
-    p.x = model_pos.x;
-    p.y = model_pos.y;
 
     // update model
     _tools.constraints_calculator.recalculate_all(
@@ -78,6 +95,8 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
 
 action_handle_status operation_move_wall_handle::left_mouse_click(float mx, float my)
 {
+    bool needs_recalculation = false;
+
     if (_last_worked_move_wall_handler)
     {
         const auto worked_point_id = _last_worked_move_wall_handler->apply();
@@ -88,14 +107,27 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
             _document.active_handle = worked_point_id.value();
         }
 
+        needs_recalculation = true;
+    }
+
+    _document.hovered_handle = _document.active_handle;
+
+    if (!_document.active_wall_snaps.constraints().empty())
+    {
+        _document.active_wall_snaps.clone_active_handle_constraints(_document.model.data().items<floor::constraint_t>());
+        _document.active_wall_snaps.clear();
+
+        needs_recalculation = true;
+    }
+
+    if(needs_recalculation)
+    {
         _tools.constraints_calculator.recalculate_all(
             _document.model.data().items<floor::constraint_t>(),
             _document.model.data().items<wall_axis_point>()
         );
         _tools.wall_calculator.recalculate_all_walls();
-    }
-
-    _document.hovered_handle = _document.active_handle;
+    } 
 
     if (_do_commit_on_click)
     {

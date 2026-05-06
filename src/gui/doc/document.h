@@ -4,11 +4,11 @@
 
 #include "floor.h"
 #include "collection.h"
+#include "wall_snaps.h"
 
 namespace gui { namespace doc {
-    class document
+    struct document
     {
-    public:
         domain::plan::model::floor model;
 
         // mouse hovered walls
@@ -25,5 +25,7 @@ namespace gui { namespace doc {
         std::optional<domain::plan::model::wall_axis_point::index_t> active_handle;
         // walls are currently being moved
         corecad::model::collection<domain::plan::model::wall> active_walls;
+        // snaps of the active wall handle
+        wall_snaps active_wall_snaps { model.data().items<domain::plan::model::wall_axis_point>() };
     };
 }}

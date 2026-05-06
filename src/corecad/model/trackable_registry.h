@@ -135,6 +135,11 @@ namespace corecad { namespace model
             return _data.size();
         }
 
+        bool empty() const
+        {
+            return _data.empty();
+        }
+
         void bind(THistory* history)
         {
             _history = history;

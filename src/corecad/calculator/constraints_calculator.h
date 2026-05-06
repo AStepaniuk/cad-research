@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 #include <ranges>
+#include <concepts>
 
 #include <GCS.h>
 
@@ -16,24 +17,34 @@
 
 namespace corecad { namespace calculator
 {
+    enum class constraint_calculation_result { success, failed };
+
     template<corecad::model::IsVector2D TVector, typename TConstraintModel>
     class constraints_calculator
     {
     public:
-        void recalculate_all(
-            const corecad::model::registry<TConstraintModel>& parameters,        
+        constraint_calculation_result recalculate_all(
+            const corecad::model::registry<TConstraintModel>& constraints,        
             model::registry<TVector>& points
         )
+        {
+            return recalculate_all(constraints | std::views::values, points);
+        }
+
+        template <typename R>
+        requires
+            std::ranges::input_range<R> && 
+            std::same_as<std::ranges::range_value_t<R>, TConstraintModel>
+        constraint_calculation_result recalculate_all(R&& iterable, model::registry<TVector>& points)
         {
             m_sys.clear();
 
             std::vector<GCS::Point> gcs_points;
-            std::vector<GCS::Line> gcs_lines;
             std::vector<double> gcs_params;
             std::unordered_set<size_t> gcs_constants;
 
             gcs_points.resize(points.size());
-            gcs_params.resize(points.size() * 2 + parameters.size());
+            gcs_params.resize(points.size() * 2);
             size_t next_idx = 0;
             size_t next_p = 0;
 
@@ -61,7 +72,7 @@ namespace corecad { namespace calculator
                 return iter->second;
             };
 
-            for(const auto& c : parameters)
+            for(const auto& c : iterable)
             {
                 std::visit(util::overloaded
                     {
@@ -69,18 +80,14 @@ namespace corecad { namespace calculator
                             auto f_gcs_p = get_or_add_gcs_point(offs.from);
                             auto t_gcs_p = get_or_add_gcs_point(offs.to);
 
-                            gcs_params[next_p] = offs.distance;
-
                             if (offs.direction == model::constraint::offset_direction::horizontal)
                             {
-                                m_sys.addConstraintDifference(f_gcs_p->x, t_gcs_p->x, &gcs_params[next_p]);
+                                m_sys.addConstraintDifference(f_gcs_p->x, t_gcs_p->x, &(const_cast<double&>(offs.distance.val())));
                             }
                             else
                             {
-                                m_sys.addConstraintDifference(f_gcs_p->y, t_gcs_p->y, &gcs_params[next_p]);
+                                m_sys.addConstraintDifference(f_gcs_p->y, t_gcs_p->y, &(const_cast<double&>(offs.distance.val())));
                             }
-
-                            next_p++;
                         },
                         [&](const model::constraint::fixed<TVector, TConstraintModel>& fix) {
                             auto gcs_p = get_or_add_gcs_point(fix.point);
@@ -104,7 +111,7 @@ namespace corecad { namespace calculator
                             m_sys.addConstraintPointOnLine(*gcs_p1, *gcs_p2, *gcs_p3);
                         }
                     },
-                    c.second.instance
+                    c.instance
                 );
             }
 
@@ -122,6 +129,8 @@ namespace corecad { namespace calculator
             {
                 // TODO: handle errors
                 std::cout << "Solve failed: " << res << std::endl;
+
+                return constraint_calculation_result::failed;
             }
             else
             {
@@ -133,6 +142,8 @@ namespace corecad { namespace calculator
                     p.x = *(pair.second->x);
                     p.y = *(pair.second->y);
                 }
+
+                return constraint_calculation_result::success;
             }
         }
 

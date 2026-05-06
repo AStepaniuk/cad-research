@@ -37,6 +37,8 @@ bool wall_join_handler::wall_move(
             model_pos.x = sp.x;
             model_pos.y = sp.y;
 
+            _document.active_wall_snaps.clear();
+
             return true;
         }
 
@@ -49,6 +51,8 @@ bool wall_join_handler::wall_move(
 
             model_pos.x = ep.x;
             model_pos.y = ep.y;
+
+            _document.active_wall_snaps.clear();
 
             return true;
         }

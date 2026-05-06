@@ -18,5 +18,8 @@ namespace gui {
         constraints_view(const doc::document& doc, const coord_translator_t & t);
 
         void render(ImDrawList* draw_list);
+
+    private:
+        void draw_constraint(ImDrawList* draw_list, const domain::plan::model::floor::constraint_t& c, ImU32 color);
     };
 }
