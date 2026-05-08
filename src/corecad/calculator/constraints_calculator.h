@@ -124,7 +124,7 @@ namespace corecad { namespace calculator
                 })
                 | std::ranges::to<std::vector>();
 
-            auto res = m_sys.solve(gcs_variables, true, GCS::Algorithm::LevenbergMarquardt);
+            auto res = m_sys.solve(gcs_variables, true, GCS::Algorithm::LevenbergMarquardt, true);
             if (res != GCS::SolveStatus::Success)
             {
                 // TODO: handle errors

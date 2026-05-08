@@ -4,20 +4,17 @@
 
 #include "document.h"
 #include "floor_view.h"
+#include "snap/snap_processor.h"
 
 namespace gui { namespace editor { namespace handler {
     class wall_t_join_handler : public i_move_wall_handler
     {
         doc::document& _document;
         floor_view& _view;
-
-        struct joint_data
-        {
-            domain::plan::model::wall_axis_point joint_point;
-            domain::plan::model::wall::index_t joint_wall_index;
-        };
         
-        std::optional<joint_data> _t_joint_data;
+        snap::snap_processor _wall_snap_processor;
+        
+        std::optional<domain::plan::model::wall::index_t> _t_joint_wall;
 
     public:
         wall_t_join_handler(doc::document &doc, floor_view& v);

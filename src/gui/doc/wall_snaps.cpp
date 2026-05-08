@@ -21,34 +21,6 @@ void wall_snaps::clear()
     _affected_points_data.clear();
 }
 
-void wall_snaps::add(floor::constraint_t&& c, double rank, wall_axis_point::index_t affected_point)
-{
-    const auto cid = _constraints.put(std::move(c));
-    _ranks.push_back({cid, rank});
-
-    _affected_points[cid] = std::vector<wall_axis_point::index_t>{affected_point};
-
-    auto [it, inserted] = _affected_points_data.try_emplace(affected_point);
-    if (inserted)
-    {
-        it->second.refcount = 1;
-
-        const auto& p = _wall_axis_points.get(affected_point);
-
-        it->second.h_fix = _constraints.put(
-            floor::constraint_t::create<floor::fixed_wall_axis_point_t>(affected_point, p.x, fixed_coordinate::x)
-        );
-        it->second.v_fix = _constraints.put(
-            floor::constraint_t::create<floor::fixed_wall_axis_point_t>(affected_point, p.y, fixed_coordinate::y)
-        );
-    }
-    else
-    {
-        (it->second.refcount)++;
-    }
-
-}
-
 void gui::doc::wall_snaps::ease()
 {
     if (_ranks.empty())

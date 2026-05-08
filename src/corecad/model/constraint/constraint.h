@@ -12,8 +12,11 @@ namespace corecad { namespace model { namespace constraint
     struct constraint : public model_base<constraint<TConstraints...>>
     {
         using instance_t = std::variant<TConstraints<constraint>...>;
-
         instance_t instance;
+
+        template<template <typename> typename TConstraint>
+        requires IsOneOf<TConstraint<constraint>, TConstraints<constraint>...>
+        using concrete_t = TConstraint<constraint>;
 
         template<template <typename> typename TConstraint, typename... TArgs>
         requires IsOneOf<TConstraint<constraint>, TConstraints<constraint>...>
@@ -73,4 +76,13 @@ namespace corecad { namespace model { namespace constraint
 
         return os;
     }
+
+    template <typename T>
+    struct is_constraint_spec : std::false_type {};
+
+    template <template <typename> typename... TConstraints>
+    struct is_constraint_spec<constraint<TConstraints...>> : std::true_type {};
+
+    template <typename T>
+    concept is_constraint = is_constraint_spec<std::remove_cvref_t<T>>::value;
 }}}
