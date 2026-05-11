@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "floor.h"
+#include "member_hasher.h"
 
 namespace domain { namespace plan { namespace calculator
 {
@@ -52,19 +53,20 @@ namespace domain { namespace plan { namespace calculator
 
         joined_walls get_joined_walls_points(const wall_finish_id& wfid, const walls_joints& joints);
 
-        enum class point_on_wall_location { none, start_right, start_left, end_right, end_left };
+        //enum class point_on_wall_location { none, start_right, start_left, end_right, end_left };
+        using point_on_wall_ptr = model::wall_border_point::index_t model::wall::*;
         struct wall_point_geometry_id
         {
-            wall_point_geometry_id(model::wall::index_t w_id, point_on_wall_location w_loc);
-            wall_point_geometry_id(model::wall::index_t w1_id, point_on_wall_location w1_loc, model::wall::index_t w2_id, point_on_wall_location w2_loc);
+            wall_point_geometry_id(model::wall::index_t w_id, point_on_wall_ptr w_p_ptr);
+            wall_point_geometry_id(model::wall::index_t w1_id, point_on_wall_ptr w1_p_ptr, model::wall::index_t w2_id, point_on_wall_ptr w2_p_ptr);
 
             auto operator<=>(const wall_point_geometry_id&) const = default;
 
             model::wall::index_t wall1_id;
-            point_on_wall_location wall1_location;
+            point_on_wall_ptr wall1_point_ptr;
 
             model::wall::index_t wall2_id;
-            point_on_wall_location wall2_location;
+            point_on_wall_ptr wall2_point_ptr;
         };
 
         struct wall_point_geometry_id_hasher
@@ -72,9 +74,9 @@ namespace domain { namespace plan { namespace calculator
             size_t operator()(const domain::plan::calculator::wall_calculator::wall_point_geometry_id& obj) const noexcept
             {
                 size_t h1 = std::hash<model::wall::index_t>{}(obj.wall1_id);
-                size_t h2 = std::hash<int>{}(static_cast<int>(obj.wall1_location));
+                size_t h2 = corecad::util::member_hasher{}(obj.wall1_point_ptr);
                 size_t h3 = std::hash<model::wall::index_t>{}(obj.wall2_id);
-                size_t h4 = std::hash<int>{}(static_cast<int>(obj.wall2_location));
+                size_t h4 = corecad::util::member_hasher{}(obj.wall2_point_ptr);
 
                 auto hash_combine = [](size_t& seed, size_t v) {
                     seed ^= v + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -88,22 +90,21 @@ namespace domain { namespace plan { namespace calculator
             }
         };
 
-        friend std::ostream& operator<<(std::ostream& os, point_on_wall_location pow)
+        friend std::ostream& operator<<(std::ostream& os, point_on_wall_ptr pow)
         {
-            switch(pow)
-            {
-                case point_on_wall_location::none: os << 'N'; break;
-                case point_on_wall_location::start_right: os << "SR"; break;
-                case point_on_wall_location::start_left: os << "SL"; break;
-                case point_on_wall_location::end_right: os << "ER"; break;
-                case point_on_wall_location::end_left: os << "EL"; break;
-            }
+            if (pow == nullptr) os << 'N';
+            else if (pow == &model::wall::start_right) os << "SR";
+            else if (pow == &model::wall::start_left) os << "SL";
+            else if (pow == &model::wall::end_right) os << "ER";
+            else if (pow == &model::wall::end_left) os << "EL";
+            else os << "??";
+
             return os;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const wall_point_geometry_id& id)
         {
-            return os << "wid1:" << id.wall1_id << " wl1:" << id.wall1_location << " wid2:" << id.wall2_id << " wl2:" << id.wall2_location;
+            return os << "wid1:" << id.wall1_id << " wl1:" << id.wall1_point_ptr << " wid2:" << id.wall2_id << " wl2:" << id.wall1_point_ptr;
         }
 
         struct wall_point_info
@@ -122,7 +123,13 @@ namespace domain { namespace plan { namespace calculator
         void assign_left_intersection_point(
             model::wall& wall1, wall_location wall1_location,
             model::wall& wall2, wall_location wall2_location,
-            const model::wall_border_point& left_intersection_p
+            const std::pair<model::wall_border_point, std::optional<model::wall_border_point>>& intersection_pair
+        );
+
+        void assign_walls_intersection_pair(
+            model::wall& wall1, point_on_wall_ptr wall1_point_ptr,
+            model::wall& wall2, point_on_wall_ptr wall2_point_ptr,
+            const std::pair<model::wall_border_point, std::optional<model::wall_border_point>>& intersection_pair
         );
     };
 }}}

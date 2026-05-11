@@ -62,7 +62,7 @@ namespace
         return wall_border_point {x, y};
     }
 
-    wall_border_point calculate_joined_walls_left_border_intersection(
+    std::pair<wall_border_point, std::optional<wall_border_point>> calculate_joined_walls_left_border_intersection(
         const wall& w1, const wall& w2,
         const wall_axis_point& w1_free_p, const wall_axis_point& common_p, const wall_axis_point& w2_free_p
     )
@@ -82,18 +82,18 @@ namespace
 
         if (intersection_p)
         {
-            return intersection_p.value();
+            return { intersection_p.value(), std::nullopt };
         }
         else
         {
             // walls are coincident
             if (w1.width == w2.width)
             {
-                return left_w1_offset_p; // should be same as right_w2_offset_p
+                return { left_w1_offset_p, std::nullopt }; // should be same as right_w2_offset_p
             }
             else
             {
-                throw std::runtime_error("Straight joints for walls with different width are not yet supported");
+                return { left_w1_offset_p, right_w2_offset_p };
             }
         }
     }
@@ -209,8 +209,8 @@ void wall_calculator::calculate_stub_wall_start_borders(wall& w)
     auto left_p = calculate_point_with_offset_from_line(start_p, end_p, left_offset);
     auto right_p = calculate_point_with_offset_from_line(start_p, end_p, right_offset);
 
-    w.start_left = find_or_create_point({ w.index, point_on_wall_location::start_left }, left_p);
-    w.start_right = find_or_create_point({ w.index, point_on_wall_location::start_right }, right_p);
+    w.start_left = find_or_create_point({ w.index, &wall::start_left }, left_p);
+    w.start_right = find_or_create_point({ w.index, &wall::start_right }, right_p);
 }
 
 void wall_calculator::calculate_stub_wall_end_borders(wall& w)
@@ -224,8 +224,8 @@ void wall_calculator::calculate_stub_wall_end_borders(wall& w)
     auto left_p = calculate_point_with_offset_from_line(end_p, start_p, left_offset);
     auto right_p = calculate_point_with_offset_from_line(end_p, start_p, right_offset);
 
-    w.end_left = find_or_create_point({ w.index, point_on_wall_location::end_left }, left_p);
-    w.end_right = find_or_create_point({ w.index, point_on_wall_location::end_right }, right_p);
+    w.end_left = find_or_create_point({ w.index, &wall::end_left }, left_p);
+    w.end_right = find_or_create_point({ w.index, &wall::end_right }, right_p);
 }
 
 void wall_calculator::recalculate_wall_joints(wall& w, walls_joints& joints)
@@ -469,59 +469,61 @@ wall_border_point::index_t wall_calculator::find_or_create_point(
 void wall_calculator::assign_left_intersection_point(
     wall &wall1, wall_location wall1_location, 
     wall &wall2, wall_location wall2_location, 
-    const wall_border_point& left_intersection_p
+    const std::pair<wall_border_point, std::optional<wall_border_point>>& intersection_pair
 )
 {
     if (wall1_location == wall_location::start && wall2_location == wall_location::start)
     {
-        auto left_pid = find_or_create_point({ 
-            wall1.index, point_on_wall_location::start_left,
-            wall2.index, point_on_wall_location::start_right 
-        }, left_intersection_p);
-        wall1.start_left = left_pid;
-        wall2.start_right = left_pid;
+        assign_walls_intersection_pair(wall1, &wall::start_left, wall2, &wall::start_right, intersection_pair);
     }
     else if (wall1_location == wall_location::start && wall2_location == wall_location::end)
     {
-        auto left_pid = find_or_create_point({ 
-            wall1.index, point_on_wall_location::start_left,
-            wall2.index, point_on_wall_location::end_left
-        }, left_intersection_p);
-        wall1.start_left = left_pid;
-        wall2.end_left = left_pid;
+        assign_walls_intersection_pair(wall1, &wall::start_left, wall2, &wall::end_left, intersection_pair);
     }
     else if (wall1_location == wall_location::end && wall2_location == wall_location::start)
     {
-        auto left_pid = find_or_create_point({ 
-            wall1.index, point_on_wall_location::end_right,
-            wall2.index, point_on_wall_location::start_right 
-        }, left_intersection_p);
-        wall1.end_right = left_pid;
-        wall2.start_right = left_pid;
+        assign_walls_intersection_pair(wall1, &wall::end_right, wall2, &wall::start_right, intersection_pair);
     }
     else /*if (wall1_location == wall_location::end && wall2_location == wall_location::end) */
     {
-        auto left_pid = find_or_create_point({ 
-            wall1.index, point_on_wall_location::end_right,
-            wall2.index, point_on_wall_location::end_left
-        }, left_intersection_p);
-        wall1.end_right = left_pid;
-        wall2.end_left = left_pid;
+        assign_walls_intersection_pair(wall1, &wall::end_right, wall2, &wall::end_left, intersection_pair);
     }
 }
 
-wall_calculator::wall_point_geometry_id::wall_point_geometry_id(wall::index_t w_id, point_on_wall_location w_loc)
+void wall_calculator::assign_walls_intersection_pair(
+    wall &wall1, point_on_wall_ptr wall1_point_ptr,
+    wall &wall2, point_on_wall_ptr wall2_point_ptr,
+    const std::pair<wall_border_point, std::optional<wall_border_point>> &intersection_pair
+)
+{
+    if (!intersection_pair.second)
+    {
+        auto left_pid = find_or_create_point(
+            { wall1.index, wall1_point_ptr, wall2.index, wall2_point_ptr },
+            intersection_pair.first
+        );
+        wall1.*wall1_point_ptr = left_pid;
+        wall2.*wall2_point_ptr = left_pid;
+    }
+    else
+    {
+        wall1.*wall1_point_ptr = find_or_create_point({ wall1.index, wall1_point_ptr }, intersection_pair.first);
+        wall2.*wall2_point_ptr = find_or_create_point({ wall2.index, wall2_point_ptr }, intersection_pair.second.value());
+    }
+}
+
+wall_calculator::wall_point_geometry_id::wall_point_geometry_id(wall::index_t w_id, point_on_wall_ptr w_p_ptr)
     : wall1_id { w_id }
-    , wall1_location { w_loc }
+    , wall1_point_ptr { w_p_ptr }
     , wall2_id { }
-    , wall2_location { point_on_wall_location::none }
+    , wall2_point_ptr { nullptr }
 {
 }
 
-wall_calculator::wall_point_geometry_id::wall_point_geometry_id(wall::index_t w1_id, point_on_wall_location w1_loc, wall::index_t w2_id, point_on_wall_location w2_loc)
+wall_calculator::wall_point_geometry_id::wall_point_geometry_id(wall::index_t w1_id, point_on_wall_ptr w1_p_ptr, wall::index_t w2_id, point_on_wall_ptr w2_p_ptr)
     : wall1_id { w1_id < w2_id ? w1_id : w2_id }
-    , wall1_location { w1_id < w2_id ? w1_loc : w2_loc }
+    , wall1_point_ptr { w1_id < w2_id ? w1_p_ptr : w2_p_ptr }
     , wall2_id { w1_id < w2_id ? w2_id : w1_id }
-    , wall2_location { w1_id < w2_id ? w2_loc : w1_loc }
+    , wall2_point_ptr { w1_id < w2_id ? w2_p_ptr : w1_p_ptr }
 {
 }
