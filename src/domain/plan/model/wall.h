@@ -20,6 +20,7 @@ namespace domain { namespace plan { namespace model
             : start { this, s }
             , end { this, e }
             , width { this, w }
+            , axis_offset { this, 0.0 }
         {
         }
 
@@ -28,6 +29,7 @@ namespace domain { namespace plan { namespace model
             , start { this, other.start }
             , end { this, other.end }
             , width { this, other.width }
+            , axis_offset { this, other.axis_offset }
             , start_left { other.start_left }
             , start_right { other.start_right }
             , end_left { other.end_left }
@@ -42,6 +44,7 @@ namespace domain { namespace plan { namespace model
             , start { this, other.start }
             , end { this, other.end }
             , width { this, other.width }
+            , axis_offset { this, other.axis_offset }
             , start_left { other.start_left }
             , start_right { other.start_right }
             , end_left { other.end_left }
@@ -66,6 +69,7 @@ namespace domain { namespace plan { namespace model
         corecad::model::property<wall_axis_point::index_t, wall> end;
 
         corecad::model::property<double, wall> width;
+        corecad::model::property<double, wall> axis_offset;
 
         // calculated properties
         wall_border_point::index_t start_left;

@@ -67,8 +67,11 @@ namespace
         const wall_axis_point& w1_free_p, const wall_axis_point& common_p, const wall_axis_point& w2_free_p
     )
     {
-        double w1_offset = w1.width * 0.5;
-        double w2_offset = -w2.width * 0.5;
+        double w1_axis_offset = (common_p.index == w1.start? w1.axis_offset : -w1.axis_offset);
+        double w2_axis_offset = (common_p.index == w2.start? -w2.axis_offset : w2.axis_offset);
+
+        double w1_offset = w1.width * 0.5 + w1_axis_offset;
+        double w2_offset = -(w2.width * 0.5 + w2_axis_offset);
 
         auto left_w1_offset_p = calculate_point_with_offset_from_line(common_p, w1_free_p, w1_offset);
         auto right_w2_offset_p = calculate_point_with_offset_from_line(common_p, w2_free_p, w2_offset);
@@ -86,8 +89,8 @@ namespace
         }
         else
         {
-            // walls are coincident
-            if (w1.width == w2.width)
+            // borders are coincident
+            if (w1_offset == w2_offset)
             {
                 return { left_w1_offset_p, std::nullopt }; // should be same as right_w2_offset_p
             }
@@ -203,8 +206,8 @@ void wall_calculator::calculate_stub_wall_start_borders(wall& w)
     const auto& start_p = _floor.data().get(w.start);
     const auto& end_p = _floor.data().get(w.end);
 
-    double left_offset = w.width * 0.5;
-    double right_offset = -w.width * 0.5;
+    double left_offset = w.width * 0.5 + w.axis_offset;
+    double right_offset = -(w.width * 0.5 - w.axis_offset);
 
     auto left_p = calculate_point_with_offset_from_line(start_p, end_p, left_offset);
     auto right_p = calculate_point_with_offset_from_line(start_p, end_p, right_offset);
@@ -218,8 +221,8 @@ void wall_calculator::calculate_stub_wall_end_borders(wall& w)
     const auto& start_p = _floor.data().get(w.start);
     const auto& end_p = _floor.data().get(w.end);
 
-    double left_offset = -w.width * 0.5;
-    double right_offset = w.width * 0.5;
+    double left_offset = -(w.width * 0.5 + w.axis_offset);
+    double right_offset = w.width * 0.5 - w.axis_offset;
 
     auto left_p = calculate_point_with_offset_from_line(end_p, start_p, left_offset);
     auto right_p = calculate_point_with_offset_from_line(end_p, start_p, right_offset);

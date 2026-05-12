@@ -123,7 +123,8 @@ std::optional<domain::plan::model::wall_axis_point::index_t> wall_t_join_handler
     const auto epid = w.end.val();
     w.end = _document.active_handle.value();
 
-    _document.model.data().make<wall>(_document.active_handle.value(), epid, w.width);
+    auto wid = _document.model.data().make<wall>(_document.active_handle.value(), epid, w.width);
+    _document.model.data().get(wid).axis_offset = w.axis_offset;
 
     return {};
 }

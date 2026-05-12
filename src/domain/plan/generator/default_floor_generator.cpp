@@ -22,7 +22,8 @@ void default_floor_generator::generate_floor(model::floor &floor)
     //auto toi = floor.data().put(top);
     //auto boi = floor.data().put(bop);
 
-    auto w1 = floor.data().make<wall>(tli, tri, 400.0);
+    auto w1 = floor.data().make<wall>(tli, tri, 600.0);
+    floor.data().get(w1).axis_offset = -100.0;
     //floor.data().make<wall>(tri, bri, 400.0);
     //floor.data().make<wall>(bri, bli, 400.0);
     //floor.data().make<wall>(bli, tli, 400.0);
