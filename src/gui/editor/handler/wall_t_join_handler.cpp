@@ -37,8 +37,10 @@ bool wall_t_join_handler::wall_move(
             continue;
         }
 
-        const auto& sp = _document.model.data().get(p.second.start);
-        const auto& ep = _document.model.data().get(p.second.end);
+        const auto& axis = _document.model.data().get(p.second.axis);
+
+        const auto& sp = _document.model.data().get(axis.s);
+        const auto& ep = _document.model.data().get(axis.e);
 
         const auto min_x = (sp.x > ep.x ? ep.x : sp.x) - tol.x;
         const auto max_x = (sp.x > ep.x ? sp.x : ep.x) + tol.x;
@@ -118,12 +120,14 @@ std::optional<domain::plan::model::wall_axis_point::index_t> wall_t_join_handler
     }
 
     // split wall into 2 walls
-    auto& w = _document.model.data().get(_t_joint_wall.value());
+    const auto& w = _document.model.data().get(_t_joint_wall.value());
+    auto& a = _document.model.data().get(w.axis);
 
-    const auto epid = w.end.val();
-    w.end = _document.active_handle.value();
+    const auto epid = a.e.val();
+    a.e = _document.active_handle.value();
 
-    auto wid = _document.model.data().make<wall>(_document.active_handle.value(), epid, w.width);
+    const auto aid = _document.model.data().make<wall_axis_line>(_document.active_handle.value(), epid);
+    const auto wid = _document.model.data().make<wall>(aid, w.width);
     _document.model.data().get(wid).axis_offset = w.axis_offset;
 
     return {};

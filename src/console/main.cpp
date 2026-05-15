@@ -18,7 +18,8 @@ int main()
     std::cout << "Point ID2: " << id2 << std::endl;
     std::cout << "p.x: " << f.data().get(id1).x << std::endl;
 
-    const auto& w_id1 = f.data().make<wall>(id1, id2, 10.0f);
+    const auto a = f.data().make<wall_axis_line>(id1, id2);
+    const auto w_id1 = f.data().make<wall>(a, 10.0f);
     std::cout << "w_id1: " << w_id1 << std::endl;
 
     return 0;

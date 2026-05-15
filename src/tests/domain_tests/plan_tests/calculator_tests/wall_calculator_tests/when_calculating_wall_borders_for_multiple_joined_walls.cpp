@@ -62,7 +62,7 @@ TEST_F(when_calculating_wall_borders_for_multiple_joined_walls, should_not_add_p
     given_floor_has_wall(1, 3, 200);
 
     given_recalculating_all_walls();
-    given_wall_point_is_moved_to(0, &wall::start, {2000, 2000});
+    given_wall_point_is_moved_to(0, &wall_axis_line::s, {2000, 2000});
 
     when_recalculating_all_walls();
 
@@ -81,8 +81,8 @@ TEST_F(when_calculating_wall_borders_for_multiple_joined_walls, should_not_add_p
     given_floor_has_wall(1, 3, 200);
 
     given_recalculating_all_walls();
-    given_wall_point_is_moved_to(1, &wall::end, {5000, 5000});
-    given_wall_point_is_moved_to(2, &wall::end, {10000, 5000});
+    given_wall_point_is_moved_to(1, &wall_axis_line::e, {5000, 5000});
+    given_wall_point_is_moved_to(2, &wall_axis_line::e, {10000, 5000});
 
     when_recalculating_all_walls();
 

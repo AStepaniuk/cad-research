@@ -171,8 +171,6 @@ namespace corecad { namespace model
     template<typename T, typename THistory>
     std::ostream& operator<<(std::ostream& os, const trackable_registry<T, THistory>& r)
     {
-        os << "items:" << std::endl;
-
         auto pointers = r 
             | std::views::transform([](const auto& pair) { return &pair; })
             | std::ranges::to<std::vector>();

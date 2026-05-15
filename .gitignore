@@ -46,3 +46,5 @@ build/
 #imgui debug file
 imgui.ini
 
+.gdbinit
+.vscode/

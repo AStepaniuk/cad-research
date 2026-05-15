@@ -33,6 +33,9 @@ void operation_add_wall::stop()
 
     if (_current_wall)
     {
+        const auto& cw = _document.model.data().get(_current_wall.value());
+
+        _document.model.data().erase(cw.axis.val());        
         _document.model.data().erase(_current_wall.value());
         _tools.wall_calculator.recalculate_all_walls();
 
@@ -69,7 +72,8 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
         _current_point = _document.hovered_handle.value();
     }
 
-    auto wall_index = _document.model.data().make<wall>(_current_point.value(), next_index, 400.0);
+    const auto axis_index = _document.model.data().make<wall_axis_line>(_current_point.value(), next_index);
+    auto wall_index = _document.model.data().make<wall>(axis_index, 400.0);
     _current_wall = wall_index;
 
     _document.selected_walls.clear();

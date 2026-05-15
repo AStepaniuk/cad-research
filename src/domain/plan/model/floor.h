@@ -32,6 +32,7 @@ namespace domain { namespace plan { namespace model
         using data_t = corecad::model::registry_pool<
             constraint_t,
             wall_axis_point,
+            wall_axis_line,
             wall_border_point,
             wall
         >;
@@ -40,6 +41,7 @@ namespace domain { namespace plan { namespace model
             data_t,
             constraint_t,
             wall_axis_point,
+            wall_axis_line,
             wall
         >;
 

@@ -11,7 +11,8 @@ void wall_calculator_base_fixture::given_floor_has_wall_axis_point(const wall_ax
 
 void wall_calculator_base_fixture::given_floor_has_wall(size_t sp, size_t ep, double w)
 {
-    walls.push_back(test_floor.data().make<wall>(points[sp], points[ep], w));
+    const auto a = test_floor.data().make<wall_axis_line>(points[sp], points[ep]);
+    walls.push_back(test_floor.data().make<wall>(a, w));
 }
 
 void wall_calculator_base_fixture::given_single_wall_floor_generated(
@@ -49,12 +50,13 @@ void wall_calculator_base_fixture::given_recalculating_all_walls()
 
 void wall_calculator_base_fixture::given_wall_point_is_moved_to(
     size_t w,
-    wall_axis_point_index_property_t wall::*point_definition,
+    wall_axis_point_index_property_t wall_axis_line::*point_definition,
     const wall_axis_point& p
 )
 {
     const auto& wall = test_floor.data().get(walls[w]);
-    auto& point = test_floor.data().get(wall.*point_definition);
+    const auto& axis = test_floor.data().get(wall.axis);
+    auto& point = test_floor.data().get(axis.*point_definition);
 
     point.x = p.x;
     point.y = p.y;

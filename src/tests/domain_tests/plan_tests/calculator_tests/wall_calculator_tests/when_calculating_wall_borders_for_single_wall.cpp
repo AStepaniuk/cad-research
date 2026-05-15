@@ -115,7 +115,7 @@ TEST_F(when_calculating_wall_borders_for_single_wall, should_not_add_points_afte
 {
     given_single_wall_floor_generated({10000, 5000}, {1000, 1000}, 100);
     given_recalculating_all_walls();
-    given_wall_point_is_moved_to(0, &wall::start, {2000, 2000});
+    given_wall_point_is_moved_to(0, &wall_axis_line::s, {2000, 2000});
 
     when_recalculating_all_walls();
 

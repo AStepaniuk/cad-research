@@ -27,7 +27,9 @@ bool wall_join_handler::wall_move(
             continue;
         }
 
-        const auto& sp = _document.model.data().get(p.second.start);
+        const auto& a = _document.model.data().get(p.second.axis);
+
+        const auto& sp = _document.model.data().get(a.s);
     
         if (model_pos.x > sp.x - tol.x && model_pos.x < sp.x + tol.x
         && model_pos.y > sp.y - tol.y && model_pos.y < sp.y + tol.y)
@@ -42,7 +44,7 @@ bool wall_join_handler::wall_move(
             return true;
         }
 
-        const auto& ep = _document.model.data().get(p.second.end);
+        const auto& ep = _document.model.data().get(a.e);
     
         if (model_pos.x > ep.x - tol.x && model_pos.x < ep.x + tol.x
         && model_pos.y > ep.y - tol.y && model_pos.y < ep.y + tol.y)
@@ -73,14 +75,15 @@ std::optional<wall_axis_point::index_t> wall_join_handler::apply()
     for (const auto wid : _document.active_walls)
     {
         auto& wall = _document.model.data().get(wid);
+        auto& axis = _document.model.data().get(wall.axis);
 
-        if (wall.start == _document.active_handle.value())
+        if (axis.s == _document.active_handle.value())
         {
-            wall.start = _target_point_index.value();
+            axis.s = _target_point_index.value();
         }
         else
         {
-            wall.end = _target_point_index.value();
+            axis.e = _target_point_index.value();
         }
     }
 

@@ -30,7 +30,8 @@ void operation_move_wall_handle::start()
         _document.model.data().items<wall>()
             | std::views::transform([] (const auto& p) { return p.second; })
             | std::views::filter([this](const auto& w) {
-                return w.start == _document.active_handle || w.end == _document.active_handle;
+                const auto& a = _document.model.data().get(w.axis);
+                return a.s == _document.active_handle || a.e == _document.active_handle;
             })
             | std::views::transform([] (const auto& w) { return w.index; })
     );

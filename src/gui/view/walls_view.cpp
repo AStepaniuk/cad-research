@@ -65,35 +65,15 @@ void walls_view::render(ImDrawList* draw_list)
 
         if (_document.selected_walls.contains(w.index))
         {
-            const auto polygon = to_view_polygon(w);
-
             draw_list->AddConvexPolyFilled(polygon.data(), polygon.size(), Styles::WallSelectedFillColor);
             draw_list->AddLine(polygon[1], polygon[2], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
             draw_list->AddLine(polygon[4], polygon[5], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
-            if (w.start_joints == 0)
-            {
-                draw_list->AddLine(polygon[1], polygon[5], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
-            }
-            if (w.end_joints == 0)
-            {
-                draw_list->AddLine(polygon[2], polygon[4], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
-            }
-
             draw_list->AddLine(polygon[0], polygon[3], Styles::WallSelectedMidLineColor, Styles::WallSelectedMidLineThickness);
         }
         else
         {
             draw_list->AddLine(polygon[1], polygon[2], Styles::WallLineColor, Styles::WallLineThickness);
             draw_list->AddLine(polygon[4], polygon[5], Styles::WallLineColor, Styles::WallLineThickness);
-            if (w.start_joints == 0)
-            {
-                draw_list->AddLine(polygon[1], polygon[5], Styles::WallLineColor, Styles::WallLineThickness);
-            }
-            if (w.end_joints == 0)
-            {
-                draw_list->AddLine(polygon[2], polygon[4], Styles::WallLineColor, Styles::WallLineThickness);
-            }
-
             draw_list->AddLine(polygon[0], polygon[3], Styles::WallMidLineColor, Styles::WallMidLineThickness);
         }
     }
@@ -107,15 +87,6 @@ void walls_view::render(ImDrawList* draw_list)
         draw_list->AddConvexPolyFilled(polygon.data(), polygon.size(), Styles::WallHoveredFillColor);
         draw_list->AddLine(polygon[1], polygon[2], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
         draw_list->AddLine(polygon[4], polygon[5], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
-        if (w.start_joints == 0)
-        {
-            draw_list->AddLine(polygon[1], polygon[5], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
-        }
-        if (w.end_joints == 0)
-        {
-            draw_list->AddLine(polygon[2], polygon[4], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
-        }
-
         draw_list->AddLine(polygon[0], polygon[3], Styles::WallHoveredMidLineColor, Styles::WallHoveredMidLineThickness);
     }
 
@@ -128,16 +99,17 @@ void walls_view::render(ImDrawList* draw_list)
     for (auto wi : _document.selected_walls)
     {
         const auto& w = _document.model.data().get(wi);
+        const auto& a = _document.model.data().get(w.axis);
 
-        if (!is_hovered_or_active(w.start))
+        if (!is_hovered_or_active(a.s))
         {
-            const auto s = _translator.to_view(w.start);
+            const auto s = _translator.to_view(a.s);
             draw_list->AddRect(s - Styles::HandleSize2, s + Styles::HandleSize2, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
         }
 
-        if (!is_hovered_or_active(w.end))
+        if (!is_hovered_or_active(a.e))
         {
-            const auto e = _translator.to_view(w.end);
+            const auto e = _translator.to_view(a.e);
             draw_list->AddRect(e - Styles::HandleSize2, e + Styles::HandleSize2, Styles::HandleColor, 0.0f, 0, Styles::HandleThickness);
         }
     }
@@ -192,8 +164,9 @@ std::vector<wall_axis_point::index_t> walls_view::get_handles(float screen_x, fl
     for (auto wi : _document.selected_walls)
     {
         const auto& w = _document.model.data().get(wi);
-        check_point(w.start);
-        check_point(w.end);
+        const auto& a = _document.model.data().get(w.axis);
+        check_point(a.s);
+        check_point(a.e);
    }
 
    return result;
@@ -201,12 +174,14 @@ std::vector<wall_axis_point::index_t> walls_view::get_handles(float screen_x, fl
 
 std::vector<ImVec2> walls_view::to_view_polygon(const domain::plan::model::wall &w) const
 {
+    const auto& a = _document.model.data().get(w.axis);
+
     return std::vector<ImVec2>
     {
-        _translator.to_view(w.start),
+        _translator.to_view(a.s),
         _translator.to_view(w.start_left),
         _translator.to_view(w.end_left),
-        _translator.to_view(w.end),
+        _translator.to_view(a.e),
         _translator.to_view(w.end_right),
         _translator.to_view(w.start_right) 
     };

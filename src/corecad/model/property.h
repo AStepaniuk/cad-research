@@ -30,7 +30,7 @@ namespace corecad { namespace model
             , _parent { nullptr }
         {}
 
-        property(property&& other)
+        property(property&& other) noexcept(std::is_nothrow_move_constructible_v<TValue>)
             : _value { std::move(other._value) }
             , _parent { nullptr }
         {}
@@ -39,6 +39,7 @@ namespace corecad { namespace model
         {
             if (this != &other && _value != other._value)
             {
+                // update notification should happen while _value contains old val
                 handle_update();
                 _value = other._value;
             }
@@ -46,10 +47,11 @@ namespace corecad { namespace model
             return *this;
         }
 
-        property& operator=(property&& other)
+        property& operator=(property&& other) noexcept(std::is_nothrow_move_assignable_v<TValue>)
         {
             if (this != &other && _value != other._value)
             {
+                // update notification should happen while _value contains old val
                 handle_update();
                 _value = std::move(other._value);
             }
@@ -61,6 +63,7 @@ namespace corecad { namespace model
         {
             if (_value != other)
             {
+                // update notification should happen while _value contains old val
                 handle_update();
                 _value = other;
             }
@@ -68,10 +71,11 @@ namespace corecad { namespace model
             return *this;
         }
 
-        property& operator=(TValue&& other)
+        property& operator=(TValue&& other) noexcept(std::is_nothrow_move_assignable_v<TValue>)
         {
             if (_value != other)
             {
+                // update notification should happen while _value contains old val
                 handle_update();
                 _value = std::move(other);
             }

@@ -25,7 +25,7 @@ namespace domain { namespace plan { namespace calculator
         enum class wall_location { start, end };
         struct wall_finish_id
         {
-            model::wall::index_t wall_index;
+            model::wall_axis_line::index_t axis_id;
             wall_location location;
 
             auto operator<=>(const wall_finish_id&) const = default;
@@ -43,17 +43,22 @@ namespace domain { namespace plan { namespace calculator
         };
 
         void recalculate_wall_joints(model::wall& w, walls_joints& joints);
-        void calculate_joined_2_walls_borders(wall_finish_id fid, const walls_joints& joints, std::vector<wall_finish_id>& processed_fids);
+        void calculate_joined_2_walls_borders(
+            wall_finish_id fid,
+            const walls_joints& joints,
+            const std::map<model::wall_axis_line::index_t, model::wall::index_t>& wall_axis_owners,
+            std::vector<wall_finish_id>& processed_fids
+        );
         void calculate_joined_n_walls_borders(
             wall_finish_id fid,
             const walls_joints& joints,
-            std::map<model::wall::index_t, double> wall_directions,
+            const std::map<model::wall_axis_line::index_t, model::wall::index_t>& wall_axis_owners,
+            std::map<model::wall_axis_line::index_t, double>& wall_axis_directions,
             std::vector<wall_finish_id>& processed_fids
         );
 
         joined_walls get_joined_walls_points(const wall_finish_id& wfid, const walls_joints& joints);
 
-        //enum class point_on_wall_location { none, start_right, start_left, end_right, end_left };
         using point_on_wall_ptr = model::wall_border_point::index_t model::wall::*;
         struct wall_point_geometry_id
         {

@@ -26,13 +26,10 @@ protected:
     );
     void given_recalculating_all_walls();
 
-    using wall_axis_point_index_property_t = corecad::model::property<
-        domain::plan::model::wall_axis_point::index_t,
-        domain::plan::model::wall
-    >;
+    using wall_axis_point_index_property_t = decltype(domain::plan::model::wall_axis_line::s);
     void given_wall_point_is_moved_to(
         size_t w,
-        wall_axis_point_index_property_t domain::plan::model::wall::*point_definition,
+        wall_axis_point_index_property_t domain::plan::model::wall_axis_line::*point_definition,
         const domain::plan::model::wall_axis_point& p
     );
 
