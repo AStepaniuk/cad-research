@@ -175,15 +175,17 @@ std::vector<wall_axis_point::index_t> walls_view::get_handles(float screen_x, fl
 std::vector<ImVec2> walls_view::to_view_polygon(const domain::plan::model::wall &w) const
 {
     const auto& a = _document.model.data().get(w.axis);
+    const auto& l = _document.model.data().get(w.left);
+    const auto& r = _document.model.data().get(w.right);
 
     return std::vector<ImVec2>
     {
         _translator.to_view(a.s),
-        _translator.to_view(w.start_left),
-        _translator.to_view(w.end_left),
+        _translator.to_view(l.s),
+        _translator.to_view(l.e),
         _translator.to_view(a.e),
-        _translator.to_view(w.end_right),
-        _translator.to_view(w.start_right) 
+        _translator.to_view(r.e),
+        _translator.to_view(r.s) 
     };
 }
 

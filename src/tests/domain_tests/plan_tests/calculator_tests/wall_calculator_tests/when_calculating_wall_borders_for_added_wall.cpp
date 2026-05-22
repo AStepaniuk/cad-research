@@ -46,19 +46,19 @@ TEST_F(when_calculating_wall_borders_for_added_wall, should_calculate_added_wall
 
     when_recalculating_all_walls();
 
-    then_border_point_should_be(0, &wall::start_left, { 1000, 950 });
-    then_border_point_should_be(0, &wall::start_right, { 1000, 1050 });
-    then_border_point_should_be(0, &wall::end_left, { 5000, 950 });
-    then_border_point_should_be(0, &wall::end_right, { 4900, 1050 });
+    then_border_point_should_be(0, &wall::left, &wall_border_line::s, { 1000, 950 });
+    then_border_point_should_be(0, &wall::right, &wall_border_line::s, { 1000, 1050 });
+    then_border_point_should_be(0, &wall::left, &wall_border_line::e, { 5000, 950 });
+    then_border_point_should_be(0, &wall::right, &wall_border_line::e, { 4900, 1050 });
 
-    then_border_point_should_be(1, &wall::start_left, { 5000, 950 });
-    then_border_point_should_be(1, &wall::start_right, { 5100, 1050 });
-    then_border_point_should_be(1, &wall::end_left, { 10000, 950 });
-    then_border_point_should_be(1, &wall::end_right, { 10000, 1050 });
+    then_border_point_should_be(1, &wall::left, &wall_border_line::s, { 5000, 950 });
+    then_border_point_should_be(1, &wall::right, &wall_border_line::s, { 5100, 1050 });
+    then_border_point_should_be(1, &wall::left, &wall_border_line::e, { 10000, 950 });
+    then_border_point_should_be(1, &wall::right, &wall_border_line::e, { 10000, 1050 });
 
-    then_border_point_should_be(2, &wall::start_left, { 5100, 1050 });
-    then_border_point_should_be(2, &wall::start_right, { 4900, 1050 });
-    then_border_point_should_be(2, &wall::end_left, { 5100, 5000 });
-    then_border_point_should_be(2, &wall::end_right, { 4900, 5000 });
+    then_border_point_should_be(2, &wall::left, &wall_border_line::s, { 5100, 1050 });
+    then_border_point_should_be(2, &wall::right, &wall_border_line::s, { 4900, 1050 });
+    then_border_point_should_be(2, &wall::left, &wall_border_line::e, { 5100, 5000 });
+    then_border_point_should_be(2, &wall::right, &wall_border_line::e, { 4900, 5000 });
 }
 

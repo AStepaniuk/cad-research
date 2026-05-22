@@ -16,7 +16,7 @@ operation_add_wall::operation_add_wall(doc::document &doc, floor_view &v, calc_t
 
 void operation_add_wall::start()
 {
-    _current_point = std::make_optional(_document.model.data().make<wall_axis_point>(0.0, 0.0));
+    _current_point = _document.model.data().make<wall_axis_point>(0.0, 0.0);
     _current_wall = std::nullopt;
 
     _document.hovered_handle = _current_point;

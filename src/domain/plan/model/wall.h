@@ -15,6 +15,7 @@ namespace domain { namespace plan { namespace model
     using wall_axis_line = corecad::model::line2d<wall_axis_tag>;
 
     using wall_border_point = corecad::model::vector2d<wall_border_tag>;
+    using wall_border_line = corecad::model::line2d<wall_border_tag>;
 
     class wall : public corecad::model::model_base<wall>
     {
@@ -31,10 +32,10 @@ namespace domain { namespace plan { namespace model
             , axis { this, other.axis }
             , width { this, other.width }
             , axis_offset { this, other.axis_offset }
-            , start_left { other.start_left }
-            , start_right { other.start_right }
-            , end_left { other.end_left }
-            , end_right { other.end_right }
+            , left { other.left }
+            , right { other.right }
+            , start_stub { other.start_stub }
+            , end_stub { other.end_stub }
         {
         }
 
@@ -43,10 +44,10 @@ namespace domain { namespace plan { namespace model
             , axis { this, other.axis }
             , width { this, other.width }
             , axis_offset { this, other.axis_offset }
-            , start_left { other.start_left }
-            , start_right { other.start_right }
-            , end_left { other.end_left }
-            , end_right { other.end_right }
+            , left { other.left }
+            , right { other.right }
+            , start_stub { other.start_stub }
+            , end_stub { other.end_stub }
         {
         }
 
@@ -66,10 +67,10 @@ namespace domain { namespace plan { namespace model
         corecad::model::property<double, wall> axis_offset;
 
         // calculated properties
-        wall_border_point::index_t start_left;
-        wall_border_point::index_t start_right;
-        wall_border_point::index_t end_left;
-        wall_border_point::index_t end_right;
+        wall_border_line::index_t left {};
+        wall_border_line::index_t right {};
+        wall_border_line::index_t start_stub {};
+        wall_border_line::index_t end_stub {};
     };  
 
     std::ostream& operator<<(std::ostream& os, const wall& w);

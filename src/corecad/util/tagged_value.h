@@ -24,6 +24,12 @@ namespace corecad { namespace util
         tagged_value& operator=(tagged_value&&) = default;
 
         auto operator<=>(const tagged_value&) const = default;
+
+        explicit operator bool() const noexcept(noexcept(static_cast<bool>(std::declval<const T&>())))
+        requires std::convertible_to<const T&, bool> 
+        {
+            return static_cast<bool>(value);
+        }
     };
 
     template<typename T, typename Tag>

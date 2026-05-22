@@ -74,12 +74,15 @@ void wall_calculator_base_fixture::then_border_points_number_should_be(size_t n)
 
 void wall_calculator_base_fixture::then_border_point_should_be(
     size_t w,
-    wall_border_point::index_t wall::*point_definition,
-    const wall_border_point &p
+    wall_border_line::index_t wall::*border_definition,
+    point_on_border_ptr point_definition,
+    const domain::plan::model::wall_border_point& p
 )
 {
     const auto& wall = test_floor.data().get(walls[w]);
-    const auto& actual_p = test_floor.data().get(wall.*point_definition);
+
+    const auto& border = test_floor.data().get(wall.*border_definition);
+    const auto& actual_p = test_floor.data().get(border.*point_definition);
 
     ASSERT_TRUE(are_vectors_equal(actual_p, p));
 }

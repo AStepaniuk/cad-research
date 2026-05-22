@@ -34,6 +34,7 @@ namespace domain { namespace plan { namespace model
             wall_axis_point,
             wall_axis_line,
             wall_border_point,
+            wall_border_line,
             wall
         >;
 

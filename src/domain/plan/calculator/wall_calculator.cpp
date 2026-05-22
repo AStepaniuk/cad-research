@@ -90,8 +90,8 @@ namespace
         }
         else
         {
-            // borders are coincident
-            if (w1_offset == w2_offset)
+           // borders are coincident
+            if ((w1_offset + w2_offset) < 0.0001)
             {
                 return { left_w1_offset_p, std::nullopt }; // should be same as right_w2_offset_p
             }
@@ -123,13 +123,18 @@ wall_calculator::wall_calculator(model::floor &floor)
 
 void wall_calculator::recalculate_all_walls()
 {
-    // clean-up ref count for previously generated points
+    // clean-up ref count for previously generated items
     for (auto& pair : _points_cache)
     {
         pair.second.refcount = 0;
     }
 
-    // recalculate new wall points
+    for (auto& pair : _borders_cache)
+    {
+        pair.second.refcount = 0;
+    }
+
+    // recalculate new wall borders
     walls_joints joints;
     std::map<wall_axis_line::index_t, double> wall_axis_directions;
     std::map<wall_axis_line::index_t, wall::index_t> wall_axis_owners;
@@ -155,8 +160,7 @@ void wall_calculator::recalculate_all_walls()
             if (std::ranges::find(processed_fids, wall_start_fid) == processed_fids.end())
             {
                 if (start_joints_num == 1)
-                {
-                    
+                {            
                     calculate_joined_2_walls_borders(wall_start_fid, joints, wall_axis_owners, processed_fids);
                 }
                 else
@@ -190,7 +194,21 @@ void wall_calculator::recalculate_all_walls()
         }
     }
 
-    // erase unreacheable points
+    // erase unreacheable items
+    for (auto it = _borders_cache.begin(); it != _borders_cache.end(); ) 
+    {
+        if (it->second.refcount == 0)
+        {
+            // cached point is not used anymore
+            _floor.data().erase(it->second.index);
+            it = _borders_cache.erase(it); 
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
     for (auto it = _points_cache.begin(); it != _points_cache.end(); ) 
     {
         if (it->second.refcount == 0)
@@ -213,14 +231,21 @@ void wall_calculator::calculate_stub_wall_start_borders(wall& w)
     const auto& start_p = _floor.data().get(axis.s);
     const auto& end_p = _floor.data().get(axis.e);
 
-    double left_offset = w.width * 0.5 + w.axis_offset;
-    double right_offset = -(w.width * 0.5 - w.axis_offset);
+    const double left_offset = w.width * 0.5 + w.axis_offset;
+    const double right_offset = -(w.width * 0.5 - w.axis_offset);
 
-    auto left_p = calculate_point_with_offset_from_line(start_p, end_p, left_offset);
-    auto right_p = calculate_point_with_offset_from_line(start_p, end_p, right_offset);
+    const auto left_p = calculate_point_with_offset_from_line(start_p, end_p, left_offset);
+    const auto right_p = calculate_point_with_offset_from_line(start_p, end_p, right_offset);
 
-    w.start_left = find_or_create_point({ w.index, &wall::start_left }, left_p);
-    w.start_right = find_or_create_point({ w.index, &wall::start_right }, right_p);
+    auto& stub_border = find_or_create_border({ w.index, &wall::start_stub });
+    auto& left_border = find_or_create_border({ w.index, &wall::left });
+    auto& right_border = find_or_create_border({ w.index, &wall::right });
+
+    assign_point_to_borders(left_border, &wall_border_line::s, stub_border, &wall_border_line::s, left_p);
+    assign_point_to_borders(right_border, &wall_border_line::s, stub_border, &wall_border_line::e, right_p);
+
+    w.left = left_border.index;
+    w.start_stub = stub_border.index;
 }
 
 void wall_calculator::calculate_stub_wall_end_borders(wall& w)
@@ -236,8 +261,15 @@ void wall_calculator::calculate_stub_wall_end_borders(wall& w)
     auto left_p = calculate_point_with_offset_from_line(end_p, start_p, left_offset);
     auto right_p = calculate_point_with_offset_from_line(end_p, start_p, right_offset);
 
-    w.end_left = find_or_create_point({ w.index, &wall::end_left }, left_p);
-    w.end_right = find_or_create_point({ w.index, &wall::end_right }, right_p);
+    auto& stub_border = find_or_create_border({ w.index, &wall::end_stub });
+    auto& left_border = find_or_create_border({ w.index, &wall::left });
+    auto& right_border = find_or_create_border({ w.index, &wall::right });
+
+    assign_point_to_borders(left_border, &wall_border_line::e, stub_border, &wall_border_line::s, left_p);
+    assign_point_to_borders(right_border, &wall_border_line::e, stub_border, &wall_border_line::e, right_p);
+
+    w.right = right_border.index;
+    w.end_stub = stub_border.index;
 }
 
 void wall_calculator::recalculate_wall_joints(wall& w, walls_joints& joints)
@@ -455,7 +487,7 @@ wall_calculator::joined_walls wall_calculator::get_joined_walls_points(const wal
 }
 
 wall_border_point::index_t wall_calculator::find_or_create_point(
-    const wall_point_geometry_id& id,
+    const border_point_geometry_id& id,
     const wall_border_point& p
 )
 {
@@ -478,64 +510,140 @@ wall_border_point::index_t wall_calculator::find_or_create_point(
     return it->second.index;
 }
 
-void wall_calculator::assign_left_intersection_point(
-    wall &wall1, wall_location wall1_location, 
-    wall &wall2, wall_location wall2_location, 
-    const std::pair<wall_border_point, std::optional<wall_border_point>>& intersection_pair
+void wall_calculator::assign_point_to_borders(
+    wall_border_line &b1, point_on_border_ptr p1_ptr,
+    wall_border_line &b2, point_on_border_ptr p2_ptr,
+    const wall_border_point &point
 )
+{
+    const auto pi = find_or_create_point({b1.index, p1_ptr, b2.index, p2_ptr}, point);
+    b1.*p1_ptr = pi;
+    b2.*p2_ptr = pi;
+}
+
+wall_border_line &wall_calculator::find_or_create_border(const wall_border_geometry_id &id)
+{
+    auto [it, inserted] = _borders_cache.try_emplace(id);
+
+    if (inserted)
+    {
+        it->second.index = _floor.data().make<wall_border_line>(wall_border_point::index_t {}, wall_border_point::index_t {});
+        it->second.refcount = 1;
+    }
+    else
+    {
+        it->second.refcount++;
+    }
+    return _floor.data().get(it->second.index);
+}
+
+void wall_calculator::assign_left_intersection_point(
+    wall &wall1, wall_location wall1_location,
+    wall &wall2, wall_location wall2_location,
+    const std::pair<wall_border_point, std::optional<wall_border_point>> &intersection_pair)
 {
     if (wall1_location == wall_location::start && wall2_location == wall_location::start)
     {
-        assign_walls_intersection_pair(wall1, &wall::start_left, wall2, &wall::start_right, intersection_pair);
+        assign_walls_intersection_pair(
+            wall1, &wall::left, &wall_border_line::s,
+            wall2, &wall::right, &wall_border_line::s,
+            intersection_pair
+        );
     }
     else if (wall1_location == wall_location::start && wall2_location == wall_location::end)
     {
-        assign_walls_intersection_pair(wall1, &wall::start_left, wall2, &wall::end_left, intersection_pair);
+        assign_walls_intersection_pair(
+            wall1, &wall::left, &wall_border_line::s,
+            wall2, &wall::left, &wall_border_line::e,
+            intersection_pair
+        );
     }
     else if (wall1_location == wall_location::end && wall2_location == wall_location::start)
     {
-        assign_walls_intersection_pair(wall1, &wall::end_right, wall2, &wall::start_right, intersection_pair);
+        assign_walls_intersection_pair(
+            wall1, &wall::right, &wall_border_line::e, 
+            wall2, &wall::right, &wall_border_line::s, 
+            intersection_pair
+        );
     }
     else /*if (wall1_location == wall_location::end && wall2_location == wall_location::end) */
     {
-        assign_walls_intersection_pair(wall1, &wall::end_right, wall2, &wall::end_left, intersection_pair);
+        assign_walls_intersection_pair(
+            wall1, &wall::right, &wall_border_line::e,
+            wall2, &wall::left, &wall_border_line::e,
+            intersection_pair
+        );
     }
 }
 
 void wall_calculator::assign_walls_intersection_pair(
-    wall &wall1, point_on_wall_ptr wall1_point_ptr,
-    wall &wall2, point_on_wall_ptr wall2_point_ptr,
+    model::wall& wall1, wall_border_line_ptr wall1_line_ptr, point_on_border_ptr wall1_point_ptr,
+    model::wall& wall2, wall_border_line_ptr wall2_line_ptr, point_on_border_ptr wall2_point_ptr,
     const std::pair<wall_border_point, std::optional<wall_border_point>> &intersection_pair
 )
 {
     if (!intersection_pair.second)
     {
-        auto left_pid = find_or_create_point(
-            { wall1.index, wall1_point_ptr, wall2.index, wall2_point_ptr },
-            intersection_pair.first
-        );
-        wall1.*wall1_point_ptr = left_pid;
-        wall2.*wall2_point_ptr = left_pid;
+        auto& w1_border = find_or_create_border({ wall1.index, wall1_line_ptr });
+        auto& w2_border = find_or_create_border({ wall2.index, wall2_line_ptr });
+
+        assign_point_to_borders(w1_border, wall1_point_ptr, w2_border, wall2_point_ptr, intersection_pair.first);
+ 
+        wall1.*wall1_line_ptr = w1_border.index;
+        wall2.*wall2_line_ptr = w2_border.index;
     }
     else
     {
-        wall1.*wall1_point_ptr = find_or_create_point({ wall1.index, wall1_point_ptr }, intersection_pair.first);
-        wall2.*wall2_point_ptr = find_or_create_point({ wall2.index, wall2_point_ptr }, intersection_pair.second.value());
+        const auto w1_stub_border_ptr = (wall1_point_ptr == &wall_border_line::s) ?
+            &wall::start_stub : &wall::end_stub;
+
+        auto& stub_border = find_or_create_border({ wall1.index, w1_stub_border_ptr });
+        auto& w1_border = find_or_create_border({ wall1.index, wall1_line_ptr });
+        auto& w2_border = find_or_create_border({ wall2.index, wall2_line_ptr });
+
+        assign_point_to_borders(w1_border, wall1_point_ptr, stub_border, &wall_border_line::s, intersection_pair.first);
+        assign_point_to_borders(w2_border, wall2_point_ptr, stub_border, &wall_border_line::e, intersection_pair.second.value());
+
+        wall1.*wall1_line_ptr = w1_border.index;
+        wall1.*w1_stub_border_ptr = stub_border.index;
     }
 }
 
-wall_calculator::wall_point_geometry_id::wall_point_geometry_id(wall::index_t w_id, point_on_wall_ptr w_p_ptr)
-    : wall1_id { w_id }
-    , wall1_point_ptr { w_p_ptr }
-    , wall2_id { }
-    , wall2_point_ptr { nullptr }
+wall_calculator::border_point_geometry_id::border_point_geometry_id(
+    wall_border_line::index_t b1_id, point_on_border_ptr b_p1_ptr,
+    wall_border_line::index_t b2_id, point_on_border_ptr b_p2_ptr
+)
+    : border1_id { b1_id < b2_id ? b1_id : b2_id }
+    , border_point1_ptr { b1_id < b2_id ? b_p1_ptr : b_p2_ptr }
+    , border2_id { b1_id < b2_id ? b2_id : b1_id }
+    , border_point2_ptr { b1_id < b2_id ? b_p2_ptr : b_p1_ptr }
 {
 }
 
-wall_calculator::wall_point_geometry_id::wall_point_geometry_id(wall::index_t w1_id, point_on_wall_ptr w1_p_ptr, wall::index_t w2_id, point_on_wall_ptr w2_p_ptr)
-    : wall1_id { w1_id < w2_id ? w1_id : w2_id }
-    , wall1_point_ptr { w1_id < w2_id ? w1_p_ptr : w2_p_ptr }
-    , wall2_id { w1_id < w2_id ? w2_id : w1_id }
-    , wall2_point_ptr { w1_id < w2_id ? w2_p_ptr : w1_p_ptr }
+wall_calculator::wall_border_geometry_id::wall_border_geometry_id(wall::index_t w_id, wall_border_line_ptr w_b_ptr)
+    : wall_id { w_id }
+    , wall_border_ptr { w_b_ptr }
 {
+}
+
+std::ostream &model::operator<<(std::ostream &os, corecad::model::property<model::wall_border_point::index_t, model::wall_border_line> model::wall_border_line::*pow)
+{
+    if (pow == nullptr) os << 'N';
+    else if (pow == &model::wall_border_line::s) os << "S";
+    else if (pow == &model::wall_border_line::e) os << "E";
+    else os << "??";
+
+    return os;
+}
+
+std::ostream &model::operator<<(std::ostream &os, model::wall_border_line::index_t model::wall::*pow)
+{
+    if (pow == nullptr) os << 'N';
+    else if (pow == &model::wall::left) os << "L";
+    else if (pow == &model::wall::right) os << "R";
+    else if (pow == &model::wall::start_stub) os << "SS";
+    else if (pow == &model::wall::end_stub) os << "ES";
+    else os << "??";
+
+    return os;
 }

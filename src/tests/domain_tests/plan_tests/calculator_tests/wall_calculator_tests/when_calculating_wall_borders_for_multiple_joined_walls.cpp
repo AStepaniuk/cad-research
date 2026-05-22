@@ -40,14 +40,14 @@ TEST_F(when_calculating_wall_borders_for_multiple_joined_walls, should_calculate
 
     when_recalculating_all_walls();
 
-    then_border_point_should_be(0, &wall::end_left, { 5000, 950 });
-    then_border_point_should_be(0, &wall::end_right, { 4900, 1050 });
+    then_border_point_should_be(0, &wall::left, &wall_border_line::e, { 5000, 950 });
+    then_border_point_should_be(0, &wall::right, &wall_border_line::e, { 4900, 1050 });
 
-    then_border_point_should_be(1, &wall::start_left, { 5000, 950 });
-    then_border_point_should_be(1, &wall::start_right, { 5100, 1050 });
+    then_border_point_should_be(1, &wall::left, &wall_border_line::s, { 5000, 950 });
+    then_border_point_should_be(1, &wall::right, &wall_border_line::s, { 5100, 1050 });
 
-    then_border_point_should_be(2, &wall::start_left, { 5100, 1050 });
-    then_border_point_should_be(2, &wall::start_right, { 4900, 1050 });
+    then_border_point_should_be(2, &wall::left, &wall_border_line::s, { 5100, 1050 });
+    then_border_point_should_be(2, &wall::right, &wall_border_line::s, { 4900, 1050 });
 }
 
 TEST_F(when_calculating_wall_borders_for_multiple_joined_walls, should_not_add_points_after_second_calculation)

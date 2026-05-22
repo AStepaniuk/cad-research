@@ -36,9 +36,15 @@ protected:
     void when_recalculating_all_walls();
 
     void then_border_points_number_should_be(size_t n);
+    using point_on_border_ptr =
+        corecad::model::property<
+            domain::plan::model::wall_border_point::index_t,
+            domain::plan::model::wall_border_line
+        > domain::plan::model::wall_border_line::*;
     void then_border_point_should_be(
         size_t w,
-        domain::plan::model::wall_border_point::index_t domain::plan::model::wall::*point_definition,
+        domain::plan::model::wall_border_line::index_t domain::plan::model::wall::*border_definition,
+        point_on_border_ptr point_definition,
         const domain::plan::model::wall_border_point& p
     );
 

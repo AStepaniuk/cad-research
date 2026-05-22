@@ -8,17 +8,17 @@ namespace corecad { namespace model
     using registry_index_t = util::tagged_value<long, Tag>;
 
     template <typename Tag>
-    registry_index_t<Tag>& operator++(registry_index_t<Tag>& tagged)
+    registry_index_t<Tag>& operator++(registry_index_t<Tag>& index)
     {
-        ++tagged.value;
-        return tagged;
+        ++index.value;
+        return index;
     }
 
     template <typename Tag>
-    registry_index_t<Tag> operator++(registry_index_t<Tag>& tagged, int)
+    registry_index_t<Tag> operator++(registry_index_t<Tag>& index, int)
     {
-        auto temp = tagged;
-        ++tagged.value;
+        auto temp = index;
+        ++index.value;
         return temp;
     }
       
