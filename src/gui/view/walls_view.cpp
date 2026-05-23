@@ -69,12 +69,28 @@ void walls_view::render(ImDrawList* draw_list)
             draw_list->AddLine(polygon[1], polygon[2], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
             draw_list->AddLine(polygon[4], polygon[5], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
             draw_list->AddLine(polygon[0], polygon[3], Styles::WallSelectedMidLineColor, Styles::WallSelectedMidLineThickness);
+            if (w.start_stub)
+            {
+                draw_list->AddLine(polygon[1], polygon[5], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
+            }
+            if (w.end_stub)
+            {
+                draw_list->AddLine(polygon[2], polygon[4], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
+            }
         }
         else
         {
             draw_list->AddLine(polygon[1], polygon[2], Styles::WallLineColor, Styles::WallLineThickness);
             draw_list->AddLine(polygon[4], polygon[5], Styles::WallLineColor, Styles::WallLineThickness);
             draw_list->AddLine(polygon[0], polygon[3], Styles::WallMidLineColor, Styles::WallMidLineThickness);
+            if (w.start_stub)
+            {
+                draw_list->AddLine(polygon[1], polygon[5], Styles::WallLineColor, Styles::WallLineThickness);
+            }
+            if (w.end_stub)
+            {
+                draw_list->AddLine(polygon[2], polygon[4], Styles::WallLineColor, Styles::WallLineThickness);
+            }
         }
     }
 
@@ -87,6 +103,15 @@ void walls_view::render(ImDrawList* draw_list)
         draw_list->AddConvexPolyFilled(polygon.data(), polygon.size(), Styles::WallHoveredFillColor);
         draw_list->AddLine(polygon[1], polygon[2], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
         draw_list->AddLine(polygon[4], polygon[5], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
+        if (w.start_stub)
+        {
+            draw_list->AddLine(polygon[1], polygon[5], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
+        }
+        if (w.end_stub)
+        {
+            draw_list->AddLine(polygon[2], polygon[4], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
+        }
+
         draw_list->AddLine(polygon[0], polygon[3], Styles::WallHoveredMidLineColor, Styles::WallHoveredMidLineThickness);
     }
 

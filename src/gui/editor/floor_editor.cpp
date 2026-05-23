@@ -1,6 +1,9 @@
 #include "floor_editor.h"
 
+#include "default_floor_generator.h"
+
 using namespace gui::editor;
+using namespace domain::plan::model;
 
 floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
     :_document{doc}
@@ -10,6 +13,20 @@ floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
     , _operation_idle{_document, _view, _tools}
     , _operation_add_wall{_document, _view, _tools}
 {
+    domain::plan::generator::default_floor_generator fg;
+    fg.generate_floor(_document.model);
+
+    _tools.wall_calculator.recalculate_all_walls();
+
+    _tools.constraints_calculator.recalculate_all(
+        _document.model.data().items<floor::constraint_t>(),
+        _document.model.data().items<wall_axis_point>()
+    );
+
+    _tools.wall_calculator.recalculate_all_walls();
+
+    _document.model.history().commit("Initial setup");
+
     switch_operation(&_operation_idle);
 }
 

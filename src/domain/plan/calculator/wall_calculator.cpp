@@ -157,6 +157,8 @@ void wall_calculator::recalculate_all_walls()
         }
         else 
         {
+            w.second.start_stub = {};
+
             if (std::ranges::find(processed_fids, wall_start_fid) == processed_fids.end())
             {
                 if (start_joints_num == 1)
@@ -179,6 +181,8 @@ void wall_calculator::recalculate_all_walls()
         }
         else
         {
+            w.second.end_stub = {};
+
             if (std::ranges::find(processed_fids, wall_end_fid) == processed_fids.end())
             {
                 if (end_joints_num == 1)

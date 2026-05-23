@@ -2,33 +2,13 @@
 
 #include <imgui.h>
 
-#include "default_floor_generator.h"
-#include "wall_calculator.h"
-#include "constraints_calculator.h"
-
 using namespace gui;
-using namespace domain::plan::model;
 
 workspace::workspace(GLFWwindow* window, main_menu& mm)
     : _main_menu { mm }
     , _document {}
     , _editor { window, _document }
 {
-    domain::plan::generator::default_floor_generator fg;
-    fg.generate_floor(_document.model);
-
-    domain::plan::calculator::wall_calculator wc { _document.model };
-    wc.recalculate_all_walls();
-
-    corecad::calculator::constraints_calculator<wall_axis_point, floor::constraint_t> cc;
-    cc.recalculate_all(
-        _document.model.data().items<floor::constraint_t>(),
-        _document.model.data().items<wall_axis_point>()
-    );
-
-    wc.recalculate_all_walls();
-
-    _document.model.history().commit("Initial setup");
 }
 
 void workspace::process_frame(bool mouse_in_workspace)
