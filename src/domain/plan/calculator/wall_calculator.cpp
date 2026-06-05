@@ -515,8 +515,8 @@ wall_border_point::index_t wall_calculator::find_or_create_point(
 }
 
 void wall_calculator::assign_point_to_borders(
-    wall_border_line &b1, point_on_border_ptr p1_ptr,
-    wall_border_line &b2, point_on_border_ptr p2_ptr,
+    wall_border_line &b1, point_on_wall_border_ptr p1_ptr,
+    wall_border_line &b2, point_on_wall_border_ptr p2_ptr,
     const wall_border_point &point
 )
 {
@@ -581,8 +581,8 @@ void wall_calculator::assign_left_intersection_point(
 }
 
 void wall_calculator::assign_walls_intersection_pair(
-    model::wall& wall1, wall_border_line_ptr wall1_line_ptr, point_on_border_ptr wall1_point_ptr,
-    model::wall& wall2, wall_border_line_ptr wall2_line_ptr, point_on_border_ptr wall2_point_ptr,
+    model::wall& wall1, wall_border_line_ptr wall1_line_ptr, point_on_wall_border_ptr wall1_point_ptr,
+    model::wall& wall2, wall_border_line_ptr wall2_line_ptr, point_on_wall_border_ptr wall2_point_ptr,
     const std::pair<wall_border_point, std::optional<wall_border_point>> &intersection_pair
 )
 {
@@ -614,8 +614,8 @@ void wall_calculator::assign_walls_intersection_pair(
 }
 
 wall_calculator::border_point_geometry_id::border_point_geometry_id(
-    wall_border_line::index_t b1_id, point_on_border_ptr b_p1_ptr,
-    wall_border_line::index_t b2_id, point_on_border_ptr b_p2_ptr
+    wall_border_line::index_t b1_id, point_on_wall_border_ptr b_p1_ptr,
+    wall_border_line::index_t b2_id, point_on_wall_border_ptr b_p2_ptr
 )
     : border1_id { b1_id < b2_id ? b1_id : b2_id }
     , border_point1_ptr { b1_id < b2_id ? b_p1_ptr : b_p2_ptr }
@@ -628,26 +628,4 @@ wall_calculator::wall_border_geometry_id::wall_border_geometry_id(wall::index_t 
     : wall_id { w_id }
     , wall_border_ptr { w_b_ptr }
 {
-}
-
-std::ostream &model::operator<<(std::ostream &os, corecad::model::property<model::wall_border_point::index_t, model::wall_border_line> model::wall_border_line::*pow)
-{
-    if (pow == nullptr) os << 'N';
-    else if (pow == &model::wall_border_line::s) os << "S";
-    else if (pow == &model::wall_border_line::e) os << "E";
-    else os << "??";
-
-    return os;
-}
-
-std::ostream &model::operator<<(std::ostream &os, model::wall_border_line::index_t model::wall::*pow)
-{
-    if (pow == nullptr) os << 'N';
-    else if (pow == &model::wall::left) os << "L";
-    else if (pow == &model::wall::right) os << "R";
-    else if (pow == &model::wall::start_stub) os << "SS";
-    else if (pow == &model::wall::end_stub) os << "ES";
-    else os << "??";
-
-    return os;
 }

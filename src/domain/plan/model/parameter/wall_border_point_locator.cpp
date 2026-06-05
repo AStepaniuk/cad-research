@@ -1,0 +1,9 @@
+#include "wall_border_point_locator.h"
+
+
+using namespace domain::plan::model::dimension;
+
+std::ostream& operator<<(std::ostream &os, const wall_border_point_locator &l)
+{
+    return os << l.wid << '-' << l.border_ptr << l.point_on_border_ptr;
+}

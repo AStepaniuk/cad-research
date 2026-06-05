@@ -6,7 +6,7 @@
 #include "line2d.h"
 #include "property.h"
 
-namespace domain { namespace plan { namespace model
+namespace domain::plan::model
 {
     class wall_axis_tag {};
     class wall_border_tag {};
@@ -16,6 +16,7 @@ namespace domain { namespace plan { namespace model
 
     using wall_border_point = corecad::model::vector2d<wall_border_tag>;
     using wall_border_line = corecad::model::line2d<wall_border_tag>;
+    using point_on_wall_border_ptr = corecad::model::point_on_line_ptr<wall_border_tag>;
 
     class wall : public corecad::model::model_base<wall>
     {
@@ -74,4 +75,6 @@ namespace domain { namespace plan { namespace model
     };  
 
     std::ostream& operator<<(std::ostream& os, const wall& w);
-}}}
+
+    using wall_border_line_ptr = wall_border_line::index_t wall::*;
+}

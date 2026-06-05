@@ -9,13 +9,14 @@
 #include "registry.h"
 #include "property.h"
 
-namespace corecad { namespace model
+namespace corecad::model
 {
     template<typename Tag>
     class line2d : public corecad::model::model_base<line2d<Tag>>
     {
     public:
         using point_t = vector2d<Tag>;
+        using point_property_t = property<typename point_t::index_t, line2d>;
 
         line2d(point_t::index_t start, point_t::index_t end)
             : s { this, start }
@@ -46,8 +47,8 @@ namespace corecad { namespace model
             e.reset_updated();
         }
 
-        property<typename point_t::index_t, line2d> s;
-        property<typename point_t::index_t, line2d> e;
+        point_property_t s;
+        point_property_t e;
     };  
 
     template<typename Tag>
@@ -55,6 +56,10 @@ namespace corecad { namespace model
     {
         return os << static_cast<const corecad::model::model_base<line2d<Tag>>&>(l) << ": " << l.s << " - " << l.e;
     }
+
+    template <typename Tag>
+    using point_on_line_ptr = line2d<Tag>::point_property_t line2d<Tag>::*;
+
 
     template <typename T>
     struct is_line2d : std::false_type {};
@@ -64,4 +69,4 @@ namespace corecad { namespace model
 
     template <typename T>
     concept IsLine2D = is_line2d<std::remove_cvref_t<T>>::value;
-}}
+}

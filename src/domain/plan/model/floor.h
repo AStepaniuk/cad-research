@@ -9,7 +9,7 @@
 #include "wall.h"
 #include "history/history.h"
 
-namespace domain { namespace plan { namespace model
+namespace domain::plan::model
 {
     class floor
     {
@@ -55,4 +55,4 @@ namespace domain { namespace plan { namespace model
         data_t _data;
         history_t _history { _data };
     };
-}}}
+}

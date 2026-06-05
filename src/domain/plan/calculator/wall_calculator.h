@@ -7,13 +7,8 @@
 #include "floor.h"
 #include "multi_hash.h"
 
-namespace domain { namespace plan { 
+namespace domain::plan { 
     
-
-namespace model {
-    std::ostream& operator<<(std::ostream& os, corecad::model::property<model::wall_border_point::index_t, model::wall_border_line> model::wall_border_line::* pow);
-    std::ostream& operator<<(std::ostream& os, model::wall_border_line::index_t model::wall::* pow);    
-}
 
 namespace calculator
 {
@@ -78,23 +73,20 @@ namespace calculator
 
         joined_walls get_joined_walls_points(const wall_finish_id& wfid, const walls_joints& joints);
 
-        using point_on_border_ptr =
-            corecad::model::property<model::wall_border_point::index_t, model::wall_border_line> model::wall_border_line::*;
-
         struct border_point_geometry_id
         {
             border_point_geometry_id(
-                model::wall_border_line::index_t b1_id, point_on_border_ptr b_p1_ptr,
-                model::wall_border_line::index_t b2_id, point_on_border_ptr b_p2_ptr
+                model::wall_border_line::index_t b1_id, model::point_on_wall_border_ptr b_p1_ptr,
+                model::wall_border_line::index_t b2_id, model::point_on_wall_border_ptr b_p2_ptr
             );
 
             auto operator<=>(const border_point_geometry_id&) const = default;
 
             model::wall_border_line::index_t border1_id;
-            point_on_border_ptr border_point1_ptr;
+            model::point_on_wall_border_ptr border_point1_ptr;
 
             model::wall_border_line::index_t border2_id;
-            point_on_border_ptr border_point2_ptr;
+            model::point_on_wall_border_ptr border_point2_ptr;
         };
 
         struct border_point_geometry_id_hasher
@@ -125,21 +117,19 @@ namespace calculator
             const model::wall_border_point& p
         );
         void assign_point_to_borders(
-            model::wall_border_line& b1, point_on_border_ptr p1_ptr,
-            model::wall_border_line& b2, point_on_border_ptr p2_ptr,
+            model::wall_border_line& b1, model::point_on_wall_border_ptr p1_ptr,
+            model::wall_border_line& b2, model::point_on_wall_border_ptr p2_ptr,
             const model::wall_border_point& point
         );
 
-        using wall_border_line_ptr = model::wall_border_line::index_t model::wall::*;
-
         struct wall_border_geometry_id
         {
-            wall_border_geometry_id(model::wall::index_t w_id, wall_border_line_ptr w_b_ptr);
+            wall_border_geometry_id(model::wall::index_t w_id, model::wall_border_line_ptr w_b_ptr);
 
             auto operator<=>(const wall_border_geometry_id&) const = default;
 
             model::wall::index_t wall_id;
-            wall_border_line_ptr wall_border_ptr;
+            model::wall_border_line_ptr wall_border_ptr;
         };
 
         struct wall_border_geometry_id_hasher
@@ -172,9 +162,9 @@ namespace calculator
         );
 
         void assign_walls_intersection_pair(
-            model::wall& wall1, wall_border_line_ptr wall1_line_ptr, point_on_border_ptr wall1_point_ptr,
-            model::wall& wall2, wall_border_line_ptr wall2_line_ptr, point_on_border_ptr wall2_point_ptr,
+            model::wall& wall1, model::wall_border_line_ptr wall1_line_ptr, model::point_on_wall_border_ptr wall1_point_ptr,
+            model::wall& wall2, model::wall_border_line_ptr wall2_line_ptr, model::point_on_wall_border_ptr wall2_point_ptr,
             const std::pair<model::wall_border_point, std::optional<model::wall_border_point>>& intersection_pair
         );
     };
-}}}
+}}
