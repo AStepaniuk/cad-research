@@ -5,7 +5,7 @@
 using namespace gui::editor::snap;
 using namespace corecad::model;
 using namespace corecad::model::constraint;
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 
 vh_snap_builder::vh_snap_builder(doc::document &doc, floor_view &v)
     : _document { doc }

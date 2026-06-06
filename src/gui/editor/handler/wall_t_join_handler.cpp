@@ -6,7 +6,7 @@
 #include "views_take_constraints.h"
 
 using namespace gui::editor::handler;
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 using namespace corecad::model;
 using namespace corecad::model::constraint;
 
@@ -112,7 +112,7 @@ bool wall_t_join_handler::wall_move(
     return false;
 }
 
-std::optional<domain::plan::model::wall_axis_point::index_t> wall_t_join_handler::apply()
+std::optional<wall_axis_point::index_t> wall_t_join_handler::apply()
 {
     if (!_t_joint_wall || !_document.active_handle)
     {

@@ -1,7 +1,7 @@
 #include "walls_view.h"
 
 using namespace gui;
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 using namespace corecad::model;
 
 namespace
@@ -197,7 +197,7 @@ std::vector<wall_axis_point::index_t> walls_view::get_handles(float screen_x, fl
    return result;
 }
 
-std::vector<ImVec2> walls_view::to_view_polygon(const domain::plan::model::wall &w) const
+std::vector<ImVec2> walls_view::to_view_polygon(const wall &w) const
 {
     const auto& a = _document.model.data().get(w.axis);
     const auto& l = _document.model.data().get(w.left);

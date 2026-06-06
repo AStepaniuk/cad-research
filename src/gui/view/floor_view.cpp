@@ -1,7 +1,7 @@
 #include "floor_view.h"
 
 using namespace gui;
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 using namespace corecad::model;
 
 namespace

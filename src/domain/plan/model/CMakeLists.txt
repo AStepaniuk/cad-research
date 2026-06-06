@@ -1,15 +1,15 @@
 add_subdirectory(parameter)
+add_subdirectory(shape)
 
-file(GLOB_RECURSE PLAN_MODEL_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-    ${PLAN_MODEL_PARAMETER_SOURCES}
+add_library(plan_model INTERFACE)
+target_link_libraries(plan_model INTERFACE 
+    plan_model_parameter
+    plan_model_shape
 )
 
-set(PLAN_MODEL_SOURCES ${PLAN_MODEL_SOURCES} PARENT_SCOPE)
-
-set(PLAN_MODEL_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${PLAN_MODEL_PARAMETER_INCLUDES}
-    PARENT_SCOPE
+set(PLAN_MODEL_OBJECT_FILES
+    $<TARGET_OBJECTS:plan_model_parameter>
+    $<TARGET_OBJECTS:plan_model_shape>
 )
 
+set(PLAN_MODEL_OBJECT_FILES ${PLAN_MODEL_OBJECT_FILES} PARENT_SCOPE)

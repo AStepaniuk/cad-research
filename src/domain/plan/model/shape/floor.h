@@ -9,7 +9,7 @@
 #include "wall.h"
 #include "history/history.h"
 
-namespace domain::plan::model
+namespace domain::plan::model::shape
 {
     class floor
     {

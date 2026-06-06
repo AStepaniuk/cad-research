@@ -17,8 +17,8 @@ namespace gui { namespace editor { namespace snap {
     private:
         doc::document& _document;
         corecad::calculator::constraints_calculator<
-            domain::plan::model::wall_axis_point,
-            domain::plan::model::floor::constraint_t
+            domain::plan::model::shape::wall_axis_point,
+            domain::plan::model::shape::floor::constraint_t
         > _constraint_calculator;
     };
 }}}

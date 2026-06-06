@@ -11,12 +11,12 @@ namespace gui { namespace editor { namespace handler {
         doc::document& _document;
         floor_view& _view;
 
-        std::optional<domain::plan::model::wall_axis_point::index_t> _target_point_index;
+        std::optional<domain::plan::model::shape::wall_axis_point::index_t> _target_point_index;
 
     public:
         wall_join_handler(doc::document &doc, floor_view& v);
 
-        bool wall_move(float view_pos_x, float view_pos_y, domain::plan::model::wall_axis_point& model_pos) override;
-        std::optional<domain::plan::model::wall_axis_point::index_t> apply() override;
+        bool wall_move(float view_pos_x, float view_pos_y, domain::plan::model::shape::wall_axis_point& model_pos) override;
+        std::optional<domain::plan::model::shape::wall_axis_point::index_t> apply() override;
     };
 }}}

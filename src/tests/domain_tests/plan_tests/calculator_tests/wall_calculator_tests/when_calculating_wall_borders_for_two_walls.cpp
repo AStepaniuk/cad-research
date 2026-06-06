@@ -3,7 +3,7 @@
 #include "wall_calculator.h"
 #include "vector2d_assertion.h"
 
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 using namespace domain::plan::calculator;
 using namespace corecad::model;
 

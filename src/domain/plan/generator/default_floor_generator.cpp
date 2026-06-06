@@ -3,11 +3,11 @@
 #include <iostream>
 
 using namespace domain::plan::generator; 
-using namespace domain::plan::model; 
+using namespace domain::plan::model::shape; 
 using namespace corecad::model;
 using namespace corecad::model::constraint;
 
-void default_floor_generator::generate_floor(model::floor &floor)
+void default_floor_generator::generate_floor(model::shape::floor &floor)
 {
     floor.data().clear<wall_axis_point>();
     floor.data().clear<wall>();

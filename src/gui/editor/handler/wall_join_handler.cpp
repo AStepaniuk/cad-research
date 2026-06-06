@@ -4,7 +4,7 @@
 #include <iostream>
 
 using namespace gui::editor::handler;
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 using namespace corecad::model;
 
 wall_join_handler::wall_join_handler(doc::document &doc, floor_view &v)

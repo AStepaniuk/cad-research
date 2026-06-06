@@ -7,28 +7,25 @@
 #include "floor.h"
 #include "multi_hash.h"
 
-namespace domain::plan { 
-    
-
-namespace calculator
+namespace domain::plan::calculator
 {
     class wall_calculator
     {
-        model::floor& _floor;
+        model::shape::floor& _floor;
 
     public:
-        wall_calculator(model::floor& floor);
+        wall_calculator(model::shape::floor& floor);
 
         void recalculate_all_walls();
 
     private:
-        void calculate_stub_wall_start_borders(model::wall& w);
-        void calculate_stub_wall_end_borders(model::wall& w);
+        void calculate_stub_wall_start_borders(model::shape::wall& w);
+        void calculate_stub_wall_end_borders(model::shape::wall& w);
 
         enum class wall_location { start, end };
         struct wall_finish_id
         {
-            model::wall_axis_line::index_t axis_id;
+            model::shape::wall_axis_line::index_t axis_id;
             wall_location location;
 
             auto operator<=>(const wall_finish_id&) const = default;
@@ -49,25 +46,25 @@ namespace calculator
 
         struct joined_walls
         {
-            model::wall_axis_point::index_t wall1_free_p;
-            model::wall_axis_point::index_t walls_common_p;
-            model::wall_axis_point::index_t wall2_free_p;
+            model::shape::wall_axis_point::index_t wall1_free_p;
+            model::shape::wall_axis_point::index_t walls_common_p;
+            model::shape::wall_axis_point::index_t wall2_free_p;
 
             wall_finish_id wall2_fid;
         };
 
-        void recalculate_wall_joints(model::wall& w, walls_joints& joints);
+        void recalculate_wall_joints(model::shape::wall& w, walls_joints& joints);
         void calculate_joined_2_walls_borders(
             wall_finish_id fid,
             const walls_joints& joints,
-            const std::map<model::wall_axis_line::index_t, model::wall::index_t>& wall_axis_owners,
+            const std::map<model::shape::wall_axis_line::index_t, model::shape::wall::index_t>& wall_axis_owners,
             std::vector<wall_finish_id>& processed_fids
         );
         void calculate_joined_n_walls_borders(
             wall_finish_id fid,
             const walls_joints& joints,
-            const std::map<model::wall_axis_line::index_t, model::wall::index_t>& wall_axis_owners,
-            std::map<model::wall_axis_line::index_t, double>& wall_axis_directions,
+            const std::map<model::shape::wall_axis_line::index_t, model::shape::wall::index_t>& wall_axis_owners,
+            std::map<model::shape::wall_axis_line::index_t, double>& wall_axis_directions,
             std::vector<wall_finish_id>& processed_fids
         );
 
@@ -76,17 +73,17 @@ namespace calculator
         struct border_point_geometry_id
         {
             border_point_geometry_id(
-                model::wall_border_line::index_t b1_id, model::point_on_wall_border_ptr b_p1_ptr,
-                model::wall_border_line::index_t b2_id, model::point_on_wall_border_ptr b_p2_ptr
+                model::shape::wall_border_line::index_t b1_id, model::shape::point_on_wall_border_ptr b_p1_ptr,
+                model::shape::wall_border_line::index_t b2_id, model::shape::point_on_wall_border_ptr b_p2_ptr
             );
 
             auto operator<=>(const border_point_geometry_id&) const = default;
 
-            model::wall_border_line::index_t border1_id;
-            model::point_on_wall_border_ptr border_point1_ptr;
+            model::shape::wall_border_line::index_t border1_id;
+            model::shape::point_on_wall_border_ptr border_point1_ptr;
 
-            model::wall_border_line::index_t border2_id;
-            model::point_on_wall_border_ptr border_point2_ptr;
+            model::shape::wall_border_line::index_t border2_id;
+            model::shape::point_on_wall_border_ptr border_point2_ptr;
         };
 
         struct border_point_geometry_id_hasher
@@ -106,30 +103,30 @@ namespace calculator
 
         struct border_point_info
         {
-            model::wall_border_point::index_t index;
+            model::shape::wall_border_point::index_t index;
             size_t refcount;
         };
 
         std::unordered_map<border_point_geometry_id, border_point_info, border_point_geometry_id_hasher> _points_cache;
 
-        model::wall_border_point::index_t find_or_create_point(
+        model::shape::wall_border_point::index_t find_or_create_point(
             const border_point_geometry_id& id,
-            const model::wall_border_point& p
+            const model::shape::wall_border_point& p
         );
         void assign_point_to_borders(
-            model::wall_border_line& b1, model::point_on_wall_border_ptr p1_ptr,
-            model::wall_border_line& b2, model::point_on_wall_border_ptr p2_ptr,
-            const model::wall_border_point& point
+            model::shape::wall_border_line& b1, model::shape::point_on_wall_border_ptr p1_ptr,
+            model::shape::wall_border_line& b2, model::shape::point_on_wall_border_ptr p2_ptr,
+            const model::shape::wall_border_point& point
         );
 
         struct wall_border_geometry_id
         {
-            wall_border_geometry_id(model::wall::index_t w_id, model::wall_border_line_ptr w_b_ptr);
+            wall_border_geometry_id(model::shape::wall::index_t w_id, model::shape::wall_border_line_ptr w_b_ptr);
 
             auto operator<=>(const wall_border_geometry_id&) const = default;
 
-            model::wall::index_t wall_id;
-            model::wall_border_line_ptr wall_border_ptr;
+            model::shape::wall::index_t wall_id;
+            model::shape::wall_border_line_ptr wall_border_ptr;
         };
 
         struct wall_border_geometry_id_hasher
@@ -147,24 +144,24 @@ namespace calculator
 
         struct wall_border_info
         {
-            model::wall_border_line::index_t index;
+            model::shape::wall_border_line::index_t index;
             size_t refcount;
         };
 
         std::unordered_map<wall_border_geometry_id, wall_border_info, wall_border_geometry_id_hasher> _borders_cache;
 
-        model::wall_border_line& find_or_create_border(const wall_border_geometry_id& id);
+        model::shape::wall_border_line& find_or_create_border(const wall_border_geometry_id& id);
 
         void assign_left_intersection_point(
-            model::wall& wall1, wall_location wall1_location,
-            model::wall& wall2, wall_location wall2_location,
-            const std::pair<model::wall_border_point, std::optional<model::wall_border_point>>& intersection_pair
+            model::shape::wall& wall1, wall_location wall1_location,
+            model::shape::wall& wall2, wall_location wall2_location,
+            const std::pair<model::shape::wall_border_point, std::optional<model::shape::wall_border_point>>& intersection_pair
         );
 
         void assign_walls_intersection_pair(
-            model::wall& wall1, model::wall_border_line_ptr wall1_line_ptr, model::point_on_wall_border_ptr wall1_point_ptr,
-            model::wall& wall2, model::wall_border_line_ptr wall2_line_ptr, model::point_on_wall_border_ptr wall2_point_ptr,
-            const std::pair<model::wall_border_point, std::optional<model::wall_border_point>>& intersection_pair
+            model::shape::wall& wall1, model::shape::wall_border_line_ptr wall1_line_ptr, model::shape::point_on_wall_border_ptr wall1_point_ptr,
+            model::shape::wall& wall2, model::shape::wall_border_line_ptr wall2_line_ptr, model::shape::point_on_wall_border_ptr wall2_point_ptr,
+            const std::pair<model::shape::wall_border_point, std::optional<model::shape::wall_border_point>>& intersection_pair
         );
     };
-}}
+}

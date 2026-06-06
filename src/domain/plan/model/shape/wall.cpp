@@ -1,6 +1,6 @@
 #include "wall.h"
 
-std::ostream& domain::plan::model::operator<<(std::ostream &os, const wall &w)
+std::ostream& domain::plan::model::shape::operator<<(std::ostream &os, const wall &w)
 {
     return os << static_cast<const corecad::model::model_base<wall>&>(w)
         << " a:" << w.axis << " w:" << w.width

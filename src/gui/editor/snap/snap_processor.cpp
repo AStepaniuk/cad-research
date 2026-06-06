@@ -5,7 +5,7 @@
 #include <iostream>
 
 using namespace gui::editor::snap;
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 using namespace corecad::calculator;
 
 snap_processor::snap_processor(doc::document &doc)

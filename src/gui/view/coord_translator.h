@@ -108,7 +108,7 @@ namespace gui {
 
     // translator template instance used in view
     using translator_t = coord_translator<
-        domain::plan::model::wall_axis_point,
-        domain::plan::model::wall_border_point
+        domain::plan::model::shape::wall_axis_point,
+        domain::plan::model::shape::wall_border_point
     >;
 }

@@ -1,11 +1,14 @@
-file(GLOB_RECURSE GUI_DOC_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-)
+add_library(cadgui_doc OBJECT)
 
-set(GUI_DOC_SOURCES ${GUI_DOC_SOURCES} PARENT_SCOPE)
+file(GLOB DOC_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 
-set(GUI_DOC_INCLUDES
+target_sources(cadgui_doc PRIVATE ${DOC_SOURCES})
+
+target_include_directories(cadgui_doc PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-    PARENT_SCOPE
 )
 
+target_link_libraries(cadgui_doc PRIVATE
+    corecad
+    plan
+)

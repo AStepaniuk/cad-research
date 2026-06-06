@@ -3,11 +3,11 @@
 #include <algorithm>
 
 using namespace gui::doc;
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 using namespace corecad::model;
 using namespace corecad::model::constraint;
 
-gui::doc::wall_snaps::wall_snaps(const corecad::model::registry<domain::plan::model::wall_axis_point> &wall_axis_points)
+wall_snaps::wall_snaps(const corecad::model::registry<wall_axis_point> &wall_axis_points)
     : _wall_axis_points { wall_axis_points }
 {
 }

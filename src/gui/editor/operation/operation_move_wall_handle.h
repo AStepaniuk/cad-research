@@ -8,10 +8,10 @@
 #include "document.h"
 #include "floor_view.h"
 #include "calc_tools.h"
-#include "handler/wall_join_handler.h"
-#include "handler/wall_t_join_handler.h"
-#include "snap/vh_snap_builder.h"
-#include "snap/snap_processor.h"
+#include "wall_join_handler.h"
+#include "wall_t_join_handler.h"
+#include "vh_snap_builder.h"
+#include "snap_processor.h"
 
 namespace gui { namespace editor { namespace operation {
     class operation_move_wall_handle : public i_operation

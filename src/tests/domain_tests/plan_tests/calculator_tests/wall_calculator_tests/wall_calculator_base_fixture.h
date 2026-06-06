@@ -10,27 +10,27 @@
 class wall_calculator_base_fixture : public ::testing::Test
 {
 protected:
-    void given_floor_has_wall_axis_point(const domain::plan::model::wall_axis_point &p);
+    void given_floor_has_wall_axis_point(const domain::plan::model::shape::wall_axis_point &p);
     void given_floor_has_wall(size_t sp, size_t ep, double w);
     void given_single_wall_floor_generated(
-        const domain::plan::model::wall_axis_point& start,
-        const domain::plan::model::wall_axis_point& end,
+        const domain::plan::model::shape::wall_axis_point& start,
+        const domain::plan::model::shape::wall_axis_point& end,
         float width
     );
     void given_two_walls_floor_generated(
-        const domain::plan::model::wall_axis_point& start,
-        const domain::plan::model::wall_axis_point& common,
-        const domain::plan::model::wall_axis_point& end,
+        const domain::plan::model::shape::wall_axis_point& start,
+        const domain::plan::model::shape::wall_axis_point& common,
+        const domain::plan::model::shape::wall_axis_point& end,
         float width1,
         float width2
     );
     void given_recalculating_all_walls();
 
-    using wall_axis_point_index_property_t = decltype(domain::plan::model::wall_axis_line::s);
+    using wall_axis_point_index_property_t = decltype(domain::plan::model::shape::wall_axis_line::s);
     void given_wall_point_is_moved_to(
         size_t w,
-        wall_axis_point_index_property_t domain::plan::model::wall_axis_line::*point_definition,
-        const domain::plan::model::wall_axis_point& p
+        wall_axis_point_index_property_t domain::plan::model::shape::wall_axis_line::*point_definition,
+        const domain::plan::model::shape::wall_axis_point& p
     );
 
     void when_recalculating_all_walls();
@@ -38,19 +38,19 @@ protected:
     void then_border_points_number_should_be(size_t n);
     using point_on_border_ptr =
         corecad::model::property<
-            domain::plan::model::wall_border_point::index_t,
-            domain::plan::model::wall_border_line
-        > domain::plan::model::wall_border_line::*;
+            domain::plan::model::shape::wall_border_point::index_t,
+            domain::plan::model::shape::wall_border_line
+        > domain::plan::model::shape::wall_border_line::*;
     void then_border_point_should_be(
         size_t w,
-        domain::plan::model::wall_border_line::index_t domain::plan::model::wall::*border_definition,
+        domain::plan::model::shape::wall_border_line::index_t domain::plan::model::shape::wall::*border_definition,
         point_on_border_ptr point_definition,
-        const domain::plan::model::wall_border_point& p
+        const domain::plan::model::shape::wall_border_point& p
     );
 
-    domain::plan::model::floor test_floor;
+    domain::plan::model::shape::floor test_floor;
     domain::plan::calculator::wall_calculator wc { test_floor };
 
-    std::vector<domain::plan::model::wall_axis_point::index_t> points;
-    std::vector<domain::plan::model::wall::index_t> walls;
+    std::vector<domain::plan::model::shape::wall_axis_point::index_t> points;
+    std::vector<domain::plan::model::shape::wall::index_t> walls;
 };

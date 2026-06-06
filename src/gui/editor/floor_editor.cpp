@@ -3,7 +3,7 @@
 #include "default_floor_generator.h"
 
 using namespace gui::editor;
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 
 floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
     :_document{doc}

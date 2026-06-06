@@ -5,7 +5,7 @@
 
 #include <vector>
 
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 using namespace domain::plan::calculator;
 using namespace corecad::model;
 

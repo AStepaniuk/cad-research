@@ -6,7 +6,7 @@
 #include "line2d.h"
 #include "property.h"
 
-namespace domain::plan::model
+namespace domain::plan::model::shape
 {
     class wall_axis_tag {};
     class wall_border_tag {};

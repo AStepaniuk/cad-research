@@ -7,7 +7,7 @@
 
 using namespace gui;
 using namespace corecad::model::constraint;
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 
 namespace
 {

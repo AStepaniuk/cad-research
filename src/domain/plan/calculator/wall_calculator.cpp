@@ -10,13 +10,14 @@
 #include <iostream>
 
 using namespace domain::plan::calculator;
+using namespace domain::plan::model::shape;
 using namespace domain::plan::model;
 using namespace domain::plan;
 using namespace corecad::model;
 
 namespace
 {
-    double calculate_line_direction(const wall_axis_line& l, const model::floor& f)
+    double calculate_line_direction(const wall_axis_line& l, const shape::floor& f)
     {
         const auto& ps = f.data().get(l.s);
         const auto& pe = f.data().get(l.e);
@@ -116,7 +117,7 @@ namespace
     }
 }
 
-wall_calculator::wall_calculator(model::floor &floor)
+wall_calculator::wall_calculator(shape::floor &floor)
     : _floor { floor }
 {
 }
@@ -581,8 +582,8 @@ void wall_calculator::assign_left_intersection_point(
 }
 
 void wall_calculator::assign_walls_intersection_pair(
-    model::wall& wall1, wall_border_line_ptr wall1_line_ptr, point_on_wall_border_ptr wall1_point_ptr,
-    model::wall& wall2, wall_border_line_ptr wall2_line_ptr, point_on_wall_border_ptr wall2_point_ptr,
+    wall& wall1, wall_border_line_ptr wall1_line_ptr, point_on_wall_border_ptr wall1_point_ptr,
+    wall& wall2, wall_border_line_ptr wall2_line_ptr, point_on_wall_border_ptr wall2_point_ptr,
     const std::pair<wall_border_point, std::optional<wall_border_point>> &intersection_pair
 )
 {

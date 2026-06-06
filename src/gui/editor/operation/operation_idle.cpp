@@ -1,6 +1,6 @@
 #include "operation_idle.h"
 
-#include <operation/operation_move_wall_handle.h>
+#include <operation_move_wall_handle.h>
 
 using namespace gui::editor::operation;
 

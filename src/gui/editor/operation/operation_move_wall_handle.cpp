@@ -4,7 +4,7 @@
 #include <ranges>
 
 using namespace gui::editor::operation;
-using namespace domain::plan::model;
+using namespace domain::plan::model::shape;
 
 operation_move_wall_handle::operation_move_wall_handle(doc::document &doc, floor_view &v, calc_tools &t, std::string commit_msg)
     : _document{doc}
