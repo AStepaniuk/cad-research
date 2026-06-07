@@ -78,11 +78,11 @@ namespace corecad { namespace model { namespace constraint
     }
 
     template <typename T>
-    struct is_constraint_spec : std::false_type {};
+    struct is_constraint : std::false_type {};
 
     template <template <typename> typename... TConstraints>
-    struct is_constraint_spec<constraint<TConstraints...>> : std::true_type {};
+    struct is_constraint<constraint<TConstraints...>> : std::true_type {};
 
     template <typename T>
-    concept is_constraint = is_constraint_spec<std::remove_cvref_t<T>>::value;
+    concept IsConstraint = is_constraint<std::remove_cvref_t<T>>::value;
 }}}

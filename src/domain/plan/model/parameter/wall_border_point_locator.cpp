@@ -1,7 +1,7 @@
 #include "wall_border_point_locator.h"
 
 
-using namespace domain::plan::model::dimension;
+using namespace domain::plan::model::parameter;
 
 std::ostream& operator<<(std::ostream &os, const wall_border_point_locator &l)
 {

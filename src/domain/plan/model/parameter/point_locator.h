@@ -4,7 +4,7 @@
 
 #include "wall_border_point_locator.h"
 
-namespace domain::plan::model::dimension
+namespace domain::plan::model::parameter
 {
     using point_locator_t = std::variant<wall_border_point_locator>;
 

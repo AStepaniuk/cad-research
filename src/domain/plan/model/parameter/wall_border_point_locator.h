@@ -2,7 +2,7 @@
 
 #include "wall.h"
 
-namespace domain::plan::model::dimension
+namespace domain::plan::model::parameter
 {
     struct wall_border_point_locator
     {

@@ -1,6 +1,6 @@
 #include "distance.h"
 
-using namespace domain::plan::model::dimension;
+using namespace domain::plan::model::parameter;
 
 distance::distance(point_locator_t f, point_locator_t t, double v, distance_direction d)
     : direction { this, d }
@@ -17,7 +17,7 @@ distance::distance(const distance &d)
 {
 }
 
-domain::plan::model::dimension::distance::distance(distance &&d)
+distance::distance(distance &&d)
     : direction { this, d.direction }
     , from { this, d.from }
     , to { this, d.to }

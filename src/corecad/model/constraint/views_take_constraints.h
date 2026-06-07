@@ -7,14 +7,14 @@ namespace corecad { namespace model { namespace constraint { namespace views
     template <typename T>
     concept is_constraint_pair = requires(T p)
     {
-        requires is_constraint<decltype(p.second)>;
+        requires IsConstraint<decltype(p.second)>;
     };
 
     template<template <typename> typename TConstraint>
     struct take_constraints_closure
     {
         template <std::ranges::viewable_range R>
-        requires is_constraint<std::ranges::range_value_t<R>>
+        requires IsConstraint<std::ranges::range_value_t<R>>
         friend auto operator|(R&& r, take_constraints_closure)
         {
             using constraint_model_t = std::ranges::range_value_t<R>;

@@ -4,7 +4,7 @@
 #include "property.h"
 #include "point_locator.h"
 
-namespace domain::plan::model::dimension
+namespace domain::plan::model::parameter
 {
     enum class distance_direction { horizontal, vertical, diagonal };
     
