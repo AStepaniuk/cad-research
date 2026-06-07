@@ -8,5 +8,5 @@ target_include_directories(plan_generator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(plan_generator PRIVATE
     corecad
-    plan_model_shape
+    plan_model
 )

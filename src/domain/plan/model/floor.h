@@ -9,19 +9,19 @@
 #include "wall.h"
 #include "history/history.h"
 
-namespace domain::plan::model::shape
+namespace domain::plan::model
 {
     class floor
     {
     public:
         template <typename TModel>
-        using fixed_wall_axis_point_t = corecad::model::constraint::fixed<wall_axis_point, TModel>;
+        using fixed_wall_axis_point_t = corecad::model::constraint::fixed<shape::wall_axis_point, TModel>;
 
         template <typename TModel>
-        using offset_wall_axis_point_t = corecad::model::constraint::offset<wall_axis_point, TModel>;
+        using offset_wall_axis_point_t = corecad::model::constraint::offset<shape::wall_axis_point, TModel>;
 
         template <typename TModel>
-        using aligned_wall_axis_point_t = corecad::model::constraint::aligned<wall_axis_point, TModel>;
+        using aligned_wall_axis_point_t = corecad::model::constraint::aligned<shape::wall_axis_point, TModel>;
 
         using constraint_t = corecad::model::constraint::constraint<
             fixed_wall_axis_point_t,
@@ -31,19 +31,19 @@ namespace domain::plan::model::shape
 
         using data_t = corecad::model::registry_pool<
             constraint_t,
-            wall_axis_point,
-            wall_axis_line,
-            wall_border_point,
-            wall_border_line,
-            wall
+            shape::wall_axis_point,
+            shape::wall_axis_line,
+            shape::wall_border_point,
+            shape::wall_border_line,
+            shape::wall
         >;
 
         using history_t = corecad::model::history::history<
             data_t,
             constraint_t,
-            wall_axis_point,
-            wall_axis_line,
-            wall
+            shape::wall_axis_point,
+            shape::wall_axis_line,
+            shape::wall
         >;
 
         const data_t& data() const;

@@ -23,6 +23,6 @@ namespace gui {
         void render(ImDrawList* draw_list);
 
     private:
-        void draw_constraint(ImDrawList* draw_list, const domain::plan::model::shape::floor::constraint_t& c, ImU32 color);
+        void draw_constraint(ImDrawList* draw_list, const domain::plan::model::floor::constraint_t& c, ImU32 color);
     };
 }

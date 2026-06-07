@@ -6,6 +6,7 @@
 #include "views_take_constraints.h"
 
 using namespace gui::editor::handler;
+using namespace domain::plan::model;
 using namespace domain::plan::model::shape;
 using namespace corecad::model;
 using namespace corecad::model::constraint;

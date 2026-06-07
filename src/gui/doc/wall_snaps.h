@@ -9,7 +9,7 @@ namespace gui::doc {
     class wall_snaps
     {
         using wall_axis_point = domain::plan::model::shape::wall_axis_point;
-        using constraint_t = domain::plan::model::shape::floor::constraint_t;
+        using constraint_t = domain::plan::model::floor::constraint_t;
 
 
         const corecad::model::registry<wall_axis_point>& _wall_axis_points;
@@ -45,7 +45,7 @@ namespace gui::doc {
             requires (std::convertible_to<TPoints, wall_axis_point::index_t> && ...)
         void add(constraint_t&& c, double rank, TPoints... affected_points)
         {
-            using namespace domain::plan::model::shape;
+            using namespace domain::plan::model;
             using namespace corecad::model::constraint;
             
             const auto cid = _constraints.put(std::move(c));

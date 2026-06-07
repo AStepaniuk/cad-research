@@ -3,7 +3,7 @@
 #include <algorithm>
 
 using namespace gui::doc;
-using namespace domain::plan::model::shape;
+using namespace domain::plan::model;
 using namespace corecad::model;
 using namespace corecad::model::constraint;
 

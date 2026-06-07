@@ -48,7 +48,7 @@ protected:
         const domain::plan::model::shape::wall_border_point& p
     );
 
-    domain::plan::model::shape::floor test_floor;
+    domain::plan::model::floor test_floor;
     domain::plan::calculator::wall_calculator wc { test_floor };
 
     std::vector<domain::plan::model::shape::wall_axis_point::index_t> points;

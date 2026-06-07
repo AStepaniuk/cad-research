@@ -1,6 +1,6 @@
 #include "floor.h"
 
-using namespace domain::plan::model::shape;
+using namespace domain::plan::model;
 
 const floor::data_t& floor::data() const
 {

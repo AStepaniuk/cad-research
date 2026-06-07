@@ -4,6 +4,7 @@
 
 using namespace gui::editor::operation;
 using namespace corecad::model;
+using namespace domain::plan::model;
 using namespace domain::plan::model::shape;
 
 operation_add_wall::operation_add_wall(doc::document &doc, floor_view &v, calc_tools &t)

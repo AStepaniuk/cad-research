@@ -9,7 +9,7 @@
 namespace gui { namespace doc {
     struct document
     {
-        domain::plan::model::shape::floor model;
+        domain::plan::model::floor model;
 
         // mouse hovered walls
         std::optional<domain::plan::model::shape::wall::index_t> hovered_wall_id;

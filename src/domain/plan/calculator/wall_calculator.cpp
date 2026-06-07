@@ -17,7 +17,7 @@ using namespace corecad::model;
 
 namespace
 {
-    double calculate_line_direction(const wall_axis_line& l, const shape::floor& f)
+    double calculate_line_direction(const wall_axis_line& l, const model::floor& f)
     {
         const auto& ps = f.data().get(l.s);
         const auto& pe = f.data().get(l.e);
@@ -117,7 +117,7 @@ namespace
     }
 }
 
-wall_calculator::wall_calculator(shape::floor &floor)
+wall_calculator::wall_calculator(model::floor &floor)
     : _floor { floor }
 {
 }

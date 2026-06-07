@@ -11,10 +11,10 @@ namespace domain::plan::calculator
 {
     class wall_calculator
     {
-        model::shape::floor& _floor;
+        model::floor& _floor;
 
     public:
-        wall_calculator(model::shape::floor& floor);
+        wall_calculator(model::floor& floor);
 
         void recalculate_all_walls();
 
