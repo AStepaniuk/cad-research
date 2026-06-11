@@ -40,7 +40,7 @@ namespace domain::plan::model::shape
         {
         }
 
-        wall(wall&& other)
+        wall(wall&& other) noexcept
             : corecad::model::model_base<wall> { other }
             , axis { this, other.axis }
             , width { this, other.width }
@@ -53,7 +53,7 @@ namespace domain::plan::model::shape
         }
 
         wall& operator=(const wall& other) = default;
-        wall& operator=(wall&& other) = default;
+        wall& operator=(wall&& other) noexcept = default;
 
         void reset_properties_updated()
         {

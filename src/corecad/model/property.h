@@ -1,10 +1,11 @@
 #pragma once
 
-#include <type_traits>
+#include "traits.h"
 
-namespace corecad { namespace model
+namespace corecad::model
 {
     template <typename TValue, typename TModel>
+    requires util::EqualityComparableEx<TValue>
     class property
     {
         TValue _value;
@@ -131,4 +132,4 @@ namespace corecad { namespace model
 
     template <typename T>
     concept IsProperty = is_property<std::remove_cvref_t<T>>::value;
-}}
+}

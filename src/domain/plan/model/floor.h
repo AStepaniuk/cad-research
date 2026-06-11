@@ -7,6 +7,7 @@
 #include "offset.h"
 #include "aligned.h"
 #include "wall.h"
+#include "parameter.h"
 #include "history/history.h"
 
 namespace domain::plan::model
@@ -35,7 +36,8 @@ namespace domain::plan::model
             shape::wall_axis_line,
             shape::wall_border_point,
             shape::wall_border_line,
-            shape::wall
+            shape::wall,
+            parameter::parameter
         >;
 
         using history_t = corecad::model::history::history<
@@ -43,7 +45,8 @@ namespace domain::plan::model
             constraint_t,
             shape::wall_axis_point,
             shape::wall_axis_line,
-            shape::wall
+            shape::wall,
+            parameter::parameter
         >;
 
         const data_t& data() const;

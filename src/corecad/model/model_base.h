@@ -2,6 +2,7 @@
 
 #include "registry.h"
 #include "registry_index.h"
+#include "traits.h"
 
 namespace corecad { namespace model {
 
@@ -39,6 +40,7 @@ namespace corecad { namespace model {
 
         // class should have access to notify_updated()
         template<typename TValue, typename TMod>
+        requires util::EqualityComparableEx<TValue>
         friend class property;
     };
 

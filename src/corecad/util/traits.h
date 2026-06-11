@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <concepts>
 
-namespace corecad { namespace util
+namespace corecad::util
 {
     namespace impl
     {
@@ -42,4 +42,17 @@ namespace corecad { namespace util
     concept ConstructibleIntoExactlyOne = (
         (static_cast<std::size_t>(std::constructible_from<Ts, U>) + ...) == 1
     );
-}}
+
+
+
+    template <typename T>
+    struct check_variant_alternatives_comparable : std::true_type {};
+
+    template <typename... Ts>
+    struct check_variant_alternatives_comparable<std::variant<Ts...>> 
+        : std::bool_constant<(std::equality_comparable<Ts> && ...)> {};
+
+    template <typename T>
+    concept EqualityComparableEx
+        = std::equality_comparable<T> && check_variant_alternatives_comparable<T>::value;
+}

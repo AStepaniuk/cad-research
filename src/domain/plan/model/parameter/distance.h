@@ -12,10 +12,10 @@ namespace domain::plan::model::parameter
     {
         distance(point_locator_t f, point_locator_t t, double v, distance_direction d);
         distance(const distance& d);
-        distance(distance&& d);
+        distance(distance&& d) noexcept;
 
         distance& operator=(const distance& other) = default;
-        distance& operator=(distance&& other) = default;
+        distance& operator=(distance&& other) noexcept = default;
 
         corecad::model::property<distance_direction, distance> direction;
 
