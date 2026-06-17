@@ -13,10 +13,11 @@ namespace gui { namespace editor {
     {
         doc::document& _document;
 
-        floor_view _view;
-        editor::mouse _mouse;
         calc_tools _tools;
 
+        floor_view _view;
+        editor::mouse _mouse;
+        
         operation::operation_idle _operation_idle;
         operation::operation_add_wall _operation_add_wall;
 

@@ -50,7 +50,7 @@ namespace
     }
 }
 
-floor_view::floor_view(const doc::document &doc)
+floor_view::floor_view(const doc::document &doc, domain::plan::resolver::point_resolver& pr)
     : _document { doc }
     , _translator
     {
@@ -58,7 +58,8 @@ floor_view::floor_view(const doc::document &doc)
         _document.model.data().items<wall_border_point>()
     }
     , _walls_view { _document, _translator }
-    , _constraints_view{ _document, _translator }
+    , _constraints_view { _document, _translator }
+    , _parameters_view { _document, _translator, pr }
 {
 }
 
@@ -108,7 +109,7 @@ void floor_view::render()
 
     _walls_view.render(draw_list);
     _constraints_view.render(draw_list);
-
+    _parameters_view.render(draw_list);
 }
 
 abstract_point floor_view::to_model(float screen_x, float screen_y) const

@@ -10,7 +10,8 @@ distance::distance(point_locator_t f, point_locator_t t, double v, distance_dire
 {}
 
 distance::distance(const distance &d)
-    : direction { this, d.direction }
+    : corecad::model::model_base<distance> { d }
+    , direction { this, d.direction }
     , from { this, d.from }
     , to { this, d.to }
     , value { this, d.value }
@@ -18,7 +19,8 @@ distance::distance(const distance &d)
 }
 
 distance::distance(distance &&d) noexcept
-    : direction { this, std::move(d.direction) }
+    : corecad::model::model_base<distance> { d }
+    , direction { this, std::move(d.direction) }
     , from { this, std::move(d.from) }
     , to { this, std::move(d.to) }
     , value { this, std::move(d.value) }

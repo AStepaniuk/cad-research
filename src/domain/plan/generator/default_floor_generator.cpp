@@ -4,6 +4,7 @@
 
 using namespace domain::plan::generator; 
 using namespace domain::plan::model::shape; 
+using namespace domain::plan::model::parameter;
 using namespace domain::plan; 
 using namespace corecad::model;
 using namespace corecad::model::constraint;
@@ -18,8 +19,8 @@ void default_floor_generator::generate_floor(model::floor &floor)
 
     auto tli = floor.data().put(tlp);
     auto tri = floor.data().put(trp);
-    //auto bli = floor.data().put(blp);
-    //auto bri = floor.data().put(brp);
+    auto bli = floor.data().put(blp);
+    auto bri = floor.data().put(brp);
     //auto toi = floor.data().put(top);
     //auto boi = floor.data().put(bop);
 
@@ -27,7 +28,8 @@ void default_floor_generator::generate_floor(model::floor &floor)
     auto w1 = floor.data().make<wall>(l1, 600.0);
     floor.data().get(w1).axis_offset = -100.0;
     //floor.data().make<wall>(tri, bri, 400.0);
-    //floor.data().make<wall>(bri, bli, 400.0);
+    auto l2 = floor.data().make<wall_axis_line>(bri, bli);
+    auto w2 = floor.data().make<wall>(l2, 400.0);
     //floor.data().make<wall>(bli, tli, 400.0);
 
     //floor.data().make<wall>(tri, toi, 400.0);
@@ -45,4 +47,11 @@ void default_floor_generator::generate_floor(model::floor &floor)
     //floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(bli, bri, 0.0, offset_direction::vertical));
     //floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(bri, boi, 2000.0, offset_direction::horizontal));
     //floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(bri, boi, 0.0, offset_direction::vertical));
+
+    auto p1 = floor.data().make<parameter>(
+        wall_border_point_locator { w1, &wall::right, &wall_border_line::s },
+        wall_border_point_locator { w2, &wall::right, &wall_border_line::e },
+        5000.0,
+        distance_direction::vertical
+    );
 }

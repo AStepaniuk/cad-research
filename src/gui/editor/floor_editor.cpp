@@ -7,12 +7,12 @@ using namespace domain::plan::model;
 using namespace domain::plan::model::shape;
 
 floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
-    :_document{doc}
-    , _view{doc}
-    , _mouse{window}
+    :_document{ doc }
     , _tools { _document.model }
-    , _operation_idle{_document, _view, _tools}
-    , _operation_add_wall{_document, _view, _tools}
+    , _view { doc, _tools.point_resolver }
+    , _mouse { window }
+    , _operation_idle { _document, _view, _tools }
+    , _operation_add_wall { _document, _view, _tools }
 {
     domain::plan::generator::default_floor_generator fg;
     fg.generate_floor(_document.model);
