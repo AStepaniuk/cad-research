@@ -3,8 +3,9 @@
 #include "registry.h"
 #include "registry_index.h"
 #include "traits.h"
+#include "type_list.h"
 
-namespace corecad { namespace model {
+namespace corecad::model {
 
     template <typename TModel>
     class model_base
@@ -49,4 +50,14 @@ namespace corecad { namespace model {
     {
         return os << "id:" << model.index;
     }
-}}
+
+    template <typename TList>
+    struct to_index_type_list;
+
+    template <typename... Ts>
+    requires (std::is_base_of_v<model_base<Ts>, Ts> && ...)
+    struct to_index_type_list<util::type_list<Ts...>>
+    {
+        using type = util::type_list<typename Ts::index_t...>;
+    };
+}

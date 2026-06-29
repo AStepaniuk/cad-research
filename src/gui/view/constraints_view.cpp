@@ -47,7 +47,7 @@ namespace
     }
 }
 
-constraints_view::constraints_view(const doc::document &doc, const coord_translator_t &t)
+constraints_view::constraints_view(const doc::document &doc, const translator_t &t)
     : _document{doc}, _translator{t}
 {
 }
@@ -69,7 +69,7 @@ void constraints_view::draw_constraint(ImDrawList* draw_list, const floor::const
 {
     std::visit(corecad::util::overloaded
         {
-            [&](const offset<wall_axis_point, floor::constraint_t>& offs) {
+            [&](const floor::constraint_t::concrete_t<offset>& offs) {
                 ImVec2 pf = _translator.to_view(offs.from);
                 ImVec2 pt = _translator.to_view(offs.to);
 
@@ -128,7 +128,7 @@ void constraints_view::draw_constraint(ImDrawList* draw_list, const floor::const
                     }
                 }
             },
-            [&](const fixed<wall_axis_point, floor::constraint_t>& fix) {
+            [&](const floor::constraint_t::concrete_t<fixed>& fix) {
                 ImVec2 p = _translator.to_view(fix.point);
                 if (fix.coordinate == fixed_coordinate::x)
                 {
@@ -147,7 +147,7 @@ void constraints_view::draw_constraint(ImDrawList* draw_list, const floor::const
                     draw_list->AddCircleFilled(p, Styles::FixedCRadius, color);
                 }
             },
-            [&](const aligned<wall_axis_point, floor::constraint_t>& al) {
+            [&](const floor::constraint_t::concrete_t<aligned>& al) {
                 ImVec2 p1 = _translator.to_view(al.point1);
                 ImVec2 p2 = _translator.to_view(al.point2);
                 ImVec2 p3 = _translator.to_view(al.point3);

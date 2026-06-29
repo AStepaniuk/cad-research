@@ -3,7 +3,7 @@
 #include <functional>
 #include <cstring>
 
-namespace corecad { namespace util
+namespace corecad::util
 {
     inline void hash_combine(std::size_t& seed, std::size_t v) noexcept
     {
@@ -62,4 +62,4 @@ namespace corecad { namespace util
         (hash_combine(seed, dispatch_hash(args)), ...);
         return seed;
     }
-}}
+}

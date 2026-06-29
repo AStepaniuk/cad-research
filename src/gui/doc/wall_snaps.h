@@ -62,10 +62,10 @@ namespace gui::doc {
 
                     // Create the anchor fixes for the affected point
                     it->second.h_fix = _constraints.put(
-                        floor::constraint_t::create<floor::fixed_wall_axis_point_t>(p_idx, p_data.x, fixed_coordinate::x)
+                        floor::constraint_t::create<fixed>(p_idx, p_data.x, fixed_coordinate::x)
                     );
                     it->second.v_fix = _constraints.put(
-                        floor::constraint_t::create<floor::fixed_wall_axis_point_t>(p_idx, p_data.y, fixed_coordinate::y)
+                        floor::constraint_t::create<fixed>(p_idx, p_data.y, fixed_coordinate::y)
                     );
                 } else {
                     it->second.refcount++;

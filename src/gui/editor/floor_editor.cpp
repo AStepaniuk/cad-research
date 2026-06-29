@@ -19,10 +19,7 @@ floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
 
     _tools.wall_calculator.recalculate_all_walls();
 
-    _tools.constraints_calculator.recalculate_all(
-        _document.model.data().items<floor::constraint_t>(),
-        _document.model.data().items<wall_axis_point>()
-    );
+    _tools.constraint_calculator.recalculate_all(_document.model.data().items<floor::constraint_t>());
 
     _tools.wall_calculator.recalculate_all_walls();
 

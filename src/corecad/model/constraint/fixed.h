@@ -3,14 +3,16 @@
 #include "vector2d.h"
 #include "property.h"
 
-namespace corecad { namespace model { namespace constraint
+namespace corecad::model::constraint
 {
     enum class fixed_coordinate { x, y };
     
-    template<IsVector2D TVector, typename TModel>
+    template <typename TModel>
     struct fixed
     {
-        fixed(TVector::index_t p, double v, fixed_coordinate c)
+        using point_id_t = TModel::point_id_t;
+
+        fixed(point_id_t p, double v, fixed_coordinate c)
             : coordinate { nullptr, c }
             , value { nullptr, v }
             , point { nullptr, p }
@@ -19,7 +21,7 @@ namespace corecad { namespace model { namespace constraint
         property<fixed_coordinate, TModel> coordinate;
         property<double, TModel> value;
 
-        property<typename TVector::index_t, TModel> point;
+        property<point_id_t, TModel> point;
 
         void bind(TModel& parent)
         {
@@ -36,9 +38,9 @@ namespace corecad { namespace model { namespace constraint
         }
     };
 
-    template<IsVector2D TVector, typename TModel>
-    std::ostream& operator<<(std::ostream& os, const fixed<TVector, TModel>& f)
+    template<typename TModel>
+    std::ostream& operator<<(std::ostream& os, const fixed<TModel>& f)
     {
         return os << (f.coordinate == fixed_coordinate::x ? "x=" : "y=") << f.value << " p:" << f.point;
     }
-}}}
+}

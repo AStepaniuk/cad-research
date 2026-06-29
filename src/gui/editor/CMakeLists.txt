@@ -1,7 +1,7 @@
+add_subdirectory(calc_pipeline)
 add_subdirectory(handler)
 add_subdirectory(operation)
 add_subdirectory(snap)
-add_subdirectory(calc_pipeline)
 
 add_library(cadgui_editor OBJECT)
 

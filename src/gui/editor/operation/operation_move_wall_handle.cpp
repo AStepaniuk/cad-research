@@ -11,9 +11,9 @@ operation_move_wall_handle::operation_move_wall_handle(doc::document &doc, floor
     : _document{doc}
     , _view{v}
     , _tools{t}
-    , _wall_snap_processor{doc}
+    , _wall_snap_processor{doc, t}
     , _wall_join_handler{_document, _view}
-    , _wall_t_join_handler{_document, _view}
+    , _wall_t_join_handler{_document, _view, t}
     , _move_wall_handlers{&_wall_join_handler, &_wall_t_join_handler}
     , _vh_snap_builder{_document, _view}
     , _snap_builders{&_vh_snap_builder}
@@ -86,10 +86,7 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     }
 
     // update model
-    _tools.constraints_calculator.recalculate_all(
-        _document.model.data().items<floor::constraint_t>(),
-        _document.model.data().items<wall_axis_point>()
-    );
+    _tools.constraint_calculator.recalculate_all(_document.model.data().items<floor::constraint_t>());
     _tools.wall_calculator.recalculate_all_walls();
 
     return action_handle_status::operation_continues;
@@ -124,10 +121,7 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
 
     if(needs_recalculation)
     {
-        _tools.constraints_calculator.recalculate_all(
-            _document.model.data().items<floor::constraint_t>(),
-            _document.model.data().items<wall_axis_point>()
-        );
+        _tools.constraint_calculator.recalculate_all(_document.model.data().items<floor::constraint_t>());
         _tools.wall_calculator.recalculate_all_walls();
     } 
 

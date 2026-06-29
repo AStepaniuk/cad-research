@@ -130,11 +130,6 @@ void wall_calculator::recalculate_all_walls()
         pair.second.refcount = 0;
     }
 
-    for (auto& pair : _borders_cache)
-    {
-        pair.second.refcount = 0;
-    }
-
     // recalculate new wall borders
     walls_joints joints;
     std::map<wall_axis_line::index_t, double> wall_axis_directions;

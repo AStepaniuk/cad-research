@@ -11,10 +11,10 @@ using namespace domain::plan::model::shape;
 using namespace corecad::model;
 using namespace corecad::model::constraint;
 
-wall_t_join_handler::wall_t_join_handler(doc::document &doc, floor_view &v)
+wall_t_join_handler::wall_t_join_handler(doc::document &doc, floor_view &v, calc_tools& ct)
     : _document { doc }
     , _view { v }
-    , _wall_snap_processor { doc }
+    , _wall_snap_processor { doc, ct }
 {
 }
 
@@ -79,7 +79,7 @@ bool wall_t_join_handler::wall_move(
         bool existing_snap = false;
 
         auto offsets = _document.active_wall_snaps.constraints()
-            | views::take_constraints<floor::offset_wall_axis_point_t>();
+            | views::take_constraints<offset>();
         for (const auto& o : offsets)
         {
             if (o.distance == 0.0 && (o.from == sp.index || o.from == ep.index || o.to == sp.index || o.to == ep.index))
@@ -92,7 +92,7 @@ bool wall_t_join_handler::wall_move(
         if (!existing_snap)
         {
             _document.active_wall_snaps.add(
-                floor::constraint_t::create<floor::aligned_wall_axis_point_t>(sp.index, _document.active_handle.value(), ep.index),
+                floor::constraint_t::create<aligned>(sp.index, _document.active_handle.value(), ep.index),
                 0.0,
                 sp.index, ep.index
             );

@@ -5,11 +5,13 @@
 #include <iostream>
 
 using namespace gui::editor::snap;
+using namespace gui::editor;
 using namespace domain::plan::model::shape;
 using namespace corecad::calculator;
 
-snap_processor::snap_processor(doc::document &doc)
+snap_processor::snap_processor(doc::document &doc, calc_tools& ct)
     : _document { doc }
+    , _calc_tools { ct }
 {
 }
 
@@ -22,9 +24,8 @@ bool gui::editor::snap::snap_processor::process()
 
     while (!_document.active_wall_snaps.constraints().empty())
     {
-        const auto result = _constraint_calculator.recalculate_all(
-            _document.active_wall_snaps.constraints(),
-            _document.model.data().items<wall_axis_point>()
+        const auto result = _calc_tools.constraint_calculator.recalculate_all(
+            _document.active_wall_snaps.constraints()
         );
 
         if (result == constraint_calculation_result::success)

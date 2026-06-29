@@ -2,7 +2,7 @@
 
 #include "tagged_value.h"
 
-namespace corecad { namespace model
+namespace corecad::model
 {
     template <typename Tag>
     using registry_index_t = util::tagged_value<long, Tag>;
@@ -30,4 +30,4 @@ namespace corecad { namespace model
 
     template <typename T>
     concept IsRegistryIndex = is_registry_index<std::remove_cvref_t<T>>::value;
-}}
+}

@@ -10,15 +10,23 @@
 #include "abstract_point.h"
 #include "one_of.h"
 #include "property.h"
+#include "type_list.h"
 
 namespace gui {
+    template <typename TList>
+    class coord_translator;
+
     template <corecad::model::IsVector2D... TVector>
-    class coord_translator
+    class coord_translator<corecad::util::type_list<TVector...>>
     {
         constexpr static float MinScale = 0.0001;
 
         template<typename TVec>
         using registry_ref_t = std::reference_wrapper<const corecad::model::registry<TVec>>;
+
+        using vector_list = corecad::util::type_list<TVector...>;
+        using vectors_variant = vector_list::variant_t;
+        using vectors_indexes_variant = corecad::model::to_index_type_list <vector_list>::type::variant_t;
 
     public:
         coord_translator(const corecad::model::registry<TVector>&... points)
@@ -68,7 +76,7 @@ namespace gui {
         }
 
         template<typename TVec>
-        requires IsOneOf<TVec, TVector...>
+        requires corecad::util::IsOneOf<TVec, TVector...>
         ImVec2 to_view(const TVec& p) const
         {
             return ImVec2
@@ -79,20 +87,38 @@ namespace gui {
         }
 
         template<typename TIndex>
-        requires (!corecad::model::IsProperty<TIndex> && IsOneOf<typename TIndex::tag_t, TVector...>)
+        requires (!corecad::model::IsProperty<TIndex> && corecad::util::IsOneOf<typename TIndex::tag_t, TVector...>)
         ImVec2 to_view(TIndex index) const
         {
-            const auto& p = std::get<registry_ref_t<typename TIndex::tag_t>>(_points).get().get(index);
+            constexpr std::size_t idx = corecad::util::index_of<typename TIndex::tag_t, vector_list>::value;
 
-            return to_view(p);
+            const auto& registry = std::get<idx>(_points).get();
+            return to_view(registry.get(index));
         }
 
         template <corecad::model::IsProperty TProperty>
         requires (corecad::model::IsRegistryIndex<typename TProperty::value_t>
-            && IsOneOf<typename TProperty::value_t::tag_t, TVector...>)
+            && corecad::util::IsOneOf<typename TProperty::value_t::tag_t, TVector...>)
         ImVec2 to_view(TProperty property) const
         {
-            return to_view(property.val());
+            const auto index = property.val();
+            return to_view(index);
+        }
+
+        ImVec2 to_view(const vectors_variant& variant_p) const
+        {
+            return std::visit(
+                [this](const auto& p) { return to_view(p); }
+                , variant_p
+            ); 
+        }
+
+        ImVec2 to_view(const vectors_indexes_variant& variant_index) const
+        {
+            return std::visit(
+                [this](const auto& index) { return to_view(index); }
+                , variant_index
+            ); 
         }
 
 
@@ -107,8 +133,5 @@ namespace gui {
     };
 
     // translator template instance used in view
-    using translator_t = coord_translator<
-        domain::plan::model::shape::wall_axis_point,
-        domain::plan::model::shape::wall_border_point
-    >;
+    using translator_t = coord_translator<domain::plan::model::shape::wall_points_tl>;
 }

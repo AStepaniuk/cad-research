@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_map>
+#include <flat_map>
 #include <unordered_set>
 #include <vector>
 #include <iostream>
@@ -15,27 +15,42 @@
 #include "vector2d.h"
 #include "registry.h"
 
-namespace corecad { namespace calculator
+namespace corecad::calculator
 {
     enum class constraint_calculation_result { success, failed };
 
-    template<corecad::model::IsVector2D TVector, typename TConstraintModel>
-    class constraints_calculator
+    template <typename TConstraintModel>
+    class constraints_calculator;
+
+    template <template<typename> typename TConstraintModel, typename... TVectorIndex>
+    requires (
+        model::constraint::IsConstraint<TConstraintModel<corecad::util::type_list<TVectorIndex...>>>
+        && (model::IsVector2D<typename TVectorIndex::tag_t> && ...)
+    )
+    class constraints_calculator<TConstraintModel<corecad::util::type_list<TVectorIndex...>>>
     {
+        template<typename TVec>
+        using registry_ref_t = std::reference_wrapper<corecad::model::registry<TVec>>;
+
     public:
+        using constraint_t = TConstraintModel<corecad::util::type_list<TVectorIndex...>>;
+
+        constraints_calculator(corecad::model::registry<typename TVectorIndex::tag_t>&... points)
+            : _points { std::ref(points)... }
+        {}
+
         constraint_calculation_result recalculate_all(
-            const corecad::model::registry<TConstraintModel>& constraints,        
-            model::registry<TVector>& points
+            const corecad::model::registry<constraint_t>& constraints
         )
         {
-            return recalculate_all(constraints | std::views::values, points);
+            return recalculate_all(constraints | std::views::values);
         }
 
         template <typename R>
         requires
             std::ranges::input_range<R> && 
-            std::same_as<std::ranges::range_value_t<R>, TConstraintModel>
-        constraint_calculation_result recalculate_all(R&& iterable, model::registry<TVector>& points)
+            std::same_as<std::ranges::range_value_t<R>, constraint_t>
+        constraint_calculation_result recalculate_all(R&& iterable)
         {
             m_sys.clear();
 
@@ -43,25 +58,35 @@ namespace corecad { namespace calculator
             std::vector<double> gcs_params;
             std::unordered_set<size_t> gcs_constants;
 
-            gcs_points.resize(points.size());
-            gcs_params.resize(points.size() * 2);
+            auto total_points_size = std::apply([](const auto&... registries) {
+                return (registries.get().size() + ... + 0);
+            }, _points);
+
+            gcs_points.resize(total_points_size);
+            gcs_params.resize(total_points_size * 2);
             size_t next_idx = 0;
             size_t next_p = 0;
 
-            std::unordered_map<typename TVector::index_t, GCS::Point*> gcs_points_table;
+            using point_id_t = typename constraint_t::point_id_t;
 
-            auto get_or_add_gcs_point = [&](TVector::index_t i) {
+            std::flat_map<point_id_t, GCS::Point*> gcs_points_table;
+
+            auto get_or_add_gcs_point = [&](const point_id_t& i) {
                 auto [iter, inserted] = gcs_points_table.try_emplace(i, nullptr);
-
                 if (inserted)
                 {
-                    const TVector& p = points.get(i);
                     GCS::Point& gcs_p = gcs_points[next_idx];
                     gcs_p.x = &(gcs_params[next_p]);
                     gcs_p.y = &(gcs_params[next_p + 1]);
 
-                    *(gcs_p.x) = p.x;
-                    *(gcs_p.y) = p.y;
+                    std::visit([&] (auto p_id) {
+                        using vector2d_t = decltype(p_id)::tag_t;
+                        const auto& registry_ref = std::get<registry_ref_t<vector2d_t>>(_points);
+                        const auto& p = registry_ref.get().get(p_id);
+
+                        *(gcs_p.x) = p.x;
+                        *(gcs_p.y) = p.y;
+                    } , i);
 
                     iter->second = &gcs_p;
 
@@ -76,7 +101,7 @@ namespace corecad { namespace calculator
             {
                 std::visit(util::overloaded
                     {
-                        [&](const model::constraint::offset<TVector, TConstraintModel>& offs) {
+                        [&](const typename constraint_t::concrete_t<model::constraint::offset>& offs) {
                             auto f_gcs_p = get_or_add_gcs_point(offs.from);
                             auto t_gcs_p = get_or_add_gcs_point(offs.to);
 
@@ -89,7 +114,7 @@ namespace corecad { namespace calculator
                                 m_sys.addConstraintDifference(f_gcs_p->y, t_gcs_p->y, &(const_cast<double&>(offs.distance.val())));
                             }
                         },
-                        [&](const model::constraint::fixed<TVector, TConstraintModel>& fix) {
+                        [&](const typename constraint_t::concrete_t<model::constraint::fixed>& fix) {
                             auto gcs_p = get_or_add_gcs_point(fix.point);
 
                             if (fix.coordinate == model::constraint::fixed_coordinate::x)
@@ -103,7 +128,7 @@ namespace corecad { namespace calculator
                                 gcs_constants.emplace(gcs_p->y - gcs_params.data());
                             }
                         },
-                        [&](const model::constraint::aligned<TVector, TConstraintModel>& al) {
+                        [&](const typename constraint_t::concrete_t<model::constraint::aligned>& al) {
                             auto gcs_p1 = get_or_add_gcs_point(al.point1);
                             auto gcs_p2 = get_or_add_gcs_point(al.point2);
                             auto gcs_p3 = get_or_add_gcs_point(al.point3);
@@ -115,10 +140,9 @@ namespace corecad { namespace calculator
                 );
             }
 
-            auto gcs_variables = gcs_points
-                | std::views::take(next_idx)
-                | std::views::transform([] (const GCS::Point& p) { return std::array { p.x, p.y }; })
-                | std::views::join
+            auto gcs_variables = gcs_params 
+                | std::views::take(next_idx * 2)
+                | std::views::transform([](double& val) { return &val; })
                 | std::views::filter([&](double* d) { 
                     return !gcs_constants.contains(d - gcs_params.data());
                 })
@@ -138,9 +162,13 @@ namespace corecad { namespace calculator
 
                 for(const auto& pair : gcs_points_table)
                 {
-                    auto& p = points.get(pair.first);
-                    p.x = *(pair.second->x);
-                    p.y = *(pair.second->y);
+                    std::visit([&] (auto p_id) {
+                        using vector2d_t = decltype(p_id)::tag_t;
+                        auto& registry_ref = std::get<registry_ref_t<vector2d_t>>(_points);
+                        auto& p = registry_ref.get().get(p_id);
+                        p.x = *(pair.second->x);
+                        p.y = *(pair.second->y);
+                    } , pair.first);
                 }
 
                 return constraint_calculation_result::success;
@@ -149,5 +177,7 @@ namespace corecad { namespace calculator
 
     private:
         GCS::System m_sys;
+
+        std::tuple<registry_ref_t<typename TVectorIndex::tag_t>...> _points;
     };
-}}
+}

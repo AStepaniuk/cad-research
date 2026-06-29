@@ -45,7 +45,7 @@ namespace
     }
 }
 
-parameters_view::parameters_view(const doc::document &doc, const coord_translator_t &t, point_resolver& pr)
+parameters_view::parameters_view(const doc::document &doc, const translator_t &t, point_resolver& pr)
     : _document { doc }
     , _translator { t }
     , _point_resolver { pr }

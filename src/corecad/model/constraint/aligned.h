@@ -7,22 +7,21 @@
 
 namespace corecad { namespace model { namespace constraint
 {
-    template<IsVector2D TVector, typename TModel>
+    template <typename TModel>
     struct aligned
     {
-        using vector2d_prop_t = property<typename TVector::index_t, TModel>;
+        using point_id_t = TModel::point_id_t;
 
-    public:
-        aligned(TVector::index_t p1, TVector::index_t p2, TVector::index_t p3)
+        aligned(point_id_t p1, point_id_t p2, point_id_t p3)
             : point1 { nullptr, p1 }
             , point2 { nullptr, p2 }
             , point3 { nullptr, p3 }
         {
         }
 
-        property<typename TVector::index_t, TModel> point1;
-        property<typename TVector::index_t, TModel> point2;
-        property<typename TVector::index_t, TModel> point3;
+        property<point_id_t, TModel> point1;
+        property<point_id_t, TModel> point2;
+        property<point_id_t, TModel> point3;
 
         void bind(TModel& parent)
         {
@@ -39,8 +38,8 @@ namespace corecad { namespace model { namespace constraint
         }
     };
 
-    template<IsVector2D TVector, typename TModel>
-    std::ostream& operator<<(std::ostream& os, const aligned<TVector, TModel>& a)
+    template<typename TModel>
+    std::ostream& operator<<(std::ostream& os, const aligned<TModel>& a)
     {
         return os << a.point1 << " - " << a.point2 << " - " << a.point3;
     }

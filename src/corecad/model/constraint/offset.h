@@ -2,15 +2,18 @@
 
 #include "vector2d.h"
 #include "property.h"
+#include "type_list.h"
 
-namespace corecad { namespace model { namespace constraint
+namespace corecad::model::constraint
 {
     enum class offset_direction { horizontal, vertical };
     
-    template<IsVector2D TVector, typename TModel>
+    template <typename TModel>
     struct offset
     {
-        offset(TVector::index_t f, TVector::index_t t, double o, offset_direction d)
+        using point_id_t = TModel::point_id_t;
+
+        offset(point_id_t f, point_id_t t, double o, offset_direction d)
             : direction { nullptr, d }
             , from { nullptr, f }
             , to { nullptr, t }
@@ -19,8 +22,8 @@ namespace corecad { namespace model { namespace constraint
 
         property<offset_direction, TModel> direction;
 
-        property<typename TVector::index_t, TModel> from;
-        property<typename TVector::index_t, TModel> to;
+        property<point_id_t, TModel> from;
+        property<point_id_t, TModel> to;
 
         property<double, TModel> distance;
 
@@ -41,10 +44,10 @@ namespace corecad { namespace model { namespace constraint
         }
     };
 
-    template<IsVector2D TVector, typename TModel>
-    std::ostream& operator<<(std::ostream& os, const offset<TVector, TModel>& o)
+    template<typename TModel>
+    std::ostream& operator<<(std::ostream& os, const offset<TModel>& o)
     {
         return os << (o.direction == offset_direction::vertical ? "vertical" : "horizontal")
             << " from:" << o.from << " to:" << o.to << " dist:" << o.distance;
     }
-}}}
+}

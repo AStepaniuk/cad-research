@@ -15,20 +15,7 @@ namespace domain::plan::model
     class floor
     {
     public:
-        template <typename TModel>
-        using fixed_wall_axis_point_t = corecad::model::constraint::fixed<shape::wall_axis_point, TModel>;
-
-        template <typename TModel>
-        using offset_wall_axis_point_t = corecad::model::constraint::offset<shape::wall_axis_point, TModel>;
-
-        template <typename TModel>
-        using aligned_wall_axis_point_t = corecad::model::constraint::aligned<shape::wall_axis_point, TModel>;
-
-        using constraint_t = corecad::model::constraint::constraint<
-            fixed_wall_axis_point_t,
-            offset_wall_axis_point_t,
-            aligned_wall_axis_point_t
-        >;
+        using constraint_t = corecad::model::constraint::constraint<shape::wall_points_ids_tl>;
 
         using data_t = corecad::model::registry_pool<
             constraint_t,

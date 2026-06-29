@@ -61,7 +61,7 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
 
     if (x_ref_point)
     {
-        auto constraint = floor::constraint_t::create<floor::offset_wall_axis_point_t>(
+        auto constraint = floor::constraint_t::create<offset>(
             x_ref_point->index, _document.active_handle.value(),
             0.0, offset_direction::horizontal
         );
@@ -72,7 +72,7 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
 
     if (y_ref_point)
     {
-        auto constraint = floor::constraint_t::create<floor::offset_wall_axis_point_t>(
+        auto constraint = floor::constraint_t::create<offset>(
             y_ref_point->index, _document.active_handle.value(),
             0.0, offset_direction::vertical
         );

@@ -1,24 +1,22 @@
 #pragma once
 
 #include "document.h"
-#include "constraints_calculator.h"
+#include "calc_tools.h"
 
 #include <vector>
 #include <utility>
 
-namespace gui { namespace editor { namespace snap {
+namespace gui::editor::snap {
     class snap_processor
     {
     public:
-        snap_processor(doc::document& doc);
+        snap_processor(doc::document& doc, calc_tools& ct);
 
         bool process();
 
     private:
         doc::document& _document;
-        corecad::calculator::constraints_calculator<
-            domain::plan::model::shape::wall_axis_point,
-            domain::plan::model::floor::constraint_t
-        > _constraint_calculator;
+        calc_tools& _calc_tools;
     };
-}}}
+}
+

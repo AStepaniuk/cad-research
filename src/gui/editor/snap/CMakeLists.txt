@@ -14,3 +14,7 @@ target_link_libraries(cadgui_editor_snap PRIVATE
     cadgui_doc
     cadgui_view
 )
+
+target_link_libraries(cadgui_editor_snap PUBLIC
+    cadgui_editor_calc_pipeline
+)

@@ -6,7 +6,7 @@
 #include "registry.h"
 #include "property.h"
 
-namespace corecad { namespace model
+namespace corecad::model
 {
     template<typename Tag>
     class vector2d : public corecad::model::model_base<vector2d<Tag>>
@@ -80,4 +80,14 @@ namespace corecad { namespace model
 
     template <typename T>
     concept IsVector2D = is_vector2d<std::remove_cvref_t<T>>::value;
-}}
+
+
+    template <typename T>
+    struct is_vector2d_index : std::false_type {};
+
+    template <typename Tag>
+    struct is_vector2d_index<registry_index_t<Tag>> : std::bool_constant<is_vector2d<Tag>::value> {};
+
+    template <typename T>
+    concept IsVector2DIndex = is_vector2d_index<std::remove_cvref_t<T>>::value;
+}
