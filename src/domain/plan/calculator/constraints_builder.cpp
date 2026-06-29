@@ -3,6 +3,7 @@
 using namespace domain::plan::calculator;
 using namespace domain::plan;
 using namespace domain::plan::model::parameter;
+using namespace corecad::model::constraint;
 
 constraints_builder::constraints_builder(model::floor &floor, resolver::point_resolver& pr)
     : _floor { floor }
@@ -29,10 +30,12 @@ void constraints_builder::rebuild_all_constraints()
             // vertical or horizontal alignment
             if (p.direction == distance_direction::horizontal)
             {
-
+                _floor.data().put(model::floor::constraint_t::create<offset>(pf, pt, p.value, offset_direction::horizontal));
             }
             else if (p.direction == distance_direction::vertical)
-            {}
+            {
+                _floor.data().put(model::floor::constraint_t::create<offset>(pf, pt, p.value, offset_direction::vertical));
+            }
             else
             {
                 std::cerr << "Diagonal alignment is not supported yet" << std::endl;

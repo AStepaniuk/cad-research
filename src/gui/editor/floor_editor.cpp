@@ -9,7 +9,7 @@ using namespace domain::plan::model::shape;
 floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
     :_document{ doc }
     , _tools { _document.model }
-    , _view { doc, _tools.point_resolver }
+    , _view { doc, _tools.point_resolver() }
     , _mouse { window }
     , _operation_idle { _document, _view, _tools }
     , _operation_add_wall { _document, _view, _tools }
@@ -17,11 +17,7 @@ floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
     domain::plan::generator::default_floor_generator fg;
     fg.generate_floor(_document.model);
 
-    _tools.wall_calculator.recalculate_all_walls();
-
-    _tools.constraint_calculator.recalculate_all(_document.model.data().items<floor::constraint_t>());
-
-    _tools.wall_calculator.recalculate_all_walls();
+    _tools.run_full_pipeline();
 
     _document.model.history().commit("Initial setup");
 
@@ -35,7 +31,7 @@ void floor_editor::switch_operation(operation::i_operation *op)
         _current_operation->stop();
         _document.model.history().cancel();
 
-        _tools.wall_calculator.recalculate_all_walls();
+        _tools.run_full_pipeline();
     }
 
     _current_operation = op;
@@ -109,7 +105,7 @@ void gui::editor::floor_editor::undo()
     switch_operation(&_operation_idle);
 
     _document.model.history().undo();
-    _tools.wall_calculator.recalculate_all_walls();
+    _tools.run_full_pipeline();
 }
 
 void gui::editor::floor_editor::redo()
@@ -117,5 +113,5 @@ void gui::editor::floor_editor::redo()
     switch_operation(&_operation_idle);
     
     _document.model.history().redo();
-    _tools.wall_calculator.recalculate_all_walls();
+    _tools.run_full_pipeline();
 }

@@ -24,7 +24,7 @@ bool gui::editor::snap::snap_processor::process()
 
     while (!_document.active_wall_snaps.constraints().empty())
     {
-        const auto result = _calc_tools.constraint_calculator.recalculate_all(
+        const auto result = _calc_tools.constraints_calculator().recalculate_all(
             _document.active_wall_snaps.constraints()
         );
 

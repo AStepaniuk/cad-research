@@ -8,7 +8,7 @@
 #include "operation/operation_idle.h"
 #include "operation/operation_add_wall.h"
 
-namespace gui { namespace editor {
+namespace gui::editor {
     class floor_editor
     {
         doc::document& _document;
@@ -35,4 +35,4 @@ namespace gui { namespace editor {
         void undo();
         void redo();
     };
-}}
+}

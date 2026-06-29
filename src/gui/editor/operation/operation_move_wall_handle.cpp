@@ -86,8 +86,7 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     }
 
     // update model
-    _tools.constraint_calculator.recalculate_all(_document.model.data().items<floor::constraint_t>());
-    _tools.wall_calculator.recalculate_all_walls();
+    _tools.run_full_pipeline();
 
     return action_handle_status::operation_continues;
 }
@@ -121,8 +120,7 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
 
     if(needs_recalculation)
     {
-        _tools.constraint_calculator.recalculate_all(_document.model.data().items<floor::constraint_t>());
-        _tools.wall_calculator.recalculate_all_walls();
+        _tools.run_full_pipeline();
     } 
 
     if (_do_commit_on_click)
