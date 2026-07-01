@@ -2,7 +2,7 @@
 
 #include <variant>
 
-#include "model_base.h"
+#include "variant_model_base.h"
 #include "registry.h"
 #include "one_of.h"
 #include "type_list.h"
@@ -15,78 +15,39 @@ namespace corecad::model::constraint
 {
     template <typename TVector2DIndexList>
     requires util::AllElementsAre<TVector2DIndexList, is_vector2d_index>
-    struct constraint : public model_base<constraint<TVector2DIndexList>>
+    struct constraint;
+
+    template <typename TVector2DIndexList>
+    using constraint_base = variant_model_base<
+        constraint<TVector2DIndexList>
+        , aligned<TVector2DIndexList, constraint<TVector2DIndexList>>
+        , fixed<TVector2DIndexList, constraint<TVector2DIndexList>>
+        , offset<TVector2DIndexList, constraint<TVector2DIndexList>>
+    >;
+    
+    template <typename TVector2DIndexList>
+    requires util::AllElementsAre<TVector2DIndexList, is_vector2d_index>
+    struct constraint : constraint_base<TVector2DIndexList>
     {
         using point_id_t = TVector2DIndexList::variant_t;
 
-        using instances_tl = util::type_list<
-            aligned<constraint>,
-            fixed<constraint>,
-            offset<constraint>
-        >;
+        template<template <typename, typename> typename TInst>
+        using concrete_t = TInst<TVector2DIndexList, constraint<TVector2DIndexList>>;
 
-        using instance_t = typename instances_tl::variant_t;
-        instance_t instance;
-
-        template<template <typename> typename TConstraint>
-        requires util::IsOneOf<TConstraint<constraint>, instances_tl>
-        using concrete_t = TConstraint<constraint>;
-
-        template<template <typename> typename TConstraint, typename... TArgs>
-        requires util::IsOneOf<TConstraint<constraint>, instances_tl>
-        static constraint create(TArgs&&... args)
+    protected:
+        explicit constraint(typename constraint_base<TVector2DIndexList>::instance_t i)
+            : constraint_base<TVector2DIndexList> { std::move(i) }
         {
-            constraint res { concrete_t<TConstraint> { std::forward<TArgs>(args)... } };
-            res.bind_internal();
-
-            return res;
-        }
-
-        constraint(const constraint& other)
-            : model_base<constraint<TVector2DIndexList>> { other }
-            , instance { other.instance }
-        {
-            bind_internal();
-        }
-
-        constraint(constraint&& other) noexcept
-            : model_base<constraint<TVector2DIndexList>> { std::move(other) }
-            , instance { std::move(other.instance) }
-        {
-            bind_internal();
-        }
-
-        constraint& operator=(const constraint& other) = default;
-        constraint& operator=(constraint&& other) noexcept = default;
-
-        void reset_properties_updated()
-        {
-           std::visit([this](auto& impl) {
-                impl.reset_properties_updated();
-            }, instance);
         }
 
     private:
-        explicit constraint(instance_t i)
-            : instance { std::move(i) }
-        {}
- 
-        void bind_internal()
-        {
-           std::visit([this](auto& impl) {
-                impl.bind(*this);
-            }, instance);
-        }
+        friend constraint_base<TVector2DIndexList>; 
     };
 
     template <typename TVector2DIndexList>
     std::ostream& operator<<(std::ostream& os, const constraint<TVector2DIndexList>& c)
     {
-        os << static_cast<const model_base<constraint<TVector2DIndexList>>&>(c);
-
-        std::visit([&os](const auto& impl) {
-            os << ' ' << impl;
-        }, c.instance);
+        os << static_cast<const constraint_base<TVector2DIndexList>&>(c);
 
         return os;
     }

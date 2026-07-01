@@ -10,7 +10,7 @@ namespace corecad { namespace model { namespace constraint { namespace views
         requires IsConstraint<decltype(p.second)>;
     };
 
-    template<template <typename> typename TConstraint>
+    template<template <typename, typename> typename TConstraint>
     struct take_constraints_closure
     {
         template <std::ranges::viewable_range R>
@@ -42,7 +42,7 @@ namespace corecad { namespace model { namespace constraint { namespace views
         }
     };
 
-    template<template <typename> typename TConstraint>
+    template<template <typename, typename> typename TConstraint>
     auto take_constraints()
     {
         return take_constraints_closure<TConstraint>{};

@@ -3,14 +3,13 @@
 #include "vector2d.h"
 #include "property.h"
 
-#include <vector>
-
 namespace corecad { namespace model { namespace constraint
 {
-    template <typename TModel>
+    template <typename TVector2DIndexList, typename TModel>
+    requires util::AllElementsAre<TVector2DIndexList, is_vector2d_index>
     struct aligned
     {
-        using point_id_t = TModel::point_id_t;
+        using point_id_t = TVector2DIndexList::variant_t;
 
         aligned(point_id_t p1, point_id_t p2, point_id_t p3)
             : point1 { nullptr, p1 }
@@ -38,8 +37,8 @@ namespace corecad { namespace model { namespace constraint
         }
     };
 
-    template<typename TModel>
-    std::ostream& operator<<(std::ostream& os, const aligned<TModel>& a)
+    template <typename TVector2DIndexList, typename TModel>
+    std::ostream& operator<<(std::ostream& os, const aligned<TVector2DIndexList, TModel>& a)
     {
         return os << a.point1 << " - " << a.point2 << " - " << a.point3;
     }
