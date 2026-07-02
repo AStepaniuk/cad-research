@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "traits.h"
 
 namespace corecad::model

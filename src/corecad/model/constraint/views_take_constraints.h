@@ -2,7 +2,7 @@
 
 #include "views_take_variants.h"
 
-namespace corecad { namespace model { namespace constraint { namespace views
+namespace corecad::model::constraint::views
 {
     template <typename T>
     concept is_constraint_pair = requires(T p)
@@ -47,4 +47,4 @@ namespace corecad { namespace model { namespace constraint { namespace views
     {
         return take_constraints_closure<TConstraint>{};
     }
-}}}}
+}

@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <concepts>
+#include <variant>
 
 namespace corecad::util
 {

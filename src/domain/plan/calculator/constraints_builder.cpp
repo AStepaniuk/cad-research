@@ -1,5 +1,7 @@
 #include "constraints_builder.h"
 
+#include "overloaded.h"
+
 using namespace domain::plan::calculator;
 using namespace domain::plan;
 using namespace domain::plan::model::parameter;
@@ -22,29 +24,36 @@ void constraints_builder::rebuild_all_constraints()
     {
         const auto& p = pair.second;
 
-        const auto& pf = _pr.resolve(p.from);
-        const auto& pt = _pr.resolve(p.to);
+        std::visit(corecad::util::overloaded
+            {
+                [&](const parameter::concrete_t<distance>& d) {
+                    const auto& pf = _pr.resolve(d.from);
+                    const auto& pt = _pr.resolve(d.to);
 
-        if (p.value == 0.0)
-        {
-            // vertical or horizontal alignment
-            if (p.direction == distance_direction::horizontal)
-            {
-                _floor.data().put(model::floor::constraint_t::create<offset>(pf, pt, p.value, offset_direction::horizontal));
-            }
-            else if (p.direction == distance_direction::vertical)
-            {
-                _floor.data().put(model::floor::constraint_t::create<offset>(pf, pt, p.value, offset_direction::vertical));
-            }
-            else
-            {
-                std::cerr << "Diagonal alignment is not supported yet" << std::endl;
-            }
-        }
-        else
-        {
+                    if (d.value == 0.0)
+                    {
+                        // vertical or horizontal alignment
+                        if (d.direction == distance_direction::horizontal)
+                        {
+                            _floor.data().put(model::floor::constraint_t::create<offset>(pf, pt, d.value, offset_direction::horizontal));
+                        }
+                        else if (d.direction == distance_direction::vertical)
+                        {
+                            _floor.data().put(model::floor::constraint_t::create<offset>(pf, pt, d.value, offset_direction::vertical));
+                        }
+                        else
+                        {
+                            std::cerr << "Diagonal alignment is not supported yet" << std::endl;
+                        }
+                    }
+                    else
+                    {
 
-        }
+                    }
+                }
+            },
+            pair.second.instance
+        );
     }
 
     // generate wall geometry constraints. For walls, which have no dimension constraints

@@ -3,6 +3,8 @@
 #include <variant>
 #include <cmath>
 
+#include "overloaded.h"
+
 using namespace gui;
 using namespace domain::plan::model::shape;
 using namespace domain::plan::model::parameter;
@@ -62,72 +64,79 @@ void parameters_view::render(ImDrawList *draw_list)
 
 void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, ImU32 color)
 {
-    const auto from = std::get<wall_border_point::index_t>(_point_resolver.resolve(p.from));
-    const auto to = std::get<wall_border_point::index_t>(_point_resolver.resolve(p.to));
-
-    ImVec2 pf = _translator.to_view(from);
-    ImVec2 pt = _translator.to_view(to);
-
-    if (p.value == 0.0)
-    {
-        if (p.direction == distance_direction::horizontal)
+    std::visit(corecad::util::overloaded
         {
-            auto min_y = pf.y < pt.y ? pf.y : pt.y;
-            auto max_y = pf.y < pt.y ? pt.y : pf.y;
-            draw_list->AddLine({ pf.x - 3, min_y + 10 }, { pf.x - 3, max_y - 10 }, color, Styles::CLineThickness);
-        }
-        else if (p.direction == distance_direction::vertical)
-        {
-            auto min_x = pf.x < pt.x ? pf.x : pt.x;
-            auto max_x = pf.x < pt.x ? pt.x : pf.x;
-            draw_list->AddLine({ min_x + 10, pf.y - 3 }, { max_x - 10, pf.y - 3 }, color, Styles::CLineThickness);
-        }
-        else
-        {
-            std::cerr << "diagonal offset directions are not yet dupported" << std::endl;
-        }
-    }
-    else
-    {
-        if (p.direction == distance_direction::horizontal)
-        {
-            auto dx = pt.x - pf.x;
-            auto baseline = dx * 0.1f;
+            [&](const parameter::concrete_t<distance>& d) {
+                const auto from = std::get<wall_border_point::index_t>(_point_resolver.resolve(d.from));
+                const auto to = std::get<wall_border_point::index_t>(_point_resolver.resolve(d.to));
 
-            auto by = std::max(pf.y, pt.y) + baseline;
+                ImVec2 pf = _translator.to_view(from);
+                ImVec2 pt = _translator.to_view(to);
 
-            draw_list->AddLine(pf, { pf.x, by + 5 }, color, Styles::CLineThickness);
-            draw_list->AddLine(pt, { pt.x, by + 5 }, color, Styles::CLineThickness);
-            draw_list->AddLine({ pf.x, by }, { pt.x, by }, color, Styles::CLineThickness);
+                if (d.value == 0.0)
+                {
+                    if (d.direction == distance_direction::horizontal)
+                    {
+                        auto min_y = pf.y < pt.y ? pf.y : pt.y;
+                        auto max_y = pf.y < pt.y ? pt.y : pf.y;
+                        draw_list->AddLine({ pf.x - 3, min_y + 10 }, { pf.x - 3, max_y - 10 }, color, Styles::CLineThickness);
+                    }
+                    else if (d.direction == distance_direction::vertical)
+                    {
+                        auto min_x = pf.x < pt.x ? pf.x : pt.x;
+                        auto max_x = pf.x < pt.x ? pt.x : pf.x;
+                        draw_list->AddLine({ min_x + 10, pf.y - 3 }, { max_x - 10, pf.y - 3 }, color, Styles::CLineThickness);
+                    }
+                    else
+                    {
+                        std::cerr << "diagonal offset directions are not yet dupported" << std::endl;
+                    }
+                }
+                else
+                {
+                    if (d.direction == distance_direction::horizontal)
+                    {
+                        auto dx = pt.x - pf.x;
+                        auto baseline = dx * 0.1f;
 
-            draw_list->AddLine({ pf.x - 5, by - 5 }, { pf.x + 5, by + 5 }, color, Styles::CLineThickness);
-            draw_list->AddLine({ pt.x - 5, by - 5 }, { pt.x + 5, by + 5 }, color, Styles::CLineThickness);
-        
-            const auto text = std::format("{:.0f}", std::abs(p.value));
+                        auto by = std::max(pf.y, pt.y) + baseline;
 
-            auto text_size = ImGui::CalcTextSize(text.c_str());
-            draw_list->AddText({ (pf.x + pt.x)*0.5f - text_size.x*0.5f, by - text_size.y }, color, text.c_str());
-        }
-        else  if (p.direction == distance_direction::vertical)
-        {
-            auto dy = pt.y - pf.y;
-            auto baseline = dy * 0.1f;
+                        draw_list->AddLine(pf, { pf.x, by + 5 }, color, Styles::CLineThickness);
+                        draw_list->AddLine(pt, { pt.x, by + 5 }, color, Styles::CLineThickness);
+                        draw_list->AddLine({ pf.x, by }, { pt.x, by }, color, Styles::CLineThickness);
 
-            auto bx = std::max(pf.x, pt.x) + baseline;
+                        draw_list->AddLine({ pf.x - 5, by - 5 }, { pf.x + 5, by + 5 }, color, Styles::CLineThickness);
+                        draw_list->AddLine({ pt.x - 5, by - 5 }, { pt.x + 5, by + 5 }, color, Styles::CLineThickness);
+                    
+                        const auto text = std::format("{:.0f}", std::abs(d.value));
 
-            draw_list->AddLine(pf, { bx + 5, pf.y }, color, Styles::CLineThickness);
-            draw_list->AddLine(pt, { bx + 5, pt.y }, color, Styles::CLineThickness);
-            draw_list->AddLine({ bx, pf.y }, { bx, pt.y }, color, Styles::CLineThickness);
+                        auto text_size = ImGui::CalcTextSize(text.c_str());
+                        draw_list->AddText({ (pf.x + pt.x)*0.5f - text_size.x*0.5f, by - text_size.y }, color, text.c_str());
+                    }
+                    else  if (d.direction == distance_direction::vertical)
+                    {
+                        auto dy = pt.y - pf.y;
+                        auto baseline = dy * 0.1f;
 
-            draw_list->AddLine({ bx - 5, pf.y - 5 }, { bx + 5, pf.y + 5 }, color, Styles::CLineThickness);
-            draw_list->AddLine({ bx - 5, pt.y - 5 }, { bx + 5, pt.y + 5 }, color, Styles::CLineThickness);
-        
-            const auto text = std::format("{:.0f}", std::abs(p.value));
-            draw_text_vertical(draw_list, text.c_str(), { bx, (pt.y + pf.y)*0.5f }, color);
-        }
-        else
-        {
-            std::cerr << "diagonal offset directions are not yet dupported" << std::endl;
-        }
-    }
+                        auto bx = std::max(pf.x, pt.x) + baseline;
+
+                        draw_list->AddLine(pf, { bx + 5, pf.y }, color, Styles::CLineThickness);
+                        draw_list->AddLine(pt, { bx + 5, pt.y }, color, Styles::CLineThickness);
+                        draw_list->AddLine({ bx, pf.y }, { bx, pt.y }, color, Styles::CLineThickness);
+
+                        draw_list->AddLine({ bx - 5, pf.y - 5 }, { bx + 5, pf.y + 5 }, color, Styles::CLineThickness);
+                        draw_list->AddLine({ bx - 5, pt.y - 5 }, { bx + 5, pt.y + 5 }, color, Styles::CLineThickness);
+                    
+                        const auto text = std::format("{:.0f}", std::abs(d.value));
+                        draw_text_vertical(draw_list, text.c_str(), { bx, (pt.y + pf.y)*0.5f }, color);
+                    }
+                    else
+                    {
+                        std::cerr << "diagonal offset directions are not yet dupported" << std::endl;
+                    }
+                }
+            }
+        },
+        p.instance
+    );
 }
