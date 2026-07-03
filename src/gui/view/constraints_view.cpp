@@ -131,7 +131,7 @@ void constraints_view::draw_constraint(ImDrawList* draw_list, const floor::const
             },
             [&](const floor::constraint_t::concrete_t<fixed>& fix) {
                 ImVec2 p = _translator.to_view(fix.point);
-                if (fix.coordinate == fixed_coordinate::x)
+                if (fix.coordinate == coordinate2d::x)
                 {
                     ImVec2 s { p.x, p.y - Styles::FixedCOffset };
                     ImVec2 e { p.x, p.y + Styles::FixedCOffset };

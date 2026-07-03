@@ -1,7 +1,9 @@
 #pragma once
 
-#include "distance.h"
 #include "variant_model_base.h"
+#include "distance.h"
+#include "colinear.h"
+#include "pinned.h"
 
 namespace domain::plan::model::parameter {
     struct parameter;
@@ -9,6 +11,8 @@ namespace domain::plan::model::parameter {
     using parameter_base = corecad::model::variant_model_base<
         parameter
         , distance<parameter>
+        , colinear<parameter>
+        , pinned<parameter>
     >;
     
     struct parameter : parameter_base

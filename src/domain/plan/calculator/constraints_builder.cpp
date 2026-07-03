@@ -38,6 +38,18 @@ void constraints_builder::rebuild_all_constraints()
                     {
 
                     }
+                },
+                [&](const parameter::concrete_t<colinear>& c) {
+                    const auto& p1 = _pr.resolve(c.point1);
+                    const auto& p2 = _pr.resolve(c.point2);
+                    const auto& p3 = _pr.resolve(c.point3);
+
+                    _floor.data().put(model::floor::constraint_t::create<aligned>(p1, p2, p3));
+                },
+                [&](const parameter::concrete_t<pinned>& p) {
+                    const auto& point = _pr.resolve(p.point);
+
+                    _floor.data().put(model::floor::constraint_t::create<fixed>(point, p.value, p.coordinate));
                 }
             },
             pair.second.instance

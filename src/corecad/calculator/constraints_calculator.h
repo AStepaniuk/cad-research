@@ -117,7 +117,7 @@ namespace corecad::calculator
                         [&](const typename constraint_t::concrete_t<model::constraint::fixed>& fix) {
                             auto gcs_p = get_or_add_gcs_point(fix.point);
 
-                            if (fix.coordinate == model::constraint::fixed_coordinate::x)
+                            if (fix.coordinate == model::coordinate2d::x)
                             {
                                 *(gcs_p->x) = fix.value;
                                 gcs_constants.emplace(gcs_p->x - gcs_params.data());

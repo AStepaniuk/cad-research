@@ -128,6 +128,69 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
                         draw_text_vertical(draw_list, text.c_str(), { bx, (pt.y + pf.y)*0.5f }, color);
                     }
                 }
+            },
+            [&](const parameter::concrete_t<colinear>& c) {
+                const auto point1 = std::get<wall_border_point::index_t>(_point_resolver.resolve(c.point1));
+                const auto point2 = std::get<wall_border_point::index_t>(_point_resolver.resolve(c.point2));
+                const auto point3 = std::get<wall_border_point::index_t>(_point_resolver.resolve(c.point3));
+
+                ImVec2 p1 = _translator.to_view(point1);
+                ImVec2 p2 = _translator.to_view(point2);
+                ImVec2 p3 = _translator.to_view(point3);
+
+                const auto dx = p3.x - p1.x;
+                const auto dy = p3.y - p1.y;
+                const auto hypot = std::hypot(dx, dy);
+                if (hypot < 1.0f)
+                {
+                    // don't draw constraint. Points are too close
+                    return;
+                }
+
+                const auto ndx = dx/hypot;
+                const auto ndy = dy/hypot;
+
+                // rotate normal vector to 90 degrees
+                auto rndx = -ndy;
+                auto rndy = ndx;
+
+                // make sure rndy is <0
+                if (rndy > 0.0f)
+                {
+                    rndx = -rndx;
+                    rndy = -rndy;
+                }
+
+                ImVec2 m1 { (p1.x + p2.x) *0.5f, (p1.y + p2.y) *0.5f };
+                ImVec2 m2 { (p2.x + p3.x) *0.5f, (p2.y + p3.y) *0.5f };
+
+                ImVec2 ms1 { m1.x + 5.0f*rndx - 20.0f*ndx, m1.y + 5.0f*rndy - 20.0f*ndy };
+                ImVec2 me1 { m1.x + 5.0f*rndx + 20.0f*ndx, m1.y + 5.0f*rndy + 20.0f*ndy };
+                ImVec2 ms2 { m2.x + 5.0f*rndx - 20.0f*ndx, m2.y + 5.0f*rndy - 20.0f*ndy };
+                ImVec2 me2 { m2.x + 5.0f*rndx + 20.0f*ndx, m2.y + 5.0f*rndy + 20.0f*ndy };
+
+                draw_list->AddLine(ms1, me1, Styles::CColor, Styles::CLineThickness);
+                draw_list->AddLine(ms2, me2, Styles::CColor, Styles::CLineThickness);
+            },
+            [&](const parameter::concrete_t<pinned>& pin) {
+                const auto point = std::get<wall_border_point::index_t>(_point_resolver.resolve(pin.point));
+                ImVec2 p = _translator.to_view(point);
+                if (pin.coordinate == coordinate2d::x)
+                {
+                    ImVec2 s { p.x, p.y - Styles::FixedCOffset };
+                    ImVec2 e { p.x, p.y + Styles::FixedCOffset };
+
+                    draw_list->AddLine(s, e, color, Styles::CLineThickness);
+                    draw_list->AddCircleFilled(p, Styles::FixedCRadius, color);
+                }
+                else
+                {
+                    ImVec2 s { p.x - Styles::FixedCOffset, p.y };
+                    ImVec2 e { p.x + Styles::FixedCOffset, p.y };
+
+                    draw_list->AddLine(s, e, color, Styles::CLineThickness);
+                    draw_list->AddCircleFilled(p, Styles::FixedCRadius, color);
+                }
             }
         },
         p.instance
