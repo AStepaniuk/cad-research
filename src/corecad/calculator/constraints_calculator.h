@@ -105,7 +105,7 @@ namespace corecad::calculator
                             auto f_gcs_p = get_or_add_gcs_point(offs.from);
                             auto t_gcs_p = get_or_add_gcs_point(offs.to);
 
-                            if (offs.direction == model::constraint::offset_direction::horizontal)
+                            if (offs.direction == model::coordinate2d::x)
                             {
                                 m_sys.addConstraintDifference(f_gcs_p->x, t_gcs_p->x, &(const_cast<double&>(offs.distance.val())));
                             }

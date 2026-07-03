@@ -9,6 +9,7 @@ using namespace gui;
 using namespace domain::plan::model::shape;
 using namespace domain::plan::model::parameter;
 using namespace domain::plan::resolver;
+using namespace corecad::model;
 
 namespace
 {
@@ -75,26 +76,22 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
 
                 if (d.value == 0.0)
                 {
-                    if (d.direction == distance_direction::horizontal)
+                    if (d.direction == coordinate2d::x)
                     {
                         auto min_y = pf.y < pt.y ? pf.y : pt.y;
                         auto max_y = pf.y < pt.y ? pt.y : pf.y;
                         draw_list->AddLine({ pf.x - 3, min_y + 10 }, { pf.x - 3, max_y - 10 }, color, Styles::CLineThickness);
                     }
-                    else if (d.direction == distance_direction::vertical)
+                    else
                     {
                         auto min_x = pf.x < pt.x ? pf.x : pt.x;
                         auto max_x = pf.x < pt.x ? pt.x : pf.x;
                         draw_list->AddLine({ min_x + 10, pf.y - 3 }, { max_x - 10, pf.y - 3 }, color, Styles::CLineThickness);
                     }
-                    else
-                    {
-                        std::cerr << "diagonal offset directions are not yet dupported" << std::endl;
-                    }
                 }
                 else
                 {
-                    if (d.direction == distance_direction::horizontal)
+                    if (d.direction == coordinate2d::x)
                     {
                         auto dx = pt.x - pf.x;
                         auto baseline = dx * 0.1f;
@@ -113,7 +110,7 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
                         auto text_size = ImGui::CalcTextSize(text.c_str());
                         draw_list->AddText({ (pf.x + pt.x)*0.5f - text_size.x*0.5f, by - text_size.y }, color, text.c_str());
                     }
-                    else  if (d.direction == distance_direction::vertical)
+                    else
                     {
                         auto dy = pt.y - pf.y;
                         auto baseline = dy * 0.1f;
@@ -129,10 +126,6 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
                     
                         const auto text = std::format("{:.0f}", std::abs(d.value));
                         draw_text_vertical(draw_list, text.c_str(), { bx, (pt.y + pf.y)*0.5f }, color);
-                    }
-                    else
-                    {
-                        std::cerr << "diagonal offset directions are not yet dupported" << std::endl;
                     }
                 }
             }

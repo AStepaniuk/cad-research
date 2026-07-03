@@ -6,6 +6,7 @@
 #include "overloaded.h"
 
 using namespace gui;
+using namespace corecad::model;
 using namespace corecad::model::constraint;
 using namespace domain::plan::model;
 using namespace domain::plan::model::shape;
@@ -75,7 +76,7 @@ void constraints_view::draw_constraint(ImDrawList* draw_list, const floor::const
 
                 if (std::abs(offs.distance) < 0.0001)
                 {
-                    if (offs.direction == offset_direction::horizontal)
+                    if (offs.direction == coordinate2d::x)
                     {
                         auto min_y = pf.y < pt.y ? pf.y : pt.y;
                         auto max_y = pf.y < pt.y ? pt.y : pf.y;
@@ -90,7 +91,7 @@ void constraints_view::draw_constraint(ImDrawList* draw_list, const floor::const
                 }
                 else
                 {
-                    if (offs.direction == offset_direction::horizontal)
+                    if (offs.direction == coordinate2d::x)
                     {
                         auto dx = pt.x - pf.x;
                         auto baseline = dx * 0.1f;

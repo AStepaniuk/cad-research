@@ -37,7 +37,7 @@ void default_floor_generator::generate_floor(model::floor &floor)
 
     floor.data().put(model::floor::constraint_t::create<fixed>(tli, 1000.0, fixed_coordinate::x));
     floor.data().put(model::floor::constraint_t::create<fixed>(tli, 1000.0, fixed_coordinate::y));
-    auto c1 = floor.data().put(model::floor::constraint_t::create<offset>(tli, tri, 10000.0, offset_direction::horizontal));
+    auto c1 = floor.data().put(model::floor::constraint_t::create<offset>(tli, tri, 10000.0, coordinate2d::x));
     //floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(tli, tri, 0.0, offset_direction::vertical));
     //floor.parameters().put(offset { tri, toi, 2000.0, offset_direction::horizontal });
     //floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(tri, toi, 1000.0, offset_direction::vertical));
@@ -53,7 +53,7 @@ void default_floor_generator::generate_floor(model::floor &floor)
             wall_border_point_locator { w1, &wall::right, &wall_border_line::s },
             wall_border_point_locator { w2, &wall::right, &wall_border_line::e },
             5000.0,
-            distance_direction::vertical
+            coordinate2d::y
         )
     );
 }

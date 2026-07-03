@@ -2,22 +2,21 @@
 
 #include "property.h"
 #include "point_locator.h"
+#include "coordinate2d.h"
 
 namespace domain::plan::model::parameter
 {
-    enum class distance_direction { horizontal, vertical, diagonal };
-    
     template<typename TModel>
     struct distance
     {
-        distance(point_locator_t f, point_locator_t t, double v, distance_direction d)
+        distance(point_locator_t f, point_locator_t t, double v, corecad::model::coordinate2d d)
             : direction { nullptr, d }
             , from { nullptr, f }
             , to { nullptr, t }
             , value { nullptr, v }
         {}
 
-        corecad::model::property<distance_direction, TModel> direction;
+        corecad::model::property<corecad::model::coordinate2d, TModel> direction;
 
         corecad::model::property<point_locator_t, TModel> from;
         corecad::model::property<point_locator_t, TModel> to;
@@ -46,17 +45,14 @@ namespace domain::plan::model::parameter
     {
         switch (d.direction)
         {
-        case distance_direction::vertical:
-            os << " v";
+        case corecad::model::coordinate2d::x:
+            os << "x";
             break;
-        case distance_direction::horizontal:
-            os << " h";
+        case corecad::model::coordinate2d::y:
+            os << "y";
             break;
-        case distance_direction::diagonal:
-            os << " d";
-            break;        
         default:
-            os << "unknown";
+            os << "??";
             break;
         }
 

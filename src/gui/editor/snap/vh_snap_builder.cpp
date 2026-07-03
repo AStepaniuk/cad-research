@@ -63,7 +63,7 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
     {
         auto constraint = floor::constraint_t::create<offset>(
             x_ref_point->index, _document.active_handle.value(),
-            0.0, offset_direction::horizontal
+            0.0, coordinate2d::x
         );
 
         const auto rank = std::abs(model_pos.x - x_ref_point->x);
@@ -74,7 +74,7 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
     {
         auto constraint = floor::constraint_t::create<offset>(
             y_ref_point->index, _document.active_handle.value(),
-            0.0, offset_direction::vertical
+            0.0, coordinate2d::y
         );
 
         const auto rank = std::abs(model_pos.y - y_ref_point->y);

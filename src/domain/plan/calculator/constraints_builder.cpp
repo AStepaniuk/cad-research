@@ -32,19 +32,7 @@ void constraints_builder::rebuild_all_constraints()
 
                     if (d.value == 0.0)
                     {
-                        // vertical or horizontal alignment
-                        if (d.direction == distance_direction::horizontal)
-                        {
-                            _floor.data().put(model::floor::constraint_t::create<offset>(pf, pt, d.value, offset_direction::horizontal));
-                        }
-                        else if (d.direction == distance_direction::vertical)
-                        {
-                            _floor.data().put(model::floor::constraint_t::create<offset>(pf, pt, d.value, offset_direction::vertical));
-                        }
-                        else
-                        {
-                            std::cerr << "Diagonal alignment is not supported yet" << std::endl;
-                        }
+                        _floor.data().put(model::floor::constraint_t::create<offset>(pf, pt, d.value, d.direction));
                     }
                     else
                     {
