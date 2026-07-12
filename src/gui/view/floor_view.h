@@ -8,7 +8,6 @@
 #include "document.h"
 #include "coord_translator.h"
 #include "walls_view.h"
-#include "constraints_view.h"
 #include "parameters_view.h"
 #include "point_resolver.h"
 
@@ -20,7 +19,6 @@ namespace gui {
         translator_t _translator;
 
         walls_view _walls_view;
-        constraints_view _constraints_view;
         parameters_view _parameters_view;
 
     public:

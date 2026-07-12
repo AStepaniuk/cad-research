@@ -14,6 +14,7 @@ namespace domain::plan::model::shape
 
     using wall_axis_point = corecad::model::vector2d<wall_axis_tag>;
     using wall_axis_line = corecad::model::line2d<wall_axis_tag>;
+    using point_on_wall_axis_ptr = corecad::model::point_on_line_ptr<wall_axis_tag>;
 
     using wall_border_point = corecad::model::vector2d<wall_border_tag>;
     using wall_border_line = corecad::model::line2d<wall_border_tag>;

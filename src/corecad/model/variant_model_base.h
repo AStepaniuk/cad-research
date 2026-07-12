@@ -1,8 +1,9 @@
 #pragma once
 
-#include "iostream"
+#include <iostream>
 
 #include "type_list.h"
+#include "model_base.h"
 
 namespace corecad::model {
     template <typename TImpl, typename TBase>
@@ -98,4 +99,17 @@ namespace corecad::model {
 
         return os;
     }
+
+    namespace detail 
+    {
+        template <typename T, typename... TInstances>
+        std::true_type check_variant_model(const variant_model_base<T, TInstances...>*);
+
+        std::false_type check_variant_model(...);
+    }
+
+    template <typename T>
+    concept IsVariantModel = decltype(
+        detail::check_variant_model(std::declval<std::add_pointer_t<std::remove_cvref_t<T>>>())
+    )::value;
 }

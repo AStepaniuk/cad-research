@@ -9,18 +9,20 @@ namespace gui::doc {
     class wall_snaps
     {
         using wall_axis_point = domain::plan::model::shape::wall_axis_point;
+        using parameter_t = domain::plan::model::parameter::parameter;
         using constraint_t = domain::plan::model::floor::constraint_t;
 
 
         const corecad::model::registry<wall_axis_point>& _wall_axis_points;
 
-        corecad::model::registry<constraint_t> _constraints;
+        corecad::model::registry<parameter_t> _parameters;
+        corecad::model::registry<constraint_t> _anchors;
 
-        using rank_data = std::pair<constraint_t::index_t, double>;
+        using rank_data = std::pair<parameter_t::index_t, double>;
         std::vector<rank_data> _ranks;
 
         std::unordered_map<
-            constraint_t::index_t,
+            parameter_t::index_t,
             std::vector<wall_axis_point::index_t>
         > _affected_points;
 
@@ -43,31 +45,34 @@ namespace gui::doc {
         
         template<typename... TPoints>
             requires (std::convertible_to<TPoints, wall_axis_point::index_t> && ...)
-        void add(constraint_t&& c, double rank, TPoints... affected_points)
+        void add(parameter_t p, double rank, TPoints... affected_points)
         {
             using namespace domain::plan::model;
             using namespace corecad::model::constraint;
             
-            const auto cid = _constraints.put(std::move(c));
-            _ranks.push_back({cid, rank});
+            const auto pid = _parameters.put(std::move(p));
+            _ranks.push_back({pid, rank});
 
-            _affected_points[cid] = { static_cast<wall_axis_point::index_t>(affected_points)... };
+            _affected_points[pid] = { static_cast<wall_axis_point::index_t>(affected_points)... };
 
             auto process_point = [&](wall_axis_point::index_t p_idx) {
                 auto [it, inserted] = _affected_points_data.try_emplace(p_idx);
                 
-                if (inserted) {
+                if (inserted)
+                {
                     it->second.refcount = 1;
                     const auto& p_data = _wall_axis_points.get(p_idx);
 
                     // Create the anchor fixes for the affected point
-                    it->second.h_fix = _constraints.put(
-                        floor::constraint_t::create<fixed>(p_idx, p_data.x, fixed_coordinate::x)
+                    it->second.h_fix = _anchors.put(
+                        constraint_t::create<fixed>(p_idx, p_data.x, corecad::model::coordinate2d::x)
                     );
-                    it->second.v_fix = _constraints.put(
-                        floor::constraint_t::create<fixed>(p_idx, p_data.y, fixed_coordinate::y)
+                    it->second.v_fix = _anchors.put(
+                        constraint_t::create<fixed>(p_idx, p_data.y, corecad::model::coordinate2d::y)
                     );
-                } else {
+                }
+                else
+                {
                     it->second.refcount++;
                 }
             };
@@ -77,7 +82,7 @@ namespace gui::doc {
 
         void ease();
 
-        const corecad::model::registry<constraint_t>& constraints() const;
-        void clone_active_handle_constraints(corecad::model::registry<constraint_t>& dest) const;
+        const corecad::model::registry<parameter_t>& parameters() const;
+        const corecad::model::registry<constraint_t>& anchors() const;
     };
 }

@@ -15,12 +15,19 @@ point_resolver::point_index_t point_resolver::resolve(const point_locator_t &pl)
 {
     return std::visit(corecad::util::overloaded
         {
+            [&](const wall_axis_point_locator& wapl)
+            {
+                const auto& w = _floor.data().get(wapl.wid);
+                const auto& l = _floor.data().get(w.axis);
+
+                return point_index_t { l.*(wapl.point_on_axis_ptr) };
+            },
             [&](const wall_border_point_locator& wbpl)
             {
                 const auto& w = _floor.data().get(wbpl.wid);
                 const auto& l = _floor.data().get(w.*(wbpl.border_ptr));
 
-                return l.*(wbpl.point_on_border_ptr);
+                return point_index_t { l.*(wbpl.point_on_border_ptr) };
             }
         },
         pl

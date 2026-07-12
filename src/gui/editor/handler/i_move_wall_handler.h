@@ -4,6 +4,7 @@
 
 #include "vector2d.h"
 #include "wall.h"
+#include "handle_data.h"
 
 namespace gui { namespace editor { namespace handler {
     class i_move_wall_handler
@@ -14,6 +15,6 @@ namespace gui { namespace editor { namespace handler {
             domain::plan::model::shape::wall_axis_point& model_pos
         ) = 0;
 
-        virtual std::optional<domain::plan::model::shape::wall_axis_point::index_t> apply() = 0;
+        virtual std::optional<doc::handle_data> apply() = 0;
     };
 }}}

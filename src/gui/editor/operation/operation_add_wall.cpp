@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+#include "wall_axis_point_locator.h"
+
+using namespace gui::doc;
 using namespace gui::editor::operation;
 using namespace corecad::model;
 using namespace domain::plan::model;
@@ -20,7 +23,7 @@ void operation_add_wall::start()
     _current_point = _document.model.data().make<wall_axis_point>(0.0, 0.0);
     _current_wall = std::nullopt;
 
-    _document.hovered_handle = _current_point;
+    _document.hovered_handle = handle_data { _current_point.value() };
 
     _sub_operation_move_handle.start();
 
@@ -64,18 +67,39 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
 
     _sub_operation_move_handle.stop();
    
+    if (!_document.hovered_handle)
+    {
+        // something went unexpected
+        return action_handle_status::operation_finished;
+    }
+
+    auto hhid = _document.hovered_handle->handle_id_of_type<wall_axis_point>();
+    if (!hhid)
+    {
+        // something went unexpected
+        return action_handle_status::operation_finished;
+    }
+
     auto m_model = _view.to_model(mx, my);
     auto next_index = _document.model.data().make<wall_axis_point>(m_model.x, m_model.y);
 
-    if (_document.hovered_handle.value() != _current_point.value())
+    if (hhid != _current_point.value())
     {
         _document.model.data().erase(_current_point.value());
-        _current_point = _document.hovered_handle.value();
+        _current_point = hhid;
     }
 
     const auto axis_index = _document.model.data().make<wall_axis_line>(_current_point.value(), next_index);
     auto wall_index = _document.model.data().make<wall>(axis_index, 400.0);
     _current_wall = wall_index;
+
+    std::cout << "calculating walls..." << std::endl;
+    std::cout << "axis points:" << std::endl;
+    std::cout << _document.model.data().items<wall_axis_point>();
+    std::cout << "axis lnes:" << std::endl;
+    std::cout << _document.model.data().items<wall_axis_line>();
+    std::cout << "walls:" << std::endl;
+    std::cout << _document.model.data().items<wall>();
 
     _document.selected_walls.clear();
     _document.selected_walls.put(wall_index);
@@ -83,7 +107,9 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
 
     _current_point = next_index;
 
-    _document.hovered_handle = _current_point.value();
+    parameter::wall_axis_point_locator cpl { wall_index, &wall_axis_line::e };
+    _document.hovered_handle = handle_data { std::vector<parameter::point_locator_t> { cpl }, _current_point.value() };
+
     _sub_operation_move_handle.start();
     _sub_operation_move_handle.enable_commit_on_click();
 

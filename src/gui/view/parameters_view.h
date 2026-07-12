@@ -23,5 +23,7 @@ namespace gui {
 
     private:
         void draw_parameter(ImDrawList* draw_list, const domain::plan::model::parameter::parameter& p, ImU32 color);
+
+        ImVec2 to_view(const domain::plan::model::parameter::point_locator_t& pl) const;
     };
 }

@@ -2,6 +2,7 @@
 
 #include <operation_move_wall_handle.h>
 
+using namespace gui::doc;
 using namespace gui::editor::operation;
 
 operation_idle::operation_idle(doc::document &doc, floor_view &v, calc_tools &t)
@@ -47,7 +48,9 @@ action_handle_status operation_idle::mouse_move(float mx, float my)
         else
         {
             _document.hovered_wall_id = std::nullopt;
-            _document.hovered_handle = hovered_handles[0];
+
+            auto handle_locators = _tools.floor_query().find_locators(hovered_handles[0]);
+            _document.hovered_handle = handle_data { std::move(handle_locators), hovered_handles[0] };
         }
 
         return action_handle_status::operation_continues;

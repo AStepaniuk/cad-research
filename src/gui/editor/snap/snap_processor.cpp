@@ -6,7 +6,9 @@
 
 using namespace gui::editor::snap;
 using namespace gui::editor;
+using namespace domain::plan::model;
 using namespace domain::plan::model::shape;
+using namespace corecad::model;
 using namespace corecad::calculator;
 
 snap_processor::snap_processor(doc::document &doc, calc_tools& ct)
@@ -22,10 +24,17 @@ bool gui::editor::snap::snap_processor::process()
         return false;
     }
 
-    while (!_document.active_wall_snaps.constraints().empty())
+    while (!_document.active_wall_snaps.parameters().empty())
     {
+        registry<floor::constraint_t> constraints;
+
+        _calc_tools.constraints_builder().to_constraints(
+            _document.active_wall_snaps.parameters(),
+            constraints
+        );
+
         const auto result = _calc_tools.constraints_calculator().recalculate_all(
-            _document.active_wall_snaps.constraints()
+            constraints
         );
 
         if (result == constraint_calculation_result::success)

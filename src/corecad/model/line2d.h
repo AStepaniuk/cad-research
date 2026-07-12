@@ -60,6 +60,15 @@ namespace corecad::model
     template <typename Tag>
     using point_on_line_ptr = line2d<Tag>::point_property_t line2d<Tag>::*;
 
+    template<typename Tag>
+    std::ostream& operator<<(std::ostream& os, const point_on_line_ptr<Tag>& pol)
+    {
+        if (pol == &line2d<Tag>::s) return os << 's';
+        if (pol == &line2d<Tag>::e) return os << 'e';
+        if (pol == nullptr) return os << "null";
+        else return os << "??";
+    }
+
 
     template <typename T>
     struct is_line2d : std::false_type {};

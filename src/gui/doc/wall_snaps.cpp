@@ -14,7 +14,7 @@ wall_snaps::wall_snaps(const corecad::model::registry<wall_axis_point> &wall_axi
 
 void wall_snaps::clear()
 {
-    _constraints.clear();
+    _parameters.clear();
     _ranks.clear();
 
     _affected_points.clear();
@@ -31,7 +31,7 @@ void gui::doc::wall_snaps::ease()
     const auto it = std::ranges::max_element(_ranks, {}, &rank_data::second);
     const auto cid = it->first;
 
-    _constraints.erase(cid);
+    _parameters.erase(cid);
     _ranks.erase(it);
 
     const auto apit = _affected_points.find(cid);
@@ -44,24 +44,20 @@ void gui::doc::wall_snaps::ease()
         }
         else
         {
-            _constraints.erase(refit->second.h_fix);
-            _constraints.erase(refit->second.v_fix);
+            _anchors.erase(refit->second.h_fix);
+            _anchors.erase(refit->second.v_fix);
             _affected_points_data.erase(refit);
         }
     }
     _affected_points.erase(apit);
 }
 
-const registry<floor::constraint_t>& wall_snaps::constraints() const
+const registry<wall_snaps::parameter_t>& wall_snaps::parameters() const
 {
-    return _constraints;
+    return _parameters;
 }
 
-void wall_snaps::clone_active_handle_constraints(registry<floor::constraint_t>& dest) const
+const corecad::model::registry<wall_snaps::constraint_t> &gui::doc::wall_snaps::anchors() const
 {
-    // clone only ranked constraints
-    for (auto rp : _ranks)
-    {
-        dest.put(_constraints.get(rp.first));
-    }
+    return _anchors;
 }

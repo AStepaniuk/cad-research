@@ -68,11 +68,8 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
     std::visit(corecad::util::overloaded
         {
             [&](const parameter::concrete_t<distance>& d) {
-                const auto from = std::get<wall_border_point::index_t>(_point_resolver.resolve(d.from));
-                const auto to = std::get<wall_border_point::index_t>(_point_resolver.resolve(d.to));
-
-                ImVec2 pf = _translator.to_view(from);
-                ImVec2 pt = _translator.to_view(to);
+                ImVec2 pf = to_view(d.from);
+                ImVec2 pt = to_view(d.to);
 
                 if (d.value == 0.0)
                 {
@@ -130,13 +127,9 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
                 }
             },
             [&](const parameter::concrete_t<colinear>& c) {
-                const auto point1 = std::get<wall_border_point::index_t>(_point_resolver.resolve(c.point1));
-                const auto point2 = std::get<wall_border_point::index_t>(_point_resolver.resolve(c.point2));
-                const auto point3 = std::get<wall_border_point::index_t>(_point_resolver.resolve(c.point3));
-
-                ImVec2 p1 = _translator.to_view(point1);
-                ImVec2 p2 = _translator.to_view(point2);
-                ImVec2 p3 = _translator.to_view(point3);
+                ImVec2 p1 = to_view(c.point1);
+                ImVec2 p2 = to_view(c.point2);
+                ImVec2 p3 = to_view(c.point3);
 
                 const auto dx = p3.x - p1.x;
                 const auto dy = p3.y - p1.y;
@@ -173,8 +166,7 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
                 draw_list->AddLine(ms2, me2, Styles::CColor, Styles::CLineThickness);
             },
             [&](const parameter::concrete_t<pinned>& pin) {
-                const auto point = std::get<wall_border_point::index_t>(_point_resolver.resolve(pin.point));
-                ImVec2 p = _translator.to_view(point);
+                ImVec2 p = to_view(pin.point);
                 if (pin.coordinate == coordinate2d::x)
                 {
                     ImVec2 s { p.x, p.y - Styles::FixedCOffset };
@@ -194,5 +186,14 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
             }
         },
         p.instance
+    );
+}
+
+ImVec2 parameters_view::to_view(const point_locator_t &pl) const
+{
+    return std::visit([this](const auto& pid) {
+            return _translator.to_view(pid);
+        }
+        , _point_resolver.resolve(pl)
     );
 }

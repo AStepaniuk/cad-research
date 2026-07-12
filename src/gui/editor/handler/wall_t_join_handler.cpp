@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 
-#include "views_take_constraints.h"
+#include "views_take_model_variants.h"
 
 using namespace gui::editor::handler;
 using namespace domain::plan::model;
@@ -15,6 +15,7 @@ wall_t_join_handler::wall_t_join_handler(doc::document &doc, floor_view &v, calc
     : _document { doc }
     , _view { v }
     , _wall_snap_processor { doc, ct }
+    , _ct { ct }
 {
 }
 
@@ -23,7 +24,13 @@ bool wall_t_join_handler::wall_move(
     wall_axis_point& model_pos
 )
 {
-    if (!_document.active_handle)
+    if (!_document.active_handle || _document.active_handle->handle_locators().empty())
+    {
+        return false;
+    }
+
+    const auto ahid = _document.active_handle->handle_id_of_type<wall_axis_point>();
+    if (!ahid)
     {
         return false;
     }
@@ -33,7 +40,16 @@ bool wall_t_join_handler::wall_move(
 
     for (auto& p : _document.model.data().items<wall>())
     {
-        if (std::ranges::any_of(_document.active_walls, [&p](const auto& w_index) { return w_index == p.second.index; }))
+        auto is_wall_active = std::ranges::any_of(_document.active_handle->handle_locators(), [&p](const auto& hl) {
+            if (const auto* wapl = std::get_if<parameter::wall_axis_point_locator>(&hl))
+            {
+                return wapl->wid == p.first;
+            }
+
+            return false;
+        });
+
+        if (is_wall_active)
         {
             continue;
         }
@@ -76,23 +92,42 @@ bool wall_t_join_handler::wall_move(
         }
 
         // check if wall already has h/v 0-offset snap
+        // TODO: review logic of creating aligned consraint.
+        // current implementation has the issue with w/h alignments
         bool existing_snap = false;
 
-        auto offsets = _document.active_wall_snaps.constraints()
-            | views::take_constraints<offset>();
-        for (const auto& o : offsets)
+        auto distances = _document.active_wall_snaps.parameters()
+            | views::take_model_variants<parameter::distance>();
+        for (const auto& d : distances)
         {
-            if (o.distance == 0.0 && (o.from == sp.index || o.from == ep.index || o.to == sp.index || o.to == ep.index))
+            if (d.value == 0.0)
             {
-                existing_snap = true;
-                break;
+                auto from = _ct.point_resolver().resolve(d.from);
+                auto *wa_from = std::get_if<wall_axis_point::index_t>(&from);
+                if (wa_from && (*wa_from == sp.index || *wa_from == ep.index))
+                {
+                    existing_snap = true;
+                    break;
+                }
+ 
+                auto to = _ct.point_resolver().resolve(d.to);
+                auto *wa_to = std::get_if<wall_axis_point::index_t>(&to);
+                if (wa_to && (*wa_to == sp.index || *wa_to == ep.index))
+                {
+                    existing_snap = true;
+                    break;
+                }
             }
         }
 
         if (!existing_snap)
         {
             _document.active_wall_snaps.add(
-                floor::constraint_t::create<aligned>(sp.index, _document.active_handle.value(), ep.index),
+                parameter::parameter::create<parameter::colinear>(
+                    parameter::wall_axis_point_locator { p.first, &wall_axis_line::s },
+                    _document.active_handle.value().handle_locators()[0],
+                    parameter::wall_axis_point_locator { p.first, &wall_axis_line::e }
+                ),
                 0.0,
                 sp.index, ep.index
             );
@@ -102,7 +137,7 @@ bool wall_t_join_handler::wall_move(
 
         _t_joint_wall = p.first;
 
-        const auto& ap = _document.model.data().get(_document.active_handle.value());
+        const auto& ap = _document.model.data().get(ahid);
         model_pos.x = ap.x;
         model_pos.y = ap.y;
 
@@ -113,9 +148,15 @@ bool wall_t_join_handler::wall_move(
     return false;
 }
 
-std::optional<wall_axis_point::index_t> wall_t_join_handler::apply()
+std::optional<gui::doc::handle_data> wall_t_join_handler::apply()
 {
     if (!_t_joint_wall || !_document.active_handle)
+    {
+        return std::nullopt;
+    }
+
+    const auto ahid = _document.active_handle->handle_id_of_type<wall_axis_point>();
+    if (!ahid)
     {
         return std::nullopt;
     }
@@ -125,9 +166,9 @@ std::optional<wall_axis_point::index_t> wall_t_join_handler::apply()
     auto& a = _document.model.data().get(w.axis);
 
     const auto epid = a.e.val();
-    a.e = _document.active_handle.value();
+    a.e = ahid;
 
-    const auto aid = _document.model.data().make<wall_axis_line>(_document.active_handle.value(), epid);
+    const auto aid = _document.model.data().make<wall_axis_line>(ahid, epid);
     const auto wid = _document.model.data().make<wall>(aid, w.width);
     _document.model.data().get(wid).axis_offset = w.axis_offset;
 

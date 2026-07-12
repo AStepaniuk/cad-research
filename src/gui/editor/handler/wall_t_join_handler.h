@@ -14,6 +14,8 @@ namespace gui::editor::handler {
         floor_view& _view;
         
         snap::snap_processor _wall_snap_processor;
+
+        calc_tools& _ct;
         
         std::optional<domain::plan::model::shape::wall::index_t> _t_joint_wall;
 
@@ -21,6 +23,6 @@ namespace gui::editor::handler {
         wall_t_join_handler(doc::document &doc, floor_view& v, calc_tools& ct);
 
         bool wall_move(float view_pos_x, float view_pos_y, domain::plan::model::shape::wall_axis_point& model_pos) override;
-        std::optional<domain::plan::model::shape::wall_axis_point::index_t> apply() override;
+        std::optional<doc::handle_data> apply() override;
     };
 }

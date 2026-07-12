@@ -58,7 +58,6 @@ floor_view::floor_view(const doc::document &doc, domain::plan::resolver::point_r
         _document.model.data().items<wall_border_point>()
     }
     , _walls_view { _document, _translator }
-    , _constraints_view { _document, _translator }
     , _parameters_view { _document, _translator, pr }
 {
 }
@@ -108,7 +107,6 @@ void floor_view::render()
     ImDrawList* draw_list = ImGui::GetBackgroundDrawList();
 
     _walls_view.render(draw_list);
-    _constraints_view.render(draw_list);
     _parameters_view.render(draw_list);
 }
 

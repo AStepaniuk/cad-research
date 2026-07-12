@@ -5,6 +5,7 @@
 
 using namespace gui::editor::handler;
 using namespace domain::plan::model::shape;
+using namespace domain::plan::model::parameter;
 using namespace corecad::model;
 
 wall_join_handler::wall_join_handler(doc::document &doc, floor_view &v)
@@ -20,72 +21,91 @@ bool wall_join_handler::wall_move(
 {
     const auto tol = _view.model_interaction_tolerance();
 
+    if (!_document.active_handle)
+    {
+        return false;
+    } 
+
+    const auto ahid = _document.active_handle->handle_id_of_type<wall_axis_point>();
+
     for (auto& p : _document.model.data().items<wall>())
     {
-        if (std::ranges::any_of(_document.active_walls, [&p](const auto& w_index) { return w_index == p.second.index; }))
-        {
-            continue;
-        }
-
         const auto& a = _document.model.data().get(p.second.axis);
 
-        const auto& sp = _document.model.data().get(a.s);
-    
-        if (model_pos.x > sp.x - tol.x && model_pos.x < sp.x + tol.x
-        && model_pos.y > sp.y - tol.y && model_pos.y < sp.y + tol.y)
+        auto check_point = [&](point_on_wall_axis_ptr pptr) {
+            const auto& point_id = a.*pptr;
+            if (point_id == ahid)
+            {
+                return false;
+            }
+
+            const auto& point = _document.model.data().get(a.*pptr);
+        
+            if (model_pos.x > point.x - tol.x && model_pos.x < point.x + tol.x
+                && model_pos.y > point.y - tol.y && model_pos.y < point.y + tol.y)
+            {
+                auto target_point_locators = _document.active_handle->handle_locators();
+                target_point_locators.push_back(wall_axis_point_locator { p.first, pptr });
+
+                _target_point_handle = doc::handle_data { target_point_locators, point.index };
+
+                model_pos.x = point.x;
+                model_pos.y = point.y;
+
+                return true;
+            }
+            return false;
+        };
+
+        if (check_point(&wall_axis_line::s))
         {
-            _target_point_index = sp.index;
-
-            model_pos.x = sp.x;
-            model_pos.y = sp.y;
-
-            _document.active_wall_snaps.clear();
-
             return true;
         }
-
-        const auto& ep = _document.model.data().get(a.e);
-    
-        if (model_pos.x > ep.x - tol.x && model_pos.x < ep.x + tol.x
-        && model_pos.y > ep.y - tol.y && model_pos.y < ep.y + tol.y)
+        if (check_point(&wall_axis_line::e))
         {
-            _target_point_index = ep.index;
-
-            model_pos.x = ep.x;
-            model_pos.y = ep.y;
-
-            _document.active_wall_snaps.clear();
-
             return true;
         }
     }
 
-    _target_point_index = std::nullopt;
+    _target_point_handle = std::nullopt;
 
     return false;
 }
 
-std::optional<wall_axis_point::index_t> wall_join_handler::apply()
+std::optional<gui::doc::handle_data> wall_join_handler::apply()
 {
-    if (!_target_point_index || !_document.active_handle)
+    if (!_target_point_handle || _target_point_handle->handle_locators().empty())
     {
         return std::nullopt;
     }
 
-    for (const auto wid : _document.active_walls)
+    const auto tphid = _target_point_handle->handle_id_of_type<wall_axis_point>();
+    if (!tphid)
     {
-        auto& wall = _document.model.data().get(wid);
-        auto& axis = _document.model.data().get(wall.axis);
+        return std::nullopt;
+    }
 
-        if (axis.s == _document.active_handle.value())
+    std::cout << "applying joint handler" << std::endl;
+    std::cout << _target_point_handle.value() << std::endl;
+
+    std::cout << "lines before:" << std::endl;
+    std::cout << _document.model.data().items<wall_axis_line>();
+
+    for (const auto pl : _target_point_handle->handle_locators())
+    {
+        if (const auto* wapl = std::get_if<wall_axis_point_locator>(&pl))
         {
-            axis.s = _target_point_index.value();
-        }
-        else
-        {
-            axis.e = _target_point_index.value();
+            auto& wall = _document.model.data().get(wapl->wid);
+            auto& axis = _document.model.data().get(wall.axis);
+
+            std::cout << "altering line " << wall.axis << ": point " << wapl->point_on_axis_ptr << "=" << tphid << std::endl;
+
+            axis.*(wapl->point_on_axis_ptr) = tphid;
         }
     }
 
-    return _target_point_index;
+    std::cout << "lines after:" << std::endl;
+    std::cout << _document.model.data().items<wall_axis_line>();
+
+    return _target_point_handle;
 }

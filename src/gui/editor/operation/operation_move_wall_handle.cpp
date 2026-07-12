@@ -25,23 +25,10 @@ void operation_move_wall_handle::start()
 {
     _document.active_handle = _document.hovered_handle;
     _document.hovered_handle = std::nullopt;
-
-    _document.active_walls.clear();
-    _document.active_walls.put(
-        _document.model.data().items<wall>()
-            | std::views::transform([] (const auto& p) { return p.second; })
-            | std::views::filter([this](const auto& w) {
-                const auto& a = _document.model.data().get(w.axis);
-                return a.s == _document.active_handle || a.e == _document.active_handle;
-            })
-            | std::views::transform([] (const auto& w) { return w.index; })
-    );
 }
 
 void operation_move_wall_handle::stop()
 {
-    _document.active_walls.clear();
-
     _document.hovered_handle = _document.active_handle;
     _document.active_handle = std::nullopt;
 
@@ -55,20 +42,18 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
         return action_handle_status::unhandled;
     }
 
+    auto ahid = _document.active_handle->handle_id_of_type<wall_axis_point>();
+    if (!ahid)
+    {
+        return action_handle_status::unhandled;
+    }
+
     auto model_pos = wall_axis_point { _view.to_model(mx, my) };
 
     // apply model pos to active point
-    auto& active_point = _document.model.data().get(_document.active_handle.value());
+    auto& active_point = _document.model.data().get(ahid);
     active_point.x = model_pos.x;
     active_point.y = model_pos.y;
-
-    // recalculate active snaps
-    _document.active_wall_snaps.clear();
-    for (auto wall_snap_builder : _snap_builders)
-    {
-        wall_snap_builder->calculate_snaps(mx, my);
-    }
-    _wall_snap_processor.process();
 
     // check if model pos is applicable to any handler
     _last_worked_move_wall_handler = nullptr;
@@ -83,6 +68,17 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
             active_point.y = model_pos.y;
             break;
         }
+    }
+
+    // recalculate active snaps
+    _document.active_wall_snaps.clear();
+    if (!_last_worked_move_wall_handler)
+    {
+        for (auto wall_snap_builder : _snap_builders)
+        {
+            wall_snap_builder->calculate_snaps(mx, my);
+        }
+        _wall_snap_processor.process();
     }
 
     // update model
@@ -110,10 +106,12 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
 
     _document.hovered_handle = _document.active_handle;
 
-    if (!_document.active_wall_snaps.constraints().empty())
+    if (!_document.active_wall_snaps.parameters().empty())
     {
-        _document.active_wall_snaps.clone_active_handle_constraints(_document.model.data().items<floor::constraint_t>());
-        _document.active_wall_snaps.clear();
+        for (const auto& p : _document.active_wall_snaps.parameters())
+        {
+            _document.model.data().put(p.second);
+        }
 
         needs_recalculation = true;
     }
