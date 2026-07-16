@@ -1,6 +1,5 @@
 #include "vh_snap_builder.h"
 
-#include "views_take_constraints.h"
 #include "wall_axis_point_locator.h"
 
 using namespace gui::editor::snap;

@@ -14,12 +14,12 @@ floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
     , _operation_idle { _document, _view, _tools }
     , _operation_add_wall { _document, _view, _tools }
 {
-    //domain::plan::generator::default_floor_generator fg;
-    //fg.generate_floor(_document.model);
+    domain::plan::generator::default_floor_generator fg;
+    fg.generate_floor(_document.model);
 
-    //_tools.run_full_pipeline();
+    _tools.run_full_pipeline();
 
-    //_document.model.history().commit("Initial setup");
+    _document.model.history().commit("Initial setup");
 
     switch_operation(&_operation_idle);
 }

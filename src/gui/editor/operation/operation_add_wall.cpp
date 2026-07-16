@@ -93,14 +93,6 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
     auto wall_index = _document.model.data().make<wall>(axis_index, 400.0);
     _current_wall = wall_index;
 
-    std::cout << "calculating walls..." << std::endl;
-    std::cout << "axis points:" << std::endl;
-    std::cout << _document.model.data().items<wall_axis_point>();
-    std::cout << "axis lnes:" << std::endl;
-    std::cout << _document.model.data().items<wall_axis_line>();
-    std::cout << "walls:" << std::endl;
-    std::cout << _document.model.data().items<wall>();
-
     _document.selected_walls.clear();
     _document.selected_walls.put(wall_index);
     _tools.run_full_pipeline();

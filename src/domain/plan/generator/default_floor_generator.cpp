@@ -27,17 +27,56 @@ void default_floor_generator::generate_floor(model::floor &floor)
     auto l1 = floor.data().make<wall_axis_line>(tli, tri);
     auto w1 = floor.data().make<wall>(l1, 600.0);
     floor.data().get(w1).axis_offset = -100.0;
+
+    auto w1l = floor.data().put(
+        model::parameter::parameter::create<distance>(
+            wall_axis_point_locator { w1, &wall_axis_line::s },
+            wall_axis_point_locator { w1, &wall_axis_line::e },
+            10000.0,
+            coordinate2d::x
+        )
+    );
+    auto w1a = floor.data().put(
+        model::parameter::parameter::create<distance>(
+            wall_axis_point_locator { w1, &wall_axis_line::s },
+            wall_axis_point_locator { w1, &wall_axis_line::e },
+            0.0,
+            coordinate2d::y
+        )
+    );
+
     //floor.data().make<wall>(tri, bri, 400.0);
     auto l2 = floor.data().make<wall_axis_line>(bri, bli);
     auto w2 = floor.data().make<wall>(l2, 400.0);
+
+    auto w2l = floor.data().put(
+        model::parameter::parameter::create<distance>(
+            wall_axis_point_locator { w2, &wall_axis_line::s },
+            wall_axis_point_locator { w2, &wall_axis_line::e },
+            -8000.0,
+            coordinate2d::x
+        )
+    );
+    auto w2a = floor.data().put(
+        model::parameter::parameter::create<distance>(
+            wall_axis_point_locator { w2, &wall_axis_line::s },
+            wall_axis_point_locator { w2, &wall_axis_line::e },
+            0.0,
+            coordinate2d::y
+        )
+    );
+
+    auto l3 = floor.data().make<wall_axis_line>(tri, bri);
+    auto w3 = floor.data().make<wall>(l3, 400.0);
+
     //floor.data().make<wall>(bli, tli, 400.0);
 
     //floor.data().make<wall>(tri, toi, 400.0);
     //floor.data().make<wall>(bri, boi, 400.0);
 
-    floor.data().put(model::floor::constraint_t::create<fixed>(tli, 1000.0, coordinate2d::x));
-    floor.data().put(model::floor::constraint_t::create<fixed>(tli, 1000.0, coordinate2d::y));
-    auto c1 = floor.data().put(model::floor::constraint_t::create<offset>(tli, tri, 10000.0, coordinate2d::x));
+    //floor.data().put(model::floor::constraint_t::create<fixed>(tli, 1000.0, coordinate2d::x));
+    //floor.data().put(model::floor::constraint_t::create<fixed>(tli, 1000.0, coordinate2d::y));
+    //auto c1 = floor.data().put(model::floor::constraint_t::create<offset>(tli, tri, 10000.0, coordinate2d::x));
     //floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(tli, tri, 0.0, offset_direction::vertical));
     //floor.parameters().put(offset { tri, toi, 2000.0, offset_direction::horizontal });
     //floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(tri, toi, 1000.0, offset_direction::vertical));
@@ -48,12 +87,22 @@ void default_floor_generator::generate_floor(model::floor &floor)
     //floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(bri, boi, 2000.0, offset_direction::horizontal));
     //floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(bri, boi, 0.0, offset_direction::vertical));
 
+
     auto d1 = floor.data().put(
         model::parameter::parameter::create<distance>(
             wall_border_point_locator { w1, &wall::right, &wall_border_line::s },
             wall_border_point_locator { w2, &wall::right, &wall_border_line::e },
             5000.0,
             coordinate2d::y
+        )
+    );
+
+    auto d2 = floor.data().put(
+        model::parameter::parameter::create<distance>(
+            wall_border_point_locator { w1, &wall::right, &wall_border_line::s },
+            wall_border_point_locator { w2, &wall::right, &wall_border_line::e },
+            0.0,
+            coordinate2d::x
         )
     );
 }

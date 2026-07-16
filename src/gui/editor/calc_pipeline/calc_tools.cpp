@@ -10,6 +10,7 @@ void calc_tools::run_full_pipeline()
     _wall_calculator.recalculate_all_walls();
     _constraints_builder.rebuild_all_constraints();
     _constraints_calculator.recalculate_all(_floor.data().items<floor::constraint_t>());
+    _wall_calculator.recalculate_all_walls();
 }
 
 domain::plan::calculator::floor_query &gui::editor::calc_tools::floor_query()

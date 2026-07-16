@@ -10,6 +10,7 @@
 #include "aligned.h"
 #include "fixed.h"
 #include "offset.h"
+#include "parallel_distant.h"
 
 namespace corecad::model::constraint
 {
@@ -23,6 +24,7 @@ namespace corecad::model::constraint
         , aligned<TVector2DIndexList, constraint<TVector2DIndexList>>
         , fixed<TVector2DIndexList, constraint<TVector2DIndexList>>
         , offset<TVector2DIndexList, constraint<TVector2DIndexList>>
+        , parallel_distant<TVector2DIndexList, constraint<TVector2DIndexList>>
     >;
     
     template <typename TVector2DIndexList>

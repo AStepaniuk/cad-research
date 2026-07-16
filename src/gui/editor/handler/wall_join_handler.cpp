@@ -85,12 +85,6 @@ std::optional<gui::doc::handle_data> wall_join_handler::apply()
         return std::nullopt;
     }
 
-    std::cout << "applying joint handler" << std::endl;
-    std::cout << _target_point_handle.value() << std::endl;
-
-    std::cout << "lines before:" << std::endl;
-    std::cout << _document.model.data().items<wall_axis_line>();
-
     for (const auto pl : _target_point_handle->handle_locators())
     {
         if (const auto* wapl = std::get_if<wall_axis_point_locator>(&pl))
@@ -98,14 +92,9 @@ std::optional<gui::doc::handle_data> wall_join_handler::apply()
             auto& wall = _document.model.data().get(wapl->wid);
             auto& axis = _document.model.data().get(wall.axis);
 
-            std::cout << "altering line " << wall.axis << ": point " << wapl->point_on_axis_ptr << "=" << tphid << std::endl;
-
             axis.*(wapl->point_on_axis_ptr) = tphid;
         }
     }
-
-    std::cout << "lines after:" << std::endl;
-    std::cout << _document.model.data().items<wall_axis_line>();
 
     return _target_point_handle;
 }

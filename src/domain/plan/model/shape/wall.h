@@ -23,6 +23,9 @@ namespace domain::plan::model::shape
     using wall_points_tl = corecad::util::type_list<wall_axis_point, wall_border_point>;
     using wall_points_ids_tl = corecad::model::to_index_type_list<wall_points_tl>::type;
 
+    std::ostream& operator<<(std::ostream& os, const wall_points_tl::variant_t& val);
+    std::ostream& operator<<(std::ostream& os, const wall_points_ids_tl::variant_t& val);
+
     class wall : public corecad::model::model_base<wall>
     {
     public:

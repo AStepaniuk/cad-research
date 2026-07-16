@@ -26,7 +26,7 @@ bool gui::editor::snap::snap_processor::process()
 
     while (!_document.active_wall_snaps.parameters().empty())
     {
-        registry<floor::constraint_t> constraints;
+        registry<floor::constraint_t> constraints = _document.active_wall_snaps.anchors();
 
         _calc_tools.constraints_builder().to_constraints(
             _document.active_wall_snaps.parameters(),

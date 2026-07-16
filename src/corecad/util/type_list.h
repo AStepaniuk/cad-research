@@ -10,7 +10,6 @@ namespace corecad::util
         using variant_t = std::variant<Ts...>;
     };
 
-
     template <typename T, typename TList> struct index_of;
 
     template <typename T, typename... Ts>

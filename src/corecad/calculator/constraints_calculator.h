@@ -9,6 +9,8 @@
 #include <concepts>
 
 #include <GCS.h>
+#include "ConstraintP2LOnLeft.h"
+#include "ConstraintParallel2.h"
 
 #include "overloaded.h"
 #include "constraint.h"
@@ -134,6 +136,21 @@ namespace corecad::calculator
                             auto gcs_p3 = get_or_add_gcs_point(al.point3);
 
                             m_sys.addConstraintPointOnLine(*gcs_p1, *gcs_p2, *gcs_p3);
+                        },
+                        [&](const typename constraint_t::concrete_t<model::constraint::parallel_distant>& pd) {
+                            auto gcs_l1s = get_or_add_gcs_point(pd.line1_start);
+                            auto gcs_l1e = get_or_add_gcs_point(pd.line1_end);
+                            auto gcs_l2s = get_or_add_gcs_point(pd.line2_start);
+                            auto gcs_l2e = get_or_add_gcs_point(pd.line2_end);
+
+                            auto* dist_constraint = new GCS::ConstraintP2LOnLeft(
+                                *gcs_l1s, *gcs_l1e, *gcs_l2s,
+                                &(const_cast<double&>(pd.distance.val()))
+                            );
+                            m_sys.addConstraint(dist_constraint);
+
+                            auto* parallel_constraint = new GCS::ConstraintParallel2(*gcs_l1s, *gcs_l1e, *gcs_l2s, *gcs_l2e);
+                            m_sys.addConstraint(parallel_constraint);
                         }
                     },
                     c.instance
