@@ -16,6 +16,7 @@ void wall_snaps::clear()
 {
     _parameters.clear();
     _ranks.clear();
+    _anchors.clear();
 
     _affected_points.clear();
     _affected_points_data.clear();
