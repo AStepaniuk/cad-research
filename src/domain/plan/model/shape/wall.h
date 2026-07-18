@@ -63,12 +63,6 @@ namespace domain::plan::model::shape
         wall& operator=(const wall& other) = default;
         wall& operator=(wall&& other) noexcept = default;
 
-        void reset_properties_updated()
-        {
-            axis.reset_updated();
-            width.reset_updated();
-        }
-
         // primary model properties
         corecad::model::property<wall_axis_line::index_t, wall> axis;
 
@@ -80,6 +74,16 @@ namespace domain::plan::model::shape
         wall_border_line::index_t right {};
         wall_border_line::index_t start_stub {};
         wall_border_line::index_t end_stub {};
+
+        static constexpr auto members_metadata = std::make_tuple(
+            &wall::index,
+            &wall::width,
+            &wall::axis_offset,
+            &wall::left,
+            &wall::right,
+            &wall::start_stub,
+            &wall::end_stub
+        );
     };  
 
     std::ostream& operator<<(std::ostream& os, const wall& w);

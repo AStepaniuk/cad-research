@@ -42,14 +42,14 @@ namespace corecad::model
         vector2d& operator=(const vector2d& other) = default;
         vector2d& operator=(vector2d&& other) noexcept = default;
 
-        void reset_properties_updated()
-        {
-            x.reset_updated();
-            y.reset_updated();
-        }
-
         property<double, vector2d> x { *this };
         property<double, vector2d> y { *this };
+
+        static constexpr auto members_metadata = std::make_tuple(
+            &vector2d::index,
+            &vector2d::x,
+            &vector2d::y
+        );
     };  
 
     template<typename Tag>

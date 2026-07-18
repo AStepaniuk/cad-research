@@ -19,19 +19,11 @@ namespace domain::plan::model::parameter
         corecad::model::property<point_locator_t, TModel> point;
         corecad::model::property<double, TModel> value;
 
-        void reset_properties_updated()
-        {
-            coordinate.reset_updated();
-            point.reset_updated();
-            value.reset_updated();
-        }
-
-        void bind(TModel& parent)
-        {
-            coordinate.bind(parent);
-            point.bind(parent);
-            value.bind(parent);
-        }
+        static constexpr auto members_metadata = std::make_tuple(
+            &pinned::coordinate,
+            &pinned::point,
+            &pinned::value
+        );
     };
 
     template<typename TModel>

@@ -23,19 +23,11 @@ namespace corecad::model::constraint
 
         property<point_id_t, TModel> point;
 
-        void bind(TModel& parent)
-        {
-            coordinate.bind(parent);
-            value.bind(parent);
-            point.bind(parent);
-        }
-
-        void reset_properties_updated()
-        {
-            coordinate.reset_updated();
-            value.reset_updated();
-            point.reset_updated();
-        }
+        static constexpr auto members_metadata = std::make_tuple(
+            &fixed::value,
+            &fixed::coordinate,
+            &fixed::point
+        );
     };
 
     template <typename TVector2DIndexList, typename TModel>

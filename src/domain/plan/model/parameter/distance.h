@@ -23,21 +23,12 @@ namespace domain::plan::model::parameter
 
         corecad::model::property<double, TModel> value;
 
-        void reset_properties_updated()
-        {
-            direction.reset_updated();
-            from.reset_updated();
-            to.reset_updated();
-            value.reset_updated();
-        }
-
-        void bind(TModel& parent)
-        {
-            direction.bind(parent);
-            from.bind(parent);
-            to.bind(parent);
-            value.bind(parent);
-        }
+        static constexpr auto members_metadata = std::make_tuple(
+            &distance::direction,
+            &distance::from,
+            &distance::to,
+            &distance::value
+        );
     };
 
     template<typename TModel>

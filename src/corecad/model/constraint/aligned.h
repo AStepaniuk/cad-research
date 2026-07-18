@@ -3,7 +3,7 @@
 #include "vector2d.h"
 #include "property.h"
 
-namespace corecad { namespace model { namespace constraint
+namespace corecad::model::constraint
 {
     template <typename TVector2DIndexList, typename TModel>
     requires util::AllElementsAre<TVector2DIndexList, is_vector2d_index>
@@ -22,19 +22,11 @@ namespace corecad { namespace model { namespace constraint
         property<point_id_t, TModel> point2;
         property<point_id_t, TModel> point3;
 
-        void bind(TModel& parent)
-        {
-            point1.bind(parent);
-            point2.bind(parent);
-            point3.bind(parent);
-        }
-
-        void reset_properties_updated()
-        {
-            point1.reset_updated();
-            point2.reset_updated();
-            point3.reset_updated();
-        }
+        static constexpr auto members_metadata = std::make_tuple(
+            &aligned::point1,
+            &aligned::point2,
+            &aligned::point3
+        );
     };
 
     template <typename TVector2DIndexList, typename TModel>
@@ -42,4 +34,4 @@ namespace corecad { namespace model { namespace constraint
     {
         return os << a.point1 << " - " << a.point2 << " - " << a.point3;
     }
-}}}
+}

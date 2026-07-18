@@ -27,21 +27,12 @@ namespace corecad::model::constraint
 
         property<double, TModel> distance;
 
-        void bind(TModel& parent)
-        {
-            direction.bind(parent);
-            from.bind(parent);
-            to.bind(parent);
-            distance.bind(parent);
-        }
-
-        void reset_properties_updated()
-        {
-            direction.reset_updated();
-            from.reset_updated();
-            to.reset_updated();
-            distance.reset_updated();
-        }
+        static constexpr auto members_metadata = std::make_tuple(
+            &offset::direction,
+            &offset::from,
+            &offset::to,
+            &offset::distance
+        );
     };
 
     template <typename TVector2DIndexList, typename TModel>

@@ -4,6 +4,8 @@
 #include "registry_index.h"
 #include "traits.h"
 #include "type_list.h"
+#include "members_iterator.h"
+#include "property.h"
 
 namespace corecad::model {
 
@@ -19,7 +21,15 @@ namespace corecad::model {
 
         void reset_updated()
         {
-            static_cast<TModel&>(*this).reset_properties_updated();
+            if constexpr (requires { std::declval<TModel>().reset_properties_updated(); })
+            {
+                static_cast<TModel&>(*this).reset_properties_updated();
+            }
+            else
+            {
+                util::visit_members<is_property>(static_cast<TModel&>(*this), [](auto& prop) { prop.reset_updated(); });
+            }
+
             _updated = false;
         }
         

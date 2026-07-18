@@ -19,19 +19,11 @@ namespace domain::plan::model::parameter
         corecad::model::property<point_locator_t, TModel> point2;
         corecad::model::property<point_locator_t, TModel> point3;
 
-        void reset_properties_updated()
-        {
-            point1.reset_updated();
-            point2.reset_updated();
-            point3.reset_updated();
-        }
-
-        void bind(TModel& parent)
-        {
-            point1.bind(parent);
-            point2.bind(parent);
-            point3.bind(parent);
-        }
+        static constexpr auto members_metadata = std::make_tuple(
+            &colinear::point1,
+            &colinear::point2,
+            &colinear::point3
+        );
     };
 
     template<typename TModel>

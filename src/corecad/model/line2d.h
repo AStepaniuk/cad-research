@@ -41,14 +41,14 @@ namespace corecad::model
         line2d& operator=(const line2d& other) = default;
         line2d& operator=(line2d&& other) noexcept = default;
 
-        void reset_properties_updated()
-        {
-            s.reset_updated();
-            e.reset_updated();
-        }
-
         point_property_t s;
         point_property_t e;
+
+        static constexpr auto members_metadata = std::make_tuple(
+            &line2d::index,
+            &line2d::s,
+            &line2d::e
+        );
     };  
 
     template<typename Tag>

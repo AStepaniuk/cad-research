@@ -4,6 +4,8 @@
 
 #include "type_list.h"
 #include "model_base.h"
+#include "members_iterator.h"
+#include "property.h"
 
 namespace corecad::model {
     template <typename TImpl, typename TBase>
@@ -69,8 +71,8 @@ namespace corecad::model {
 
         void reset_properties_updated()
         {
-           std::visit([this](auto& impl) {
-                impl.reset_properties_updated();
+            std::visit([this](auto& impl) {
+                util::visit_members<is_property>(impl, [](auto& prop) { prop.reset_updated(); });
             }, instance);
         }
 
@@ -83,7 +85,7 @@ namespace corecad::model {
         void bind_internal()
         {
            std::visit([this](auto& impl) {
-                impl.bind(static_cast<TVariantModel&>(*this));
+                util::visit_members<is_property>(impl, [this](auto& prop) { prop.bind(static_cast<TVariantModel&>(*this)); });
             }, instance);
         }
     };
