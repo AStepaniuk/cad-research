@@ -89,6 +89,9 @@ namespace corecad::model
         operator const TValue& () const { return _value; }
         const TValue& val() const { return _value; }
 
+        operator TValue& () { return _value; }
+        TValue& val() { return _value; }
+
         auto operator<=>(const property& other) const { return _value <=> other._value; }
         bool operator==(const property& other) const { return _value == other._value; }
 
@@ -134,4 +137,14 @@ namespace corecad::model
 
     template <typename T>
     concept IsProperty = is_property<std::remove_cvref_t<T>>::value;
+
+
+    template <typename T, typename TExpectedValue>
+    struct is_property_of_type : std::false_type {};
+
+    template <typename TExpectedValue, typename TModel>
+    struct is_property_of_type<property<TExpectedValue, TModel>, TExpectedValue> : std::true_type {};
+
+   template <typename T, typename TExpectedValue>
+    concept IsPropertyOfType = is_property_of_type<std::remove_cvref_t<T>, TExpectedValue>::value;
 }

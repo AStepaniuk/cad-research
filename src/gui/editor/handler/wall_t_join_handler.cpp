@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "views_take_model_variants.h"
+#include "members_iterator.h"
 
 using namespace gui::editor::handler;
 using namespace domain::plan::model;
@@ -148,6 +149,9 @@ bool wall_t_join_handler::wall_move(
     return false;
 }
 
+template <typename T>
+using is_point_locator = is_property_of_type<T, parameter::point_locator_t>;
+
 std::optional<gui::doc::handle_data> wall_t_join_handler::apply()
 {
     if (!_t_joint_wall || !_document.active_handle)
@@ -168,9 +172,40 @@ std::optional<gui::doc::handle_data> wall_t_join_handler::apply()
     const auto epid = a.e.val();
     a.e = ahid;
 
-    const auto aid = _document.model.data().make<wall_axis_line>(ahid, epid);
-    const auto wid = _document.model.data().make<wall>(aid, w.width);
-    _document.model.data().get(wid).axis_offset = w.axis_offset;
+    const auto new_aid = _document.model.data().make<wall_axis_line>(ahid, epid);
+    const auto new_wid = _document.model.data().make<wall>(new_aid, w.width);
+    _document.model.data().get(new_wid).axis_offset = w.axis_offset;
+
+    // update parameters, related to the initial wall end.
+    // now they should configure newly create wall end (epid).
+    for (auto& pp: _document.model.data().items<parameter::parameter>())
+    {
+        std::visit([&](auto& parameter) {
+            corecad::util::visit_members<is_point_locator>(parameter, [&](auto& pl_prop) {
+                std::optional<parameter::point_locator_t> new_pl;
+
+                std::visit(corecad::util::overloaded {
+                    [&] (parameter::wall_axis_point_locator& wapl) {
+                        if (wapl.wid == w.index && wapl.point_on_axis_ptr == &wall_axis_line::e)
+                        {
+                            new_pl = parameter::wall_axis_point_locator { new_wid, wapl.point_on_axis_ptr };
+                        }
+                    },
+                    [&] (parameter::wall_border_point_locator& wbpl) {
+                        if (wbpl.wid == w.index && wbpl.point_on_border_ptr == &wall_border_line::e)
+                        {
+                            new_pl = parameter::wall_border_point_locator { new_wid, wbpl.border_ptr,  wbpl.point_on_border_ptr };
+                        }
+                    },
+                }, pl_prop.val());
+
+                if (new_pl)
+                {
+                    pl_prop = new_pl.value();
+                }
+            });
+        }, pp.second.instance);
+    }
 
     return {};
 }
