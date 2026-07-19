@@ -149,20 +149,17 @@ bool wall_t_join_handler::wall_move(
     return false;
 }
 
-template <typename T>
-using is_point_locator = is_property_of_type<T, parameter::point_locator_t>;
-
-std::optional<gui::doc::handle_data> wall_t_join_handler::apply()
+post_apply_actions wall_t_join_handler::apply()
 {
     if (!_t_joint_wall || !_document.active_handle)
     {
-        return std::nullopt;
+        return {};
     }
 
     const auto ahid = _document.active_handle->handle_id_of_type<wall_axis_point>();
     if (!ahid)
     {
-        return std::nullopt;
+        return {};
     }
 
     // split wall into 2 walls
@@ -176,36 +173,13 @@ std::optional<gui::doc::handle_data> wall_t_join_handler::apply()
     const auto new_wid = _document.model.data().make<wall>(new_aid, w.width);
     _document.model.data().get(new_wid).axis_offset = w.axis_offset;
 
-    // update parameters, related to the initial wall end.
-    // now they should configure newly create wall end (epid).
-    for (auto& pp: _document.model.data().items<parameter::parameter>())
+    return post_apply_actions
     {
-        std::visit([&](auto& parameter) {
-            corecad::util::visit_members<is_point_locator>(parameter, [&](auto& pl_prop) {
-                std::optional<parameter::point_locator_t> new_pl;
-
-                std::visit(corecad::util::overloaded {
-                    [&] (parameter::wall_axis_point_locator& wapl) {
-                        if (wapl.wid == w.index && wapl.point_on_axis_ptr == &wall_axis_line::e)
-                        {
-                            new_pl = parameter::wall_axis_point_locator { new_wid, wapl.point_on_axis_ptr };
-                        }
-                    },
-                    [&] (parameter::wall_border_point_locator& wbpl) {
-                        if (wbpl.wid == w.index && wbpl.point_on_border_ptr == &wall_border_line::e)
-                        {
-                            new_pl = parameter::wall_border_point_locator { new_wid, wbpl.border_ptr,  wbpl.point_on_border_ptr };
-                        }
-                    },
-                }, pl_prop.val());
-
-                if (new_pl)
-                {
-                    pl_prop = new_pl.value();
-                }
-            });
-        }, pp.second.instance);
-    }
-
-    return {};
+        .pl_replacement = point_locator_replacement
+        {
+            .wid_from = w.index,
+            .wid_to = new_wid,
+            .wall_point = &wall_axis_line::e
+        }
+    };
 }

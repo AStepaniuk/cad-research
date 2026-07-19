@@ -55,6 +55,16 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     active_point.x = model_pos.x;
     active_point.y = model_pos.y;
 
+    _document.active_wall_snaps.clear();
+    if (!_last_worked_move_wall_handler)
+    {
+        for (auto wall_snap_builder : _snap_builders)
+        {
+            wall_snap_builder->calculate_snaps(mx, my);
+        }
+        _wall_snap_processor.process();
+    }
+
     // check if model pos is applicable to any handler
     _last_worked_move_wall_handler = nullptr;
     for (auto handler : _move_wall_handlers)
@@ -70,35 +80,28 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
         }
     }
 
-    // recalculate active snaps
-    _document.active_wall_snaps.clear();
-    if (!_last_worked_move_wall_handler)
-    {
-        for (auto wall_snap_builder : _snap_builders)
-        {
-            wall_snap_builder->calculate_snaps(mx, my);
-        }
-        _wall_snap_processor.process();
-    }
-
     // update model
     _tools.run_full_pipeline();
 
     return action_handle_status::operation_continues;
 }
 
+template <typename T>
+using is_point_locator_property = corecad::model::is_property_of_type<T, parameter::point_locator_t>;
+
 action_handle_status operation_move_wall_handle::left_mouse_click(float mx, float my)
 {
     bool needs_recalculation = false;
+    handler::post_apply_actions post_actions;
 
     if (_last_worked_move_wall_handler)
     {
-        const auto worked_point_id = _last_worked_move_wall_handler->apply();
+        post_actions = _last_worked_move_wall_handler->apply();
         _last_worked_move_wall_handler = nullptr;
 
-        if (worked_point_id)
+        if (post_actions.new_active_handle)
         {
-            _document.active_handle = worked_point_id.value();
+            _document.active_handle = post_actions.new_active_handle.value();
         }
 
         needs_recalculation = true;
@@ -115,6 +118,45 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
 
         needs_recalculation = true;
     }
+
+    if (post_actions.pl_replacement)
+    {
+        const auto wid_from = post_actions.pl_replacement->wid_from;
+        const auto wid_to = post_actions.pl_replacement->wid_to;
+        const auto point_on_axis = post_actions.pl_replacement->wall_point;
+        const auto point_on_border = point_on_axis == &wall_axis_line::s ? &wall_border_line::s : &wall_border_line::e;
+
+        for (auto& pp: _document.model.data().items<parameter::parameter>())
+        {
+            std::visit([&](auto& parameter) {
+                corecad::util::visit_members<is_point_locator_property>(parameter, [&](auto& pl_prop) {
+                    std::optional<parameter::point_locator_t> new_pl;
+
+                    std::visit(corecad::util::overloaded {
+                        [&] (parameter::wall_axis_point_locator& wapl) {
+                            if (wapl.wid == wid_from && wapl.point_on_axis_ptr == point_on_axis)
+                            {
+                                new_pl = parameter::wall_axis_point_locator { wid_to, wapl.point_on_axis_ptr };
+                                needs_recalculation = true;
+                            }
+                        },
+                        [&] (parameter::wall_border_point_locator& wbpl) {
+                            if (wbpl.wid == wid_from && wbpl.point_on_border_ptr == point_on_border)
+                            {
+                                new_pl = parameter::wall_border_point_locator { wid_to, wbpl.border_ptr, wbpl.point_on_border_ptr };
+                                needs_recalculation = true;
+                            }
+                        },
+                    }, pl_prop.val());
+
+                    if (new_pl)
+                    {
+                        pl_prop = new_pl.value();
+                    }
+                });
+            }, pp.second.instance);
+        }
+    };
 
     if(needs_recalculation)
     {

@@ -72,17 +72,17 @@ bool wall_join_handler::wall_move(
     return false;
 }
 
-std::optional<gui::doc::handle_data> wall_join_handler::apply()
+post_apply_actions wall_join_handler::apply()
 {
     if (!_target_point_handle || _target_point_handle->handle_locators().empty())
     {
-        return std::nullopt;
+        return {};
     }
 
     const auto tphid = _target_point_handle->handle_id_of_type<wall_axis_point>();
     if (!tphid)
     {
-        return std::nullopt;
+        return {};
     }
 
     for (const auto pl : _target_point_handle->handle_locators())
@@ -96,5 +96,5 @@ std::optional<gui::doc::handle_data> wall_join_handler::apply()
         }
     }
 
-    return _target_point_handle;
+    return post_apply_actions { .new_active_handle = _target_point_handle };
 }
