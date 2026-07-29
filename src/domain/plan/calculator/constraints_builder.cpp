@@ -27,39 +27,6 @@ void constraints_builder::rebuild_all_constraints()
     {
         _floor.data().put(to_constraint(pair.second));
     }
-
-    // generate wall geometry constraints. For walls, which have no dimension constraints
-    // assuming, at this time point all parameters are converted to constraints
-    //for (const auto& wp : _floor.data().items<wall>())
-    //{
-    //    const auto& axis = _floor.data().get(wp.second.axis);
-
-    //    auto offsets = _floor.data().items<model::floor::constraint_t>()
-    //        | views::take_model_variants<offset>();
-
-    //    enum class wall_alignment { vertical, horizontal, unconstrained };
-    //    wall_alignment alignment = wall_alignment::unconstrained;
-    //    for (const model::floor::constraint_t::concrete_t<offset>& o : offsets)
-    //    {
-    //        if (
-    //            (o.from == axis.s || o.to == axis.s) &&
-    //            (o.from == axis.e || o.to == axis.e) &&
-    //            (o.distance == 0.0) &&
-    //            (o.from != o.to) // this should never occur. Safety guard
-    //        )
-    //        {
-    //            alignment = (o.direction == coordinate2d::x) ? wall_alignment::vertical : wall_alignment::horizontal;
-    //            break;
-    //        }
-    //    }
-
-    //    switch (alignment)
-    //    {
-    //    case wall_alignment::horizontal: generate_horizontal_wall_border_constraints(wp.second, axis); break;
-    //    case wall_alignment::vertical: generate_vertical_wall_border_constraints(wp.second, axis); break;
-    //    case wall_alignment::unconstrained: generate_diagonal_wall_border_constraints(wp.second, axis); break;
-    //    };
-    //}
 }
 
 void constraints_builder::to_constraints(
@@ -162,146 +129,53 @@ model::floor::constraint_t constraints_builder::to_constraint(const model::param
     );
 }
 
-void constraints_builder::generate_vertical_wall_border_constraints(const model::shape::wall &w, const model::shape::wall_axis_line &a) const
-{
-    const auto& left = _floor.data().get(w.left);
-    const auto& right = _floor.data().get(w.right);
-
-    const auto& sp = _floor.data().get(a.s);
-    const auto& ep = _floor.data().get(a.e);
-
-    auto left_offset = -(w.width * 0.5 + w.axis_offset);
-    auto right_offset = w.width + left_offset;
-
-    if (sp.y > ep.y)
-    {
-        left_offset = -left_offset;
-        right_offset = - right_offset;
-    }
-
-    _floor.data().put(model::floor::constraint_t::create<offset>(a.s, left.s, left_offset, coordinate2d::x));
-    _floor.data().put(model::floor::constraint_t::create<offset>(a.s, right.s, right_offset, coordinate2d::x));
-
-    if (w.start_stub)
-    {
-        _floor.data().put(model::floor::constraint_t::create<offset>(a.s, left.s, 0.0, coordinate2d::y));
-        _floor.data().put(model::floor::constraint_t::create<offset>(a.s, right.s, 0.0, coordinate2d::y));
-    }
-
-    _floor.data().put(model::floor::constraint_t::create<offset>(a.e, left.e, left_offset, coordinate2d::x));
-    _floor.data().put(model::floor::constraint_t::create<offset>(a.e, right.e, right_offset, coordinate2d::x));
-
-    if (w.end_stub)
-    {
-        _floor.data().put(model::floor::constraint_t::create<offset>(a.e, left.e, 0.0, coordinate2d::y));
-        _floor.data().put(model::floor::constraint_t::create<offset>(a.e, right.e, 0.0, coordinate2d::y));
-    }
-}
-
-void constraints_builder::generate_horizontal_wall_border_constraints(const model::shape::wall &w, const model::shape::wall_axis_line &a) const
-{
-    const auto& left = _floor.data().get(w.left);
-    const auto& right = _floor.data().get(w.right);
-
-    const auto& sp = _floor.data().get(a.s);
-    const auto& ep = _floor.data().get(a.e);
-
-    auto left_offset = -(w.width * 0.5 + w.axis_offset);
-    auto right_offset = w.width + left_offset;
-
-    if (sp.x > ep.x)
-    {
-        left_offset = -left_offset;
-        right_offset = - right_offset;
-    }
-
-    _floor.data().put(model::floor::constraint_t::create<offset>(a.s, left.s, left_offset, coordinate2d::y));
-    _floor.data().put(model::floor::constraint_t::create<offset>(a.s, right.s, right_offset, coordinate2d::y));
-
-    if (w.start_stub)
-    {
-        _floor.data().put(model::floor::constraint_t::create<offset>(a.s, left.s, 0.0, coordinate2d::x));
-        _floor.data().put(model::floor::constraint_t::create<offset>(a.s, right.s, 0.0, coordinate2d::x));
-    }
-
-    _floor.data().put(model::floor::constraint_t::create<offset>(a.e, left.e, left_offset, coordinate2d::y));
-    _floor.data().put(model::floor::constraint_t::create<offset>(a.e, right.e, right_offset, coordinate2d::y));
-
-    if (w.end_stub)
-    {
-        _floor.data().put(model::floor::constraint_t::create<offset>(a.e, left.e, 0.0, coordinate2d::x));
-        _floor.data().put(model::floor::constraint_t::create<offset>(a.e, right.e, 0.0, coordinate2d::x));
-    }
-}
-
-void constraints_builder::generate_diagonal_wall_border_constraints(const model::shape::wall &w, const model::shape::wall_axis_line &a) const
-{
-    const auto& left = _floor.data().get(w.left);
-    const auto& right = _floor.data().get(w.right);
-
-    auto left_offset = -(w.width * 0.5 + w.axis_offset);
-    auto right_offset = w.width + left_offset;
-
-    _floor.data().put(model::floor::constraint_t::create<parallel_distant>(a.s, a.e, left.s, left.e, left_offset));
-    _floor.data().put(model::floor::constraint_t::create<parallel_distant>(a.s, a.e, right.s, right.e, right_offset));
-
-    if (w.start_stub)
-    {
-        _floor.data().put(model::floor::constraint_t::create<aligned>(left.s, a.s, right.s));
-    }
-    if (w.end_stub)
-    {
-        _floor.data().put(model::floor::constraint_t::create<aligned>(left.e, a.e, right.e));
-    }
-}
-
 std::optional<constraints_builder::wall_orientation> constraints_builder::get_wall_orientation_axis(const wall& w) const
 {
-        const auto& axis = _floor.data().get(w.axis);
+    const auto& axis = _floor.data().get(w.axis);
 
-        auto distances = _floor.data().items<model::parameter::parameter>()
-            | views::take_model_variants<distance>();
+    auto distances = _floor.data().items<model::parameter::parameter>()
+        | views::take_model_variants<distance>();
 
-        for (const model::parameter::parameter::concrete_t<distance>& d : distances)
+    for (const model::parameter::parameter::concrete_t<distance>& d : distances)
+    {
+        if (d.value != 0.0)
         {
-            if (d.value != 0.0)
-            {
-                continue;
-            }
-
-            const auto from = _pr.resolve(d.from);
-            const auto* from_a = std::get_if<wall_axis_point::index_t>(&from);
-            if (!from_a)
-            {
-                continue;
-            }
-
-            const auto to = _pr.resolve(d.to);
-            const auto* to_a = std::get_if<wall_axis_point::index_t>(&to);
-            if (!to_a)
-            {
-                continue;
-            }
-
-            if (
-                ((*from_a) == axis.s || (*to_a) == axis.s) &&
-                ((*from_a) == axis.e || (*to_a) == axis.e) &&
-                (from != to) // this should never occur. Safety guard
-            )
-            {
-                auto dist = d.value;
-                if ((*from_a) == axis.e)
-                {
-                    dist = -dist;
-                }
-
-                return wall_orientation
-                {
-                    .axis = (d.direction == coordinate2d::x) ? coordinate2d::y : coordinate2d::x,
-                    .s = dist > 0.0 ? sign::pos : sign::neg
-                }; 
-            }
+            continue;
         }
+
+        const auto from = _pr.resolve(d.from);
+        const auto* from_a = std::get_if<wall_axis_point::index_t>(&from);
+        if (!from_a)
+        {
+            continue;
+        }
+
+        const auto to = _pr.resolve(d.to);
+        const auto* to_a = std::get_if<wall_axis_point::index_t>(&to);
+        if (!to_a)
+        {
+            continue;
+        }
+
+        if (
+            ((*from_a) == axis.s || (*to_a) == axis.s) &&
+            ((*from_a) == axis.e || (*to_a) == axis.e) &&
+            (from != to) // this should never occur. Safety guard
+        )
+        {
+            auto dist = d.value;
+            if ((*from_a) == axis.e)
+            {
+                dist = -dist;
+            }
+
+            return wall_orientation
+            {
+                .axis = (d.direction == coordinate2d::x) ? coordinate2d::y : coordinate2d::x,
+                .s = dist > 0.0 ? sign::pos : sign::neg
+            }; 
+        }
+    }
 
     return std::nullopt;
 }

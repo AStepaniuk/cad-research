@@ -25,10 +25,6 @@ namespace domain::plan::calculator
     private:
         model::floor::constraint_t to_constraint(const model::parameter::parameter& p) const;
 
-        void generate_vertical_wall_border_constraints(const model::shape::wall& w, const model::shape::wall_axis_line& a) const;
-        void generate_horizontal_wall_border_constraints(const model::shape::wall& w, const model::shape::wall_axis_line& a) const;
-        void generate_diagonal_wall_border_constraints(const model::shape::wall& w, const model::shape::wall_axis_line& a) const;
-
         enum class sign { pos, neg };
         struct wall_orientation
         {
