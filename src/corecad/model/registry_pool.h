@@ -13,7 +13,7 @@
 namespace corecad { namespace model
 {
     template<typename... TModel>
-    requires (std::derived_from<TModel, model_base<TModel>> && ...)
+    requires (std::derived_from<TModel, model_base<TModel, typename TModel::user_data_t>> && ...)
     class registry_pool
     {
     public:

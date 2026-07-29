@@ -33,14 +33,14 @@ namespace corecad::model {
         }
 
         variant_model_base(const variant_model_base& other)
-            : model_base<TVariantModel> { other }
+            : model_base<TVariantModel, TUserData> { other }
             , instance { other.instance }
         {
             bind_internal();
         }
 
         variant_model_base(variant_model_base&& other) noexcept
-            : model_base<TVariantModel>{ std::move(other) }
+            : model_base<TVariantModel, TUserData>{ std::move(other) }
             , instance{ std::move(other.instance) }
         {
             bind_internal();
@@ -50,7 +50,7 @@ namespace corecad::model {
         {
             if (this != &other)
             {
-                model_base<TVariantModel>::operator=(other);
+                model_base<TVariantModel, TUserData>::operator=(other);
                 instance = other.instance;
                 bind_internal();
             }
@@ -62,7 +62,7 @@ namespace corecad::model {
         {
             if (this != &other)
             {
-                model_base<TVariantModel>::operator=(std::move(other));
+                model_base<TVariantModel, TUserData>::operator=(std::move(other));
                 instance = std::move(other.instance);
                 bind_internal();
             }

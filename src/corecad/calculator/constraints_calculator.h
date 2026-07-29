@@ -24,18 +24,18 @@ namespace corecad::calculator
     template <typename TConstraintModel>
     class constraints_calculator;
 
-    template <template<typename> typename TConstraintModel, typename... TVectorIndex>
+    template <template<typename...> typename TConstraintModel, typename TUserData, typename... TVectorIndex>
     requires (
-        model::constraint::IsConstraint<TConstraintModel<corecad::util::type_list<TVectorIndex...>>>
+        model::constraint::IsConstraint<TConstraintModel<corecad::util::type_list<TVectorIndex...>, TUserData>>
         && (model::IsVector2D<typename TVectorIndex::tag_t> && ...)
     )
-    class constraints_calculator<TConstraintModel<corecad::util::type_list<TVectorIndex...>>>
+    class constraints_calculator<TConstraintModel<corecad::util::type_list<TVectorIndex...>, TUserData>>
     {
         template<typename TVec>
         using registry_ref_t = std::reference_wrapper<corecad::model::registry<TVec>>;
 
     public:
-        using constraint_t = TConstraintModel<corecad::util::type_list<TVectorIndex...>>;
+        using constraint_t = TConstraintModel<corecad::util::type_list<TVectorIndex...>, TUserData>;
 
         constraints_calculator(corecad::model::registry<typename TVectorIndex::tag_t>&... points)
             : _points { std::ref(points)... }
@@ -103,7 +103,7 @@ namespace corecad::calculator
             {
                 std::visit(util::overloaded
                     {
-                        [&](const typename constraint_t::concrete_t<model::constraint::offset>& offs) {
+                        [&](const typename constraint_t::template concrete_t<model::constraint::offset>& offs) {
                             auto f_gcs_p = get_or_add_gcs_point(offs.from);
                             auto t_gcs_p = get_or_add_gcs_point(offs.to);
 
@@ -116,7 +116,7 @@ namespace corecad::calculator
                                 m_sys.addConstraintDifference(f_gcs_p->y, t_gcs_p->y, &(const_cast<double&>(offs.distance.val())));
                             }
                         },
-                        [&](const typename constraint_t::concrete_t<model::constraint::fixed>& fix) {
+                        [&](const typename constraint_t::template concrete_t<model::constraint::fixed>& fix) {
                             auto gcs_p = get_or_add_gcs_point(fix.point);
 
                             if (fix.coordinate == model::coordinate2d::x)
@@ -130,14 +130,14 @@ namespace corecad::calculator
                                 gcs_constants.emplace(gcs_p->y - gcs_params.data());
                             }
                         },
-                        [&](const typename constraint_t::concrete_t<model::constraint::aligned>& al) {
+                        [&](const typename constraint_t::template concrete_t<model::constraint::aligned>& al) {
                             auto gcs_p1 = get_or_add_gcs_point(al.point1);
                             auto gcs_p2 = get_or_add_gcs_point(al.point2);
                             auto gcs_p3 = get_or_add_gcs_point(al.point3);
 
                             m_sys.addConstraintPointOnLine(*gcs_p1, *gcs_p2, *gcs_p3);
                         },
-                        [&](const typename constraint_t::concrete_t<model::constraint::parallel_distant>& pd) {
+                        [&](const typename constraint_t::template concrete_t<model::constraint::parallel_distant>& pd) {
                             auto gcs_l1s = get_or_add_gcs_point(pd.line1_start);
                             auto gcs_l1e = get_or_add_gcs_point(pd.line1_end);
                             auto gcs_l2s = get_or_add_gcs_point(pd.line2_start);

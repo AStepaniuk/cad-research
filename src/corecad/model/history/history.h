@@ -11,10 +11,10 @@
 #include "registry_pool.h"
 #include "model_history.h"
 
-namespace corecad { namespace model { namespace history
+namespace corecad::model::history
 {
     template<typename TRegistryPool, typename... TModel>
-    requires (std::derived_from<TModel, model_base<TModel>> && ...)
+    requires (std::derived_from<TModel, model_base<TModel, typename TModel::user_data_t>> && ...)
     class history
     {
     public:
@@ -217,4 +217,4 @@ namespace corecad { namespace model { namespace history
             model_history.redo_transaction(&data);
         }
     };
-}}}
+}

@@ -15,7 +15,12 @@ namespace domain::plan::model
     class floor
     {
     public:
-        using constraint_t = corecad::model::constraint::constraint<shape::wall_points_ids_tl>;
+        struct constraint_data
+        {
+            parameter::parameter::index_t source_parameter;
+        };
+
+        using constraint_t = corecad::model::constraint::constraint<shape::wall_points_ids_tl, constraint_data>;
 
         using data_t = corecad::model::registry_pool<
             constraint_t,
