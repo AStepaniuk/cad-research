@@ -15,8 +15,8 @@ namespace corecad::model {
         impl.reset_properties_updated();
     };
 
-    template <typename TVariantModel, typename... TInstance>
-    struct variant_model_base : public model_base<TVariantModel>
+    template <typename TVariantModel, typename TUserData, typename... TInstance>
+    struct variant_model_base : public model_base<TVariantModel, TUserData>
     {
         using instances_tl = util::type_list<TInstance...>;
 

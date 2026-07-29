@@ -21,6 +21,7 @@ namespace corecad::model {
         using registry_t = registry<TModel>;
         
         index_t index;
+        user_data_t user_data;
 
         void reset_updated()
         {
