@@ -9,11 +9,14 @@
 
 namespace corecad::model {
 
-    template <typename TModel>
+    struct nothing {};
+
+    template <typename TModel, typename TUserData = nothing>
     class model_base
     {
     public:
         using model_t = TModel;
+        using user_data_t = TUserData;
         using index_t = registry_index_t<TModel>;
         using registry_t = registry<TModel>;
         

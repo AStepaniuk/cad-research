@@ -135,25 +135,25 @@ void wall_calculator::recalculate_all_walls()
     std::map<wall_axis_line::index_t, double> wall_axis_directions;
     std::map<wall_axis_line::index_t, wall::index_t> wall_axis_owners;
 
-    for (auto& w : _floor.data().items<wall>())
+    for (auto&& [_, w] : _floor.data().items<wall>())
     {
-        recalculate_wall_joints(w.second, joints);
-        wall_axis_owners[w.second.axis] = w.second.index;
+        recalculate_wall_joints(w, joints);
+        wall_axis_owners[w.axis] = w.index;
     }
 
     std::vector<wall_finish_id> processed_fids;
-    for (auto& w : _floor.data().items<wall>())
+    for (auto&& [_, w] : _floor.data().items<wall>())
     {
         // start joint points
-        wall_finish_id wall_start_fid { w.second.axis, wall_location::start };
+        wall_finish_id wall_start_fid { w.axis, wall_location::start };
         size_t start_joints_num = joints[wall_start_fid].size() - 1;
         if (start_joints_num == 0)
         {
-            calculate_stub_wall_start_borders(w.second);
+            calculate_stub_wall_start_borders(w);
         }
         else 
         {
-            w.second.start_stub = {};
+            w.start_stub = {};
 
             if (std::ranges::find(processed_fids, wall_start_fid) == processed_fids.end())
             {
@@ -169,15 +169,15 @@ void wall_calculator::recalculate_all_walls()
         }
 
         // end joint points
-        wall_finish_id wall_end_fid { w.second.axis, wall_location::end };
+        wall_finish_id wall_end_fid { w.axis, wall_location::end };
         size_t end_joints_num = joints[wall_end_fid].size() - 1;
         if (end_joints_num == 0)
         {
-            calculate_stub_wall_end_borders(w.second);
+            calculate_stub_wall_end_borders(w);
         }
         else
         {
-            w.second.end_stub = {};
+            w.end_stub = {};
 
             if (std::ranges::find(processed_fids, wall_end_fid) == processed_fids.end())
             {
@@ -281,15 +281,15 @@ void wall_calculator::recalculate_wall_joints(wall& w, walls_joints& joints)
     {
         std::vector<wall_finish_id> start_connected_walls;
 
-        for (auto& a2 : _floor.data().items<wall_axis_line>())
+        for (auto&& [_, a2] : _floor.data().items<wall_axis_line>())
         {
-            if (axis.s == a2.second.s)
+            if (axis.s == a2.s)
             {
-                start_connected_walls.push_back(wall_finish_id { a2.second.index, wall_location::start });
+                start_connected_walls.push_back(wall_finish_id { a2.index, wall_location::start });
             }
-            else if (axis.s == a2.second.e)
+            else if (axis.s == a2.e)
             {
-                start_connected_walls.push_back(wall_finish_id { a2.second.index, wall_location::end });
+                start_connected_walls.push_back(wall_finish_id { a2.index, wall_location::end });
             }
         }
         
@@ -305,15 +305,15 @@ void wall_calculator::recalculate_wall_joints(wall& w, walls_joints& joints)
     {
         std::vector<wall_finish_id> end_connected_walls;
 
-        for (auto& a2 : _floor.data().items<wall_axis_line>())
+        for (auto&& [_, a2] : _floor.data().items<wall_axis_line>())
         {
-            if (axis.e == a2.second.s)
+            if (axis.e == a2.s)
             {
-                end_connected_walls.push_back(wall_finish_id { a2.second.index, wall_location::start });
+                end_connected_walls.push_back(wall_finish_id { a2.index, wall_location::start });
             }
-            else if (axis.e == a2.second.e)
+            else if (axis.e == a2.e)
             {
-                end_connected_walls.push_back(wall_finish_id { a2.second.index, wall_location::end });
+                end_connected_walls.push_back(wall_finish_id { a2.index, wall_location::end });
             }
         }
         

@@ -126,7 +126,7 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
         const auto point_on_axis = post_actions.pl_replacement->wall_point;
         const auto point_on_border = point_on_axis == &wall_axis_line::s ? &wall_border_line::s : &wall_border_line::e;
 
-        for (auto& pp: _document.model.data().items<parameter::parameter>())
+        for (auto&& [_, p]: _document.model.data().items<parameter::parameter>())
         {
             std::visit([&](auto& parameter) {
                 corecad::util::visit_members<is_point_locator_property>(parameter, [&](auto& pl_prop) {
@@ -154,7 +154,7 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
                         pl_prop = new_pl.value();
                     }
                 });
-            }, pp.second.instance);
+            }, p.instance);
         }
     };
 

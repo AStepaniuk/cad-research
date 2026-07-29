@@ -28,7 +28,7 @@ bool wall_join_handler::wall_move(
 
     const auto ahid = _document.active_handle->handle_id_of_type<wall_axis_point>();
 
-    for (auto& p : _document.model.data().items<wall>())
+    for (const auto& p : _document.model.data().items<wall>())
     {
         const auto& a = _document.model.data().get(p.second.axis);
 

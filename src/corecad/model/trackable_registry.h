@@ -1,15 +1,15 @@
 #pragma once
 
-#include <unordered_map>
+#include <flat_map>
 #include <concepts>
 #include <ranges>
 #include <algorithm>
 
 #include "registry_index.h"
 
-namespace corecad { namespace model
+namespace corecad::model
 {
-    template<typename TModel>
+    template<typename TModel, typename TUserData>
     class model_base;
 
     template<typename T, typename THistory>
@@ -19,7 +19,7 @@ namespace corecad { namespace model
         using index_t = registry_index_t<T>;
 
     private:
-        using underlying_container_t = std::unordered_map<index_t, T>;
+        using underlying_container_t = std::flat_map<index_t, T>;
 
     public:
         using const_iterator_t = underlying_container_t::const_iterator;
@@ -145,7 +145,7 @@ namespace corecad { namespace model
             _history = history;
         }
 
-        friend class model_base<T>;
+        friend class model_base<T, typename T::user_data_t>;
      
     private:
         underlying_container_t _data;
@@ -171,19 +171,11 @@ namespace corecad { namespace model
     template<typename T, typename THistory>
     std::ostream& operator<<(std::ostream& os, const trackable_registry<T, THistory>& r)
     {
-        auto pointers = r 
-            | std::views::transform([](const auto& pair) { return &pair; })
-            | std::ranges::to<std::vector>();
-
-        std::ranges::sort(pointers, [](const auto* a, const auto* b) {
-            return a->first < b->first;
-        });
-
-        for (const auto* pair : pointers)
+        for (const auto& [id, item] : r)
         {
-            std::cout << pair->first << ": " << pair->second << std::endl;
+            std::cout << id << ": " << item << std::endl;
         }
 
         return os;
     }
-}}
+}

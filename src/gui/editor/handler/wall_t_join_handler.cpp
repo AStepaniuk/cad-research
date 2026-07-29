@@ -39,7 +39,7 @@ bool wall_t_join_handler::wall_move(
     const auto tol = _view.model_interaction_tolerance();
     const double tol2 = tol.x * tol.y;
 
-    for (auto& p : _document.model.data().items<wall>())
+    for (const auto& p : _document.model.data().items<wall>())
     {
         auto is_wall_active = std::ranges::any_of(_document.active_handle->handle_locators(), [&p](const auto& hl) {
             if (const auto* wapl = std::get_if<parameter::wall_axis_point_locator>(&hl))

@@ -148,9 +148,9 @@ namespace corecad { namespace model { namespace history
 
         void reset_updated()
         {
-            for (auto& m : *_registry)
+            for (auto&& [_, val] : *_registry)
             {
-                m.second.reset_updated();
+                val.reset_updated();
             }
         }
 
