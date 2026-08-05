@@ -10,9 +10,10 @@ using namespace domain::plan::model::parameter;
 using namespace corecad::model;
 using namespace corecad::model::constraint;
 
-constraints_builder::constraints_builder(model::floor &floor, resolver::point_resolver& pr)
+constraints_builder::constraints_builder(model::floor &floor, resolver::point_resolver& pr, floor_query& fq)
     : _floor { floor }
     , _pr { pr }
+    , _fq { fq }
 {
 }
 
@@ -25,6 +26,16 @@ void constraints_builder::rebuild_all_constraints()
     // generate parameters-based constraints
     for (const auto& pair : _floor.data().items<parameter>())
     {
+        auto constraint = to_constraint(pair.second);
+
+        if (const auto* off = std::get_if<model::floor::constraint_t::concrete_t<offset>>(&constraint.instance); off)
+        {
+            if (_fq.are_points_constrained_on_coordinate(off->from, off->to, off->direction))
+            {
+                continue;
+            }
+        }
+
         _floor.data().put(to_constraint(pair.second));
     }
 }
@@ -42,7 +53,7 @@ void constraints_builder::to_constraints(
 
 model::floor::constraint_t constraints_builder::to_constraint(const model::parameter::parameter &p) const
 {
-    return std::visit(corecad::util::overloaded
+    auto result = std::visit(corecad::util::overloaded
         {
             [&](const parameter::concrete_t<distance>& d) -> model::floor::constraint_t {
                 // if distance is specified to wall border points, translate it to axis points
@@ -127,6 +138,10 @@ model::floor::constraint_t constraints_builder::to_constraint(const model::param
         },
         p.instance
     );
+
+    result.user_data.source_parameter_index = p.index;
+
+    return result;
 }
 
 std::optional<constraints_builder::wall_orientation> constraints_builder::get_wall_orientation_axis(const wall& w) const

@@ -5,6 +5,7 @@
 #include "floor.h"
 #include "registry.h"
 #include "point_resolver.h"
+#include "floor_query.h"
 
 namespace domain::plan::calculator
 {
@@ -12,9 +13,10 @@ namespace domain::plan::calculator
     {
         model::floor& _floor;
         resolver::point_resolver& _pr;
+        floor_query& _fq;
 
         public:
-        constraints_builder(model::floor &floor, resolver::point_resolver& pr);
+        constraints_builder(model::floor &floor, resolver::point_resolver& pr, floor_query& fq);
 
         void rebuild_all_constraints();
         void to_constraints(

@@ -47,4 +47,65 @@ namespace corecad::model::views
     {
         return take_model_variants_closure<TInstance>{};
     }
+
+
+    template<template <typename...> typename TInstance>
+    struct take_model_variants_with_ids_closure
+    {
+        template <std::ranges::viewable_range R>
+        requires IsVariantModel<std::ranges::range_value_t<R>>
+        friend auto operator|(R&& r, take_model_variants_with_ids_closure)
+        {
+            using variant_model_t = std::remove_cvref_t<std::ranges::range_value_t<R>>;
+            using target_variant_t = typename variant_model_t::template concrete_t<TInstance>;
+
+            return std::forward<R>(r)
+                | std::views::filter([](const auto& v) {
+                    return std::holds_alternative<target_variant_t>(v.instance);
+                })
+                | std::views::transform([](auto&& v) {
+                    auto& stable_instance = v.instance;
+                    
+                    using actual_variant_t = std::remove_reference_t<decltype(std::get<target_variant_t>(stable_instance))>;
+                    using return_pair_t = std::pair<typename variant_model_t::index_t, actual_variant_t&>;
+                    
+                    return return_pair_t
+                    {
+                        v.index, 
+                        std::get<target_variant_t>(stable_instance)
+                    };
+                });
+        }
+
+        template <std::ranges::viewable_range R>
+        requires is_variant_model_pair<std::ranges::range_value_t<R>>
+        friend auto operator|(R&& r, take_model_variants_with_ids_closure)
+        {
+            using variant_model_t = std::remove_cvref_t<typename std::ranges::range_value_t<R>::second_type>;
+            using target_variant_t = typename variant_model_t::template concrete_t<TInstance>;
+
+            return std::forward<R>(r)
+                | std::views::filter([](const auto& v) {
+                    return std::holds_alternative<target_variant_t>(v.second.instance);
+                })
+                | std::views::transform([](auto&& v) {
+                    auto& stable_instance = v.second.instance;
+                    
+                    using actual_variant_t = std::remove_reference_t<decltype(std::get<target_variant_t>(stable_instance))>;
+                    using return_pair_t = std::pair<typename variant_model_t::index_t, actual_variant_t&>;
+                    
+                    return return_pair_t
+                    {
+                        v.second.index, 
+                        std::get<target_variant_t>(stable_instance)
+                    };
+                });
+        }
+    };
+
+    template<template <typename...> typename TInstance>
+    auto take_model_variants_with_ids()
+    {
+        return take_model_variants_with_ids_closure<TInstance>{};
+    }
 }

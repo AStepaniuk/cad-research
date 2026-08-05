@@ -18,7 +18,7 @@ namespace gui::editor {
             , _floor_query { floor }
             , _point_resolver { floor }
             , _wall_calculator { floor }
-            , _constraints_builder { floor, _point_resolver }
+            , _constraints_builder { floor, _point_resolver, _floor_query }
             , _constraints_calculator {
                 floor.data().items<domain::plan::model::shape::wall_axis_point>(),
                 floor.data().items<domain::plan::model::shape::wall_border_point>()

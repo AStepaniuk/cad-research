@@ -17,7 +17,7 @@ namespace domain::plan::model
     public:
         struct constraint_data
         {
-            parameter::parameter::index_t source_parameter;
+            parameter::parameter::index_t source_parameter_index;
         };
 
         using constraint_t = corecad::model::constraint::constraint<shape::wall_points_ids_tl, constraint_data>;
