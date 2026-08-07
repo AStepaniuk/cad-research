@@ -26,16 +26,6 @@ void constraints_builder::rebuild_all_constraints()
     // generate parameters-based constraints
     for (const auto& pair : _floor.data().items<parameter>())
     {
-        auto constraint = to_constraint(pair.second);
-
-        if (const auto* off = std::get_if<model::floor::constraint_t::concrete_t<offset>>(&constraint.instance); off)
-        {
-            if (_fq.are_points_constrained_on_coordinate(off->from, off->to, off->direction))
-            {
-                continue;
-            }
-        }
-
         _floor.data().put(to_constraint(pair.second));
     }
 }

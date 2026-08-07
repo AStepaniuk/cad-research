@@ -5,6 +5,7 @@
 #include "constraints_calculator.h"
 #include "point_resolver.h"
 #include "constraints_builder.h"
+#include "parameters_redundance_checker.h"
 #include "wall.h"
 
 namespace gui::editor {
@@ -17,6 +18,7 @@ namespace gui::editor {
             : _floor { floor }
             , _floor_query { floor }
             , _point_resolver { floor }
+            , _parameters_redundance_checker { _floor_query, _point_resolver }
             , _wall_calculator { floor }
             , _constraints_builder { floor, _point_resolver, _floor_query }
             , _constraints_calculator {
@@ -29,7 +31,8 @@ namespace gui::editor {
 
         domain::plan::calculator::floor_query& floor_query();
         domain::plan::resolver::point_resolver& point_resolver();
-        domain::plan::calculator::wall_calculator wall_calculator();
+        domain::plan::calculator::parameters_redundance_checker& parameters_redundance_checker();
+        domain::plan::calculator::wall_calculator& wall_calculator();
         domain::plan::calculator::constraints_builder& constraints_builder();
         constraints_calculator_t& constraints_calculator();
 
@@ -38,6 +41,7 @@ namespace gui::editor {
 
         domain::plan::calculator::floor_query _floor_query;
         domain::plan::resolver::point_resolver _point_resolver;
+        domain::plan::calculator::parameters_redundance_checker _parameters_redundance_checker;
         domain::plan::calculator::wall_calculator _wall_calculator;
         domain::plan::calculator::constraints_builder _constraints_builder;
         constraints_calculator_t _constraints_calculator;

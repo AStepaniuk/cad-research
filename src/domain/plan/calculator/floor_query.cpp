@@ -41,9 +41,6 @@ std::vector<point_locator_t> floor_query::find_locators(wall_axis_point::index_t
 
 using point_id_t = model::floor::constraint_t::point_id_t;
 
-template <typename T>
-using is_point_id_property = corecad::model::is_property_of_type<T, point_id_t>;
-
 bool floor_query::are_points_constrained_on_coordinate(const point_id_t &p1, const point_id_t &p2, coordinate2d coord)
 {
     auto offsets_pairs = _floor.data().items<model::floor::constraint_t>()
@@ -54,11 +51,8 @@ bool floor_query::are_points_constrained_on_coordinate(const point_id_t &p1, con
     std::unordered_set<model::floor::constraint_t::index_t> visited_constraints;
     
     auto check_if_p2_constrained = [&](this auto& self, const auto& pid) -> bool {
-        std::cout << "checking points: " << pid << " to " << p2 << std::endl;
-
         for (const auto& pair : offsets_pairs)
         {
-            std::cout << "checking contraint: " << pair.second << std::endl;
             if (visited_constraints.contains(pair.first))
             {
                 continue;
@@ -101,10 +95,7 @@ bool floor_query::are_points_constrained_on_coordinate(const point_id_t &p1, con
         return false;
     };
 
-    std::cout << "checking points constraint: " << p1 << " to " << p2 << std::endl;
     auto res = check_if_p2_constrained(p1);
-    std::cout << "checking points result: " << res << std::endl;
-    std::cout << "coffsets_pairs.size()=" << offsets_pairs.size() << std::endl;
     
     return res;
 }

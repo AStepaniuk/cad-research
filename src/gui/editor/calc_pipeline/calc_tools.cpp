@@ -13,7 +13,7 @@ void calc_tools::run_full_pipeline()
     _wall_calculator.recalculate_all_walls();
 }
 
-domain::plan::calculator::floor_query &gui::editor::calc_tools::floor_query()
+floor_query &calc_tools::floor_query()
 {
     return _floor_query;
 }
@@ -23,12 +23,17 @@ point_resolver &calc_tools::point_resolver()
     return _point_resolver;
 }
 
-domain::plan::calculator::wall_calculator gui::editor::calc_tools::wall_calculator()
+parameters_redundance_checker &calc_tools::parameters_redundance_checker()
+{
+    return _parameters_redundance_checker;
+}
+
+wall_calculator &calc_tools::wall_calculator()
 {
     return _wall_calculator;
 }
 
-domain::plan::calculator::constraints_builder &gui::editor::calc_tools::constraints_builder()
+constraints_builder &gui::editor::calc_tools::constraints_builder()
 {
     return _constraints_builder;
 }

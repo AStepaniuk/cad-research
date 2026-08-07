@@ -113,10 +113,16 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
     {
         for (const auto& p : _document.active_wall_snaps.parameters())
         {
-            _document.model.data().put(p.second);
+            if (!_tools.parameters_redundance_checker().is_parameter_redundant(p.second))
+            {
+                _document.model.data().put(p.second);
+            }
         }
 
         needs_recalculation = true;
+
+        std::cout << std::endl << "Parameters updated:" << std::endl;
+        std::cout << _document.model.data().items<parameter::parameter>();
     }
 
     if (post_actions.pl_replacement)

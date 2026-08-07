@@ -15,7 +15,7 @@ namespace domain::plan::calculator
         resolver::point_resolver& _pr;
         floor_query& _fq;
 
-        public:
+    public:
         constraints_builder(model::floor &floor, resolver::point_resolver& pr, floor_query& fq);
 
         void rebuild_all_constraints();
