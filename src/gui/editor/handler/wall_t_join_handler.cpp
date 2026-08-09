@@ -92,36 +92,59 @@ bool wall_t_join_handler::wall_move(
             continue;
         }
 
-        // check if wall already has h/v 0-offset snap
-        // TODO: review logic of creating aligned consraint.
-        // current implementation has the issue with w/h alignments
-        bool existing_snap = false;
+        // check if wall already has h/v alignment
+        std::optional<corecad::model::coordinate2d> t_joint_wall_alignment;
 
-        auto distances = _document.active_wall_snaps.parameters()
-            | views::take_model_variants<parameter::distance>();
-        for (const auto& d : distances)
+        auto distances_pairs = _document.model.data().items<parameter::parameter>()
+            | views::take_model_variants_with_ids<parameter::distance>();
+        for (const auto& dp : distances_pairs)
         {
+            const auto& d = dp.second;
+
             if (d.value == 0.0)
             {
                 auto from = _ct.point_resolver().resolve(d.from);
-                auto *wa_from = std::get_if<wall_axis_point::index_t>(&from);
-                if (wa_from && (*wa_from == sp.index || *wa_from == ep.index))
-                {
-                    existing_snap = true;
-                    break;
-                }
- 
                 auto to = _ct.point_resolver().resolve(d.to);
+ 
+                auto *wa_from = std::get_if<wall_axis_point::index_t>(&from);
                 auto *wa_to = std::get_if<wall_axis_point::index_t>(&to);
-                if (wa_to && (*wa_to == sp.index || *wa_to == ep.index))
+
+                if (wa_from && wa_to 
+                    && (*wa_from == sp.index || *wa_from == ep.index) 
+                    && (*wa_to == sp.index || *wa_to == ep.index)
+                )
                 {
-                    existing_snap = true;
+                    t_joint_wall_alignment = d.direction;
+                    _t_joint_wall_alignment_id = dp.first;
                     break;
                 }
             }
         }
 
-        if (!existing_snap)
+        if (t_joint_wall_alignment)
+        {
+            _document.active_wall_snaps.add(
+                parameter::parameter::create<parameter::distance>(
+                    parameter::wall_axis_point_locator { p.first, &wall_axis_line::s },
+                    _document.active_handle.value().handle_locators()[0],
+                    0.0,
+                    t_joint_wall_alignment.value()
+                ),
+                0.0,
+                sp.index, ep.index
+            );
+            _document.active_wall_snaps.add(
+                parameter::parameter::create<parameter::distance>(
+                    _document.active_handle.value().handle_locators()[0],
+                    parameter::wall_axis_point_locator { p.first, &wall_axis_line::e },
+                    0.0,
+                    t_joint_wall_alignment.value()
+                ),
+                0.0,
+                sp.index, ep.index
+            );
+        }
+        else
         {
             _document.active_wall_snaps.add(
                 parameter::parameter::create<parameter::colinear>(
@@ -172,6 +195,11 @@ post_apply_actions wall_t_join_handler::apply()
     const auto new_aid = _document.model.data().make<wall_axis_line>(ahid, epid);
     const auto new_wid = _document.model.data().make<wall>(new_aid, w.width);
     _document.model.data().get(new_wid).axis_offset = w.axis_offset;
+
+    if (_t_joint_wall_alignment_id)
+    {
+        _document.model.data().erase(_t_joint_wall_alignment_id);
+    }
 
     return post_apply_actions
     {

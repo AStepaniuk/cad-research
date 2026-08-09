@@ -19,6 +19,7 @@ namespace gui::editor::handler
         calc_tools& _ct;
         
         std::optional<domain::plan::model::shape::wall::index_t> _t_joint_wall;
+        domain::plan::model::parameter::parameter::index_t _t_joint_wall_alignment_id;
 
     public:
         wall_t_join_handler(doc::document &doc, floor_view& v, calc_tools& ct);

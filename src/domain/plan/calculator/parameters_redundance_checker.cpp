@@ -1,5 +1,7 @@
 #include "parameters_redundance_checker.h"
 
+#include "overloaded.h"
+
 using namespace domain::plan::calculator;
 
 parameters_redundance_checker::parameters_redundance_checker(floor_query &fq, resolver::point_resolver& pr)
@@ -10,17 +12,24 @@ parameters_redundance_checker::parameters_redundance_checker(floor_query &fq, re
 
 bool parameters_redundance_checker::is_parameter_redundant(const model::parameter::parameter &p)
 {
-    
-    if (const auto* d = std::get_if<model::parameter::parameter::concrete_t<model::parameter::distance>>(&p.instance); d)
+    return std::visit(corecad::util::overloaded
     {
-        const auto from = _pr.resolve(d->from);
-        const auto to = _pr.resolve(d->to);
+        [&](const model::parameter::parameter::concrete_t<model::parameter::distance>& d) {
+            const auto from = _pr.resolve(d.from);
+            const auto to = _pr.resolve(d.to);
 
-        if (_fq.are_points_constrained_on_coordinate(from, to, d->direction))
-        {
-            return true;
+            if (_fq.are_points_constrained_on_coordinate(from, to, d.direction))
+            {
+                return true;
+            }
+
+            return false;
+        },
+        [&](const model::parameter::parameter::concrete_t<model::parameter::colinear>& c) {
+            return false;
+        },
+        [&](const model::parameter::parameter::concrete_t<model::parameter::pinned>& p) {
+            return false;
         }
-    }
-
-    return false;
+    }, p.instance);
 }
