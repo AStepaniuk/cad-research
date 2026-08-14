@@ -81,7 +81,12 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     }
 
     // update model
-    _tools.run_full_pipeline();
+    const auto* pl = _document.active_handle->point_locator_of_type<parameter::wall_axis_point_locator>();
+    if (pl && pl->wid)
+    {
+        // ensure if active handle has valid point locator. I.e. there is no incomplete parameters generated
+        _tools.run_full_pipeline();
+    }
 
     return action_handle_status::operation_continues;
 }
@@ -163,6 +168,13 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
             }, p.instance);
         }
     };
+
+    const auto* pl = _document.active_handle->point_locator_of_type<parameter::wall_axis_point_locator>();
+    if (pl && pl->wid)
+    {
+        // ensure if active handle has valid point locator. I.e. there is no incomplete parameters generated
+        needs_recalculation = false;
+    }
 
     if(needs_recalculation)
     {

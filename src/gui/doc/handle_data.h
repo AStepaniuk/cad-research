@@ -5,8 +5,10 @@
 
 #include "parameter.h"
 #include "floor.h"
+#include "overloaded.h"
 
-namespace gui::doc {
+namespace gui::doc
+{
     class handle_data
     {
     public:
@@ -39,6 +41,21 @@ namespace gui::doc {
         {
             const auto* hid_ptr = std::get_if<typename TPoint::index_t>(&_handle_id);
             return hid_ptr ? *hid_ptr : typename TPoint::index_t {};
+        }
+
+        template <typename TConcreteLocator>
+        const TConcreteLocator* point_locator_of_type() const
+        {
+            for (const auto& pl : _handle_locators)
+            {
+                const auto* res = std::get_if<TConcreteLocator>(&pl);
+                if (res)
+                {
+                    return res;
+                }   
+            }
+            
+            return nullptr;
         }
 
     private:
