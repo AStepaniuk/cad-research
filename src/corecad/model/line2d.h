@@ -17,6 +17,7 @@ namespace corecad::model
     public:
         using point_t = vector2d<Tag>;
         using point_property_t = property<typename point_t::index_t, line2d>;
+        using base_t = corecad::model::model_base<line2d>;
 
         line2d(point_t::index_t start, point_t::index_t end)
             : s { this, start }
@@ -25,14 +26,14 @@ namespace corecad::model
         }
 
         line2d(const line2d& other) 
-            : corecad::model::model_base<line2d> { other }
+            : base_t { other }
             , s { this, other.s }
             , e { this, other.e } 
         {
         }
 
         line2d(line2d&& other) noexcept
-            : corecad::model::model_base<line2d> { other }
+            : base_t { std::move(other) }
             , s { this, other.s }
             , e { this, other.e }
         {
@@ -54,13 +55,15 @@ namespace corecad::model
     template<typename Tag>
     std::ostream& operator<<(std::ostream& os, const line2d<Tag>& l)
     {
-        return os << static_cast<const corecad::model::model_base<line2d<Tag>>&>(l) << ": " << l.s << " - " << l.e;
+        using base_t = corecad::model::model_base<line2d<Tag>>;
+        return os << static_cast<const base_t&>(l) << ": " << l.s << " - " << l.e;
     }
 
-    template <typename Tag>
-    using point_on_line_ptr = line2d<Tag>::point_property_t line2d<Tag>::*;
 
-    template<typename Tag>
+    template <typename Tag>
+    using point_on_line_ptr = typename line2d<Tag>::point_property_t line2d<Tag>::*;
+
+    template <typename Tag>
     std::ostream& operator<<(std::ostream& os, const point_on_line_ptr<Tag>& pol)
     {
         if (pol == &line2d<Tag>::s) return os << 's';
