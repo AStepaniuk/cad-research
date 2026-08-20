@@ -34,7 +34,7 @@ bool gui::editor::snap::snap_processor::process()
         );
 
         const auto result = _calc_tools.constraints_calculator().recalculate_all(
-            constraints
+            constraints | std::views::values
         );
 
         if (result == constraint_calculation_result::success)

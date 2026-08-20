@@ -4,9 +4,9 @@
 #include <ranges>
 #include <iostream>
 
-#include "trackable_registry.h"
+#include "registry.h"
 
-namespace corecad { namespace model { namespace history
+namespace corecad::model::history
 {
     template<typename TModel>
     struct transaction_data
@@ -17,13 +17,14 @@ namespace corecad { namespace model { namespace history
         std::vector<TModel> deleted_items;
     };
     
-    template<typename TModel>
+    template<typename TModel, typename TUserData>
     class model_history
     {
     public:
-        using registry_t = trackable_registry<TModel, model_history>;
+        using registry_t = trackable_registry<TModel, model_history, TUserData>;
+        using model_t = TModel;
 
-        void track(registry_t* registry, transaction_data<TModel>* _transaction_data)
+        void track(registry_t* registry, transaction_data<model_t>* _transaction_data)
         {
             _active_transaction = _transaction_data;
             _registry = registry;
@@ -35,7 +36,7 @@ namespace corecad { namespace model { namespace history
             // gather post-updated item first
             _active_transaction->post_modified_items =
                 _active_transaction->pre_modified_items
-                | std::views::transform([this](const TModel& pre_modified) {
+                | std::views::transform([this](const model_t& pre_modified) {
                     return _registry->get(pre_modified.index);
                 })
                 | std::ranges::to<std::vector>();
@@ -57,12 +58,12 @@ namespace corecad { namespace model { namespace history
             }
         }
 
-        void undo_transaction(const transaction_data<TModel>* transaction)
+        void undo_transaction(const transaction_data<model_t>* transaction)
         {
             do_undo_transaction(transaction);
         }
 
-        void redo_transaction(const transaction_data<TModel>* transaction)
+        void redo_transaction(const transaction_data<model_t>* transaction)
         {
             do_redo_transaction(transaction);
         }
@@ -77,12 +78,12 @@ namespace corecad { namespace model { namespace history
             _suspended = false;
         }
 
-        void item_updating(const TModel& model)
+        void item_updating(const model_t& model)
         {
             if (!_suspended && _active_transaction)
             {
                 auto it = std::ranges::find_if(
-                    _active_transaction->added_items, [&model](const TModel& m) {
+                    _active_transaction->added_items, [&model](const model_t& m) {
                         return m.index == model.index;
                     }
                 );
@@ -95,7 +96,7 @@ namespace corecad { namespace model { namespace history
             }
         }
 
-        void item_created(const TModel& model)
+        void item_created(const model_t& model)
         {
             if (!_suspended && _active_transaction)
             {
@@ -103,13 +104,13 @@ namespace corecad { namespace model { namespace history
             }
         }
 
-        void item_deleting(const TModel& model)
+        void item_deleting(const model_t& model)
         {
             if (!_suspended && _active_transaction)
             {
                 // check if the item was added in the current transaction
                 auto added_it = std::ranges::find_if(
-                    _active_transaction->added_items, [&model](const TModel& m) {
+                    _active_transaction->added_items, [&model](const model_t& m) {
                         return m.index == model.index;
                     }
                 );
@@ -122,7 +123,7 @@ namespace corecad { namespace model { namespace history
                 
                 // check if item was modified before deleting
                 auto modified_it = std::ranges::find_if(
-                    _active_transaction->pre_modified_items, [&model](const TModel& m) {
+                    _active_transaction->pre_modified_items, [&model](const model_t& m) {
                         return m.index == model.index;
                     }
                 );
@@ -142,7 +143,7 @@ namespace corecad { namespace model { namespace history
 
     private:
         registry_t* _registry;
-        transaction_data<TModel>* _active_transaction;
+        transaction_data<model_t>* _active_transaction;
 
         bool _suspended = false;
 
@@ -154,7 +155,7 @@ namespace corecad { namespace model { namespace history
             }
         }
 
-        void do_undo_transaction(const transaction_data<TModel>* transaction)
+        void do_undo_transaction(const transaction_data<model_t>* transaction)
         {
             for (const auto& m : transaction->added_items)
             {
@@ -172,7 +173,7 @@ namespace corecad { namespace model { namespace history
             }
         }
 
-        void do_redo_transaction(const transaction_data<TModel>* transaction)
+        void do_redo_transaction(const transaction_data<model_t>* transaction)
         {
             for (const auto& m : transaction->added_items)
             {
@@ -190,4 +191,4 @@ namespace corecad { namespace model { namespace history
             }
         }
     };
-}}}
+}

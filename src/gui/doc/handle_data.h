@@ -12,23 +12,11 @@ namespace gui::doc
     class handle_data
     {
     public:
-        using point_locator_t = domain::plan::model::parameter::point_locator_t;
         using point_id_t = domain::plan::model::shape::wall_points_ids_tl::variant_t;
 
         handle_data(point_id_t id)
-            : _handle_locators{ }
-            , _handle_id{ std::move(id) }
+            : _handle_id{ std::move(id) }
         {}
-
-        handle_data(std::vector<point_locator_t> vl, point_id_t id)
-            : _handle_locators{ std::move(vl) }
-            , _handle_id{ std::move(id) }
-        {}
-
-        const std::vector<point_locator_t>& handle_locators() const noexcept
-        {
-            return _handle_locators;
-        }
 
         const point_id_t& handle_id() const noexcept
         {
@@ -43,24 +31,7 @@ namespace gui::doc
             return hid_ptr ? *hid_ptr : typename TPoint::index_t {};
         }
 
-        template <typename TConcreteLocator>
-        const TConcreteLocator* point_locator_of_type() const
-        {
-            for (const auto& pl : _handle_locators)
-            {
-                const auto* res = std::get_if<TConcreteLocator>(&pl);
-                if (res)
-                {
-                    return res;
-                }   
-            }
-            
-            return nullptr;
-        }
-
     private:
-        // empty if handle point has no locator yet
-        std::vector<point_locator_t> _handle_locators;
         point_id_t _handle_id;
     };
 

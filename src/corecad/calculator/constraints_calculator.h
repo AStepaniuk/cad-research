@@ -21,31 +21,26 @@ namespace corecad::calculator
 {
     enum class constraint_calculation_result { success, failed };
 
-    template <typename TConstraintModel>
+    template <typename TConstraintModel, typename TRegistryPool>
     class constraints_calculator;
 
-    template <template<typename...> typename TConstraintModel, typename TUserData, typename... TVectorIndex>
+    template <template<typename> typename TConstraintModel, typename TRegistryPool, typename... TVectorIndex>
     requires (
-        model::constraint::IsConstraint<TConstraintModel<corecad::util::type_list<TVectorIndex...>, TUserData>>
+        model::constraint::IsConstraint<TConstraintModel<corecad::util::type_list<TVectorIndex...>>>
         && (model::IsVector2D<typename TVectorIndex::tag_t> && ...)
     )
-    class constraints_calculator<TConstraintModel<corecad::util::type_list<TVectorIndex...>, TUserData>>
+    class constraints_calculator<TConstraintModel<corecad::util::type_list<TVectorIndex...>>, TRegistryPool>
     {
-        template<typename TVec>
-        using registry_ref_t = std::reference_wrapper<corecad::model::registry<TVec>>;
-
     public:
-        using constraint_t = TConstraintModel<corecad::util::type_list<TVectorIndex...>, TUserData>;
+        using constraint_t = TConstraintModel<corecad::util::type_list<TVectorIndex...>>;
 
-        constraints_calculator(corecad::model::registry<typename TVectorIndex::tag_t>&... points)
-            : _points { std::ref(points)... }
+        constraints_calculator(TRegistryPool& data)
+            : _data { data }
         {}
 
-        constraint_calculation_result recalculate_all(
-            const corecad::model::registry<constraint_t>& constraints
-        )
+        constraint_calculation_result recalculate_all()
         {
-            return recalculate_all(constraints | std::views::values);
+            return recalculate_all(_data.template items<constraint_t>() | std::views::values);
         }
 
         template <typename R>
@@ -60,9 +55,7 @@ namespace corecad::calculator
             std::vector<double> gcs_params;
             std::unordered_set<size_t> gcs_constants;
 
-            auto total_points_size = std::apply([](const auto&... registries) {
-                return (registries.get().size() + ... + 0);
-            }, _points);
+            auto total_points_size = (_data.template size<typename TVectorIndex::tag_t>() + ...);
 
             gcs_points.resize(total_points_size);
             gcs_params.resize(total_points_size * 2);
@@ -83,8 +76,7 @@ namespace corecad::calculator
 
                     std::visit([&] (auto p_id) {
                         using vector2d_t = decltype(p_id)::tag_t;
-                        const auto& registry_ref = std::get<registry_ref_t<vector2d_t>>(_points);
-                        const auto& p = registry_ref.get().get(p_id);
+                        const auto& p = _data.get(p_id);
 
                         *(gcs_p.x) = p.x;
                         *(gcs_p.y) = p.y;
@@ -181,8 +173,7 @@ namespace corecad::calculator
                 {
                     std::visit([&] (auto p_id) {
                         using vector2d_t = decltype(p_id)::tag_t;
-                        auto& registry_ref = std::get<registry_ref_t<vector2d_t>>(_points);
-                        auto& p = registry_ref.get().get(p_id);
+                        auto& p = _data.get(p_id);
                         p.x = *(pair.second->x);
                         p.y = *(pair.second->y);
                     } , pair.first);
@@ -195,6 +186,6 @@ namespace corecad::calculator
     private:
         GCS::System m_sys;
 
-        std::tuple<registry_ref_t<typename TVectorIndex::tag_t>...> _points;
+        TRegistryPool& _data;
     };
 }

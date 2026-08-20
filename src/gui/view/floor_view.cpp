@@ -50,15 +50,11 @@ namespace
     }
 }
 
-floor_view::floor_view(const doc::document &doc, domain::plan::resolver::point_resolver& pr)
+floor_view::floor_view(const doc::document &doc)
     : _document { doc }
-    , _translator
-    {
-        _document.model.data().items<wall_axis_point>(),
-        _document.model.data().items<wall_border_point>()
-    }
+    , _translator { _document.model.data() }
     , _walls_view { _document, _translator }
-    , _parameters_view { _document, _translator, pr }
+    , _parameters_view { _document, _translator }
 {
 }
 

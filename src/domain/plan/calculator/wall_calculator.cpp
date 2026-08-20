@@ -237,15 +237,16 @@ void wall_calculator::calculate_stub_wall_start_borders(wall& w)
     const auto left_p = calculate_point_with_offset_from_line(start_p, end_p, left_offset);
     const auto right_p = calculate_point_with_offset_from_line(start_p, end_p, right_offset);
 
-    auto& stub_border = find_or_create_border({ w.index, &wall::start_stub });
-    auto& left_border = find_or_create_border({ w.index, &wall::left });
-    auto& right_border = find_or_create_border({ w.index, &wall::right });
-
-    assign_point_to_borders(left_border, &wall_border_line::s, stub_border, &wall_border_line::s, left_p);
-    assign_point_to_borders(right_border, &wall_border_line::s, stub_border, &wall_border_line::e, right_p);
-
-    w.left = left_border.index;
-    w.start_stub = stub_border.index;
+    assign_point_and_borders_to_walls(
+        w, &wall::left, &wall_border_line::s,
+        w, &wall::start_stub, &wall_border_line::s,
+        left_p
+    );
+    assign_point_and_borders_to_walls(
+        w, &wall::right, &wall_border_line::s,
+        w, &wall::start_stub, &wall_border_line::e, 
+        right_p
+    );
 }
 
 void wall_calculator::calculate_stub_wall_end_borders(wall& w)
@@ -261,15 +262,16 @@ void wall_calculator::calculate_stub_wall_end_borders(wall& w)
     auto left_p = calculate_point_with_offset_from_line(end_p, start_p, left_offset);
     auto right_p = calculate_point_with_offset_from_line(end_p, start_p, right_offset);
 
-    auto& stub_border = find_or_create_border({ w.index, &wall::end_stub });
-    auto& left_border = find_or_create_border({ w.index, &wall::left });
-    auto& right_border = find_or_create_border({ w.index, &wall::right });
-
-    assign_point_to_borders(left_border, &wall_border_line::e, stub_border, &wall_border_line::s, left_p);
-    assign_point_to_borders(right_border, &wall_border_line::e, stub_border, &wall_border_line::e, right_p);
-
-    w.right = right_border.index;
-    w.end_stub = stub_border.index;
+    assign_point_and_borders_to_walls(
+        w, &wall::left, &wall_border_line::e,
+        w, &wall::end_stub, &wall_border_line::s,
+        left_p
+    );
+    assign_point_and_borders_to_walls(
+        w, &wall::right, &wall_border_line::e,
+        w, &wall::end_stub, &wall_border_line::e, 
+        right_p
+    );
 }
 
 void wall_calculator::recalculate_wall_joints(wall& w, walls_joints& joints)
@@ -510,15 +512,31 @@ wall_border_point::index_t wall_calculator::find_or_create_point(
     return it->second.index;
 }
 
-void wall_calculator::assign_point_to_borders(
-    wall_border_line &b1, point_on_wall_border_ptr p1_ptr,
-    wall_border_line &b2, point_on_wall_border_ptr p2_ptr,
+void wall_calculator::assign_point_and_borders_to_walls(
+    wall& w1, wall_border_line_ptr b1_ptr, point_on_wall_border_ptr p1_ptr,
+    wall& w2, wall_border_line_ptr b2_ptr, point_on_wall_border_ptr p2_ptr,
     const wall_border_point &point
 )
 {
+    auto& b1 = find_or_create_border({ w1.index, b1_ptr });
+    auto& b2 = find_or_create_border({ w2.index, b2_ptr });
+
+    w1.*b1_ptr = b1.index;
+    w2.*b2_ptr = b2.index;
+
     const auto pi = find_or_create_point({b1.index, p1_ptr, b2.index, p2_ptr}, point);
     b1.*p1_ptr = pi;
     b2.*p2_ptr = pi;
+
+    auto& bpud = _floor.data().user_data(pi);
+
+    bpud.point_locators[0].wall_id = w1.index;
+    bpud.point_locators[0].border_ptr = b1_ptr;
+    bpud.point_locators[0].point_on_border_ptr = p1_ptr;
+
+    bpud.point_locators[1].wall_id = w2.index;
+    bpud.point_locators[1].border_ptr = b2_ptr;
+    bpud.point_locators[1].point_on_border_ptr = p2_ptr;
 }
 
 wall_border_line &wall_calculator::find_or_create_border(const wall_border_geometry_id &id)
@@ -584,28 +602,27 @@ void wall_calculator::assign_walls_intersection_pair(
 {
     if (!intersection_pair.second)
     {
-        auto& w1_border = find_or_create_border({ wall1.index, wall1_line_ptr });
-        auto& w2_border = find_or_create_border({ wall2.index, wall2_line_ptr });
-
-        assign_point_to_borders(w1_border, wall1_point_ptr, w2_border, wall2_point_ptr, intersection_pair.first);
- 
-        wall1.*wall1_line_ptr = w1_border.index;
-        wall2.*wall2_line_ptr = w2_border.index;
+        assign_point_and_borders_to_walls(
+            wall1, wall1_line_ptr, wall1_point_ptr,
+            wall2, wall2_line_ptr, wall2_point_ptr,
+            intersection_pair.first
+        );
     }
     else
     {
         const auto w1_stub_border_ptr = (wall1_point_ptr == &wall_border_line::s) ?
             &wall::start_stub : &wall::end_stub;
 
-        auto& stub_border = find_or_create_border({ wall1.index, w1_stub_border_ptr });
-        auto& w1_border = find_or_create_border({ wall1.index, wall1_line_ptr });
-        auto& w2_border = find_or_create_border({ wall2.index, wall2_line_ptr });
-
-        assign_point_to_borders(w1_border, wall1_point_ptr, stub_border, &wall_border_line::s, intersection_pair.first);
-        assign_point_to_borders(w2_border, wall2_point_ptr, stub_border, &wall_border_line::e, intersection_pair.second.value());
-
-        wall1.*wall1_line_ptr = w1_border.index;
-        wall1.*w1_stub_border_ptr = stub_border.index;
+        assign_point_and_borders_to_walls(
+            wall1, wall1_line_ptr, wall1_point_ptr,
+            wall1, w1_stub_border_ptr, &wall_border_line::s,
+            intersection_pair.first
+        );
+        assign_point_and_borders_to_walls(
+            wall2, wall2_line_ptr, wall2_point_ptr,
+            wall1, w1_stub_border_ptr, &wall_border_line::e,
+            intersection_pair.second.value()
+        );
     }
 }
 

@@ -2,21 +2,19 @@
 
 #include "document.h"
 #include "coord_translator.h"
-#include "point_resolver.h"
 
-namespace gui {
+namespace gui
+{
     class parameters_view
     {
         const doc::document& _document;
 
         const translator_t& _translator;
-        domain::plan::resolver::point_resolver& _point_resolver;
 
     public:
         parameters_view(
             const doc::document& doc,
-            const translator_t & t,
-            domain::plan::resolver::point_resolver& pr
+            const translator_t & t
         );
 
         void render(ImDrawList* draw_list);
@@ -24,6 +22,6 @@ namespace gui {
     private:
         void draw_parameter(ImDrawList* draw_list, const domain::plan::model::parameter::parameter& p, ImU32 color);
 
-        ImVec2 to_view(const domain::plan::model::parameter::point_locator_t& pl) const;
+        ImVec2 to_view(const domain::plan::model::shape::wall_point_id_t& pid) const;
     };
 }

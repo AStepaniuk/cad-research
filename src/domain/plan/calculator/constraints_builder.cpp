@@ -10,9 +10,8 @@ using namespace domain::plan::model::parameter;
 using namespace corecad::model;
 using namespace corecad::model::constraint;
 
-constraints_builder::constraints_builder(model::floor &floor, resolver::point_resolver& pr, floor_query& fq)
+constraints_builder::constraints_builder(model::floor &floor, floor_query& fq)
     : _floor { floor }
-    , _pr { pr }
     , _fq { fq }
 {
 }
@@ -26,7 +25,8 @@ void constraints_builder::rebuild_all_constraints()
     // generate parameters-based constraints
     for (const auto& pair : _floor.data().items<parameter>())
     {
-        _floor.data().put(to_constraint(pair.second));
+        const auto cid = _floor.data().put(to_constraint(pair.second));
+        _floor.data().user_data(cid).source_parameter_index = pair.first;
     }
 }
 
@@ -47,53 +47,56 @@ model::floor::constraint_t constraints_builder::to_constraint(const model::param
         {
             [&](const parameter::concrete_t<distance>& d) -> model::floor::constraint_t {
                 // if distance is specified to wall border points, translate it to axis points
-                auto get_wbpl_distance_adjustment = [&](const wall_border_point_locator& wbpl) {
-                    const auto& wall = _floor.data().get(wbpl.wid);
-                    const auto& axis = _floor.data().get(wall.axis);
+                auto get_wbpl_distance_adjustment = [&](const wall_border_point::index_t wbpid) {
+                    const auto& wbp = _floor.data().get(wbpid);
+                    const auto& wbpud = _floor.data().user_data(wbpid);
 
-                    // get axis point index from border point index
-                    auto pid = wbpl.point_on_border_ptr == &wall_border_line::s ? axis.s : axis.e;
-
-                    // adjust distance value
-                    const auto wall_orienation = get_wall_orientation_axis(wall);
-                    if (!wall_orienation)
+                    for (const auto& wbpl : wbpud.point_locators)
                     {
-                        throw std::runtime_error("Distance to diagonal walls is not supported");
-                    }
-
-                    if (wall_orienation.value().axis == d.direction)
-                    {
-                        const auto stub_id = wbpl.point_on_border_ptr == &wall_border_line::s ? wall.start_stub : wall.end_stub;
-                        if (!stub_id)
+                        const auto& wall = _floor.data().get(wbpl.wall_id);
+                        const auto wall_orienation = get_wall_orientation_axis(wall);
+                        if (!wall_orienation)
                         {
-                            throw std::runtime_error("Parallel distance to colinear walls joints is not supported");
+                            // skip diagonal walls
+                            continue;
+                        }
+
+                        // adjust distance value
+                        if (wall_orienation.value().axis == d.direction)
+                        {
+                            if (wbpl.border_ptr == &wall::start_stub || wbpl.border_ptr == &wall::end_stub)
+                            {
+                                // Do nothing. Distance adjustment is not necessary.
+                                const auto& axis = _floor.data().get(wall.axis);
+                                auto pid = wbpl.point_on_border_ptr == &wall_border_line::s ? axis.s : axis.e;
+                                return std::pair<wall_axis_point::index_t, double>(pid, 0.0);
+                            }
                         }
                         else
                         {
-                            // Do nothing. Distance adjustment is not necessary.
-                            return std::pair<wall_axis_point::index_t, double>(pid, 0.0);
-                        }
-                    }
-                    else
-                    {
-                        auto adjustment = wbpl.border_ptr == &wall::left
-                            ? -(wall.width * 0.5 + wall.axis_offset)
-                            : wall.width * 0.5  - wall.axis_offset;
-                        
-                        if (wall_orienation.value().s == sign::neg)
-                        {
-                            adjustment = -adjustment;
-                        }
+                            auto adjustment = wbpl.border_ptr == &wall::left
+                                ? -(wall.width * 0.5 + wall.axis_offset)
+                                : wall.width * 0.5  - wall.axis_offset;
+                            
+                            if (wall_orienation.value().s == sign::neg)
+                            {
+                                adjustment = -adjustment;
+                            }
 
-                        return std::pair<wall_axis_point::index_t, double>(pid, adjustment);
+                            const auto& axis = _floor.data().get(wall.axis);
+                            auto pid = wbpl.point_on_border_ptr == &wall_border_line::s ? axis.s : axis.e;
+                            return std::pair<wall_axis_point::index_t, double>(pid, adjustment);
+                        }
                     }
+
+                    throw std::runtime_error("Could not adjust distance to wall border");
                 };
                 
                 auto adjusted_distance = d.value.val();
 
                 auto from_adjustment = std::visit(corecad::util::overloaded{
-                    [&](const wall_axis_point_locator& wapl) {
-                        return std::pair<wall_axis_point::index_t, double>(std::get<wall_axis_point::index_t>(_pr.resolve(wapl)), 0.0);
+                    [&](const wall_axis_point::index_t& waid) {
+                        return std::pair<wall_axis_point::index_t, double>(waid, 0.0);
                     }, 
                     get_wbpl_distance_adjustment
                 }, d.from.val());
@@ -102,8 +105,8 @@ model::floor::constraint_t constraints_builder::to_constraint(const model::param
                 adjusted_distance += from_adjustment.second;
 
                 auto to_adjustment = std::visit(corecad::util::overloaded{
-                    [&](const wall_axis_point_locator& wapl) {
-                        return std::pair(std::get<wall_axis_point::index_t>(_pr.resolve(wapl)), 0.0);
+                    [&](const wall_axis_point::index_t& waid) {
+                        return std::pair<wall_axis_point::index_t, double>(waid, 0.0);
                     }, 
                     get_wbpl_distance_adjustment
                 }, d.to.val());
@@ -114,22 +117,14 @@ model::floor::constraint_t constraints_builder::to_constraint(const model::param
                 return model::floor::constraint_t::create<offset>(pf, pt, adjusted_distance, d.direction);
             },
             [&](const parameter::concrete_t<colinear>& c) -> model::floor::constraint_t {
-                const auto& p1 = _pr.resolve(c.point1);
-                const auto& p2 = _pr.resolve(c.point2);
-                const auto& p3 = _pr.resolve(c.point3);
-
-                return model::floor::constraint_t::create<aligned>(p1, p2, p3);
+                return model::floor::constraint_t::create<aligned>(c.point1, c.point2, c.point3);
             },
             [&](const parameter::concrete_t<pinned>& p) -> model::floor::constraint_t {
-                const auto& point = _pr.resolve(p.point);
-
-                return model::floor::constraint_t::create<fixed>(point, p.value, p.coordinate);
+                return model::floor::constraint_t::create<fixed>(p.point, p.value, p.coordinate);
             }
         },
         p.instance
     );
-
-    result.user_data.source_parameter_index = p.index;
 
     return result;
 }
@@ -148,15 +143,13 @@ std::optional<constraints_builder::wall_orientation> constraints_builder::get_wa
             continue;
         }
 
-        const auto from = _pr.resolve(d.from);
-        const auto* from_a = std::get_if<wall_axis_point::index_t>(&from);
+        const auto* from_a = std::get_if<wall_axis_point::index_t>(&d.from.val());
         if (!from_a)
         {
             continue;
         }
 
-        const auto to = _pr.resolve(d.to);
-        const auto* to_a = std::get_if<wall_axis_point::index_t>(&to);
+        const auto* to_a = std::get_if<wall_axis_point::index_t>(&d.to.val());
         if (!to_a)
         {
             continue;
@@ -165,7 +158,7 @@ std::optional<constraints_builder::wall_orientation> constraints_builder::get_wa
         if (
             ((*from_a) == axis.s || (*to_a) == axis.s) &&
             ((*from_a) == axis.e || (*to_a) == axis.e) &&
-            (from != to) // this should never occur. Safety guard
+            (d.from != d.to) // this should never occur. Safety guard
         )
         {
             auto dist = d.value;

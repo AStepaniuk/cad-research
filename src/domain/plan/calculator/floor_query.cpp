@@ -17,28 +17,6 @@ floor_query::floor_query(model::floor &floor)
 {
 }
 
-std::vector<point_locator_t> floor_query::find_locators(wall_axis_point::index_t pid)
-{
-    std::vector<point_locator_t> result;
-
-    for (const auto& wp : _floor.data().items<wall>())
-    {
-        const auto& al = _floor.data().get(wp.second.axis);
-
-        if (al.s == pid)
-        {
-            result.push_back(wall_axis_point_locator { wp.first, &wall_axis_line::s });
-        }
-
-        if (al.e == pid)
-        {
-            result.push_back(wall_axis_point_locator { wp.first, &wall_axis_line::e });
-        }
-    }
-
-    return result;
-}
-
 using point_id_t = model::floor::constraint_t::point_id_t;
 
 bool floor_query::are_points_constrained_on_coordinate(const point_id_t &p1, const point_id_t &p2, coordinate2d coord)

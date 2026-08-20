@@ -12,8 +12,6 @@ namespace domain::plan::calculator
     public:
         floor_query(model::floor& floor);
 
-        std::vector<model::parameter::point_locator_t> find_locators(model::shape::wall_axis_point::index_t pid);
-
         bool are_points_constrained_on_coordinate(
             const model::floor::constraint_t::point_id_t& p1,
             const model::floor::constraint_t::point_id_t& p2,

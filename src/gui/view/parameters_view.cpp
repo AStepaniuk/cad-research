@@ -8,7 +8,6 @@
 using namespace gui;
 using namespace domain::plan::model::shape;
 using namespace domain::plan::model::parameter;
-using namespace domain::plan::resolver;
 using namespace corecad::model;
 
 namespace
@@ -48,10 +47,9 @@ namespace
     }
 }
 
-parameters_view::parameters_view(const doc::document &doc, const translator_t &t, point_resolver& pr)
+parameters_view::parameters_view(const doc::document &doc, const translator_t &t)
     : _document { doc }
     , _translator { t }
-    , _point_resolver { pr }
 {
 }
 
@@ -189,11 +187,11 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
     );
 }
 
-ImVec2 parameters_view::to_view(const point_locator_t &pl) const
+ImVec2 parameters_view::to_view(const wall_point_id_t &pid) const
 {
-    return std::visit([this](const auto& pid) {
-            return _translator.to_view(pid);
+    return std::visit([this](const auto& concrete_pid) {
+            return _translator.to_view(concrete_pid);
         }
-        , _point_resolver.resolve(pl)
+        , pid
     );
 }

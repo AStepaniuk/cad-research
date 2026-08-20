@@ -25,7 +25,7 @@ bool wall_t_join_handler::wall_move(
     wall_axis_point& model_pos
 )
 {
-    if (!_document.active_handle || _document.active_handle->handle_locators().empty())
+    if (!_document.active_handle)
     {
         return false;
     }
@@ -41,21 +41,12 @@ bool wall_t_join_handler::wall_move(
 
     for (const auto& p : _document.model.data().items<wall>())
     {
-        auto is_wall_active = std::ranges::any_of(_document.active_handle->handle_locators(), [&p](const auto& hl) {
-            if (const auto* wapl = std::get_if<parameter::wall_axis_point_locator>(&hl))
-            {
-                return wapl->wid == p.first;
-            }
+        const auto& axis = _document.model.data().get(p.second.axis);
 
-            return false;
-        });
-
-        if (is_wall_active)
+        if (axis.s == ahid || axis.e == ahid)
         {
             continue;
         }
-
-        const auto& axis = _document.model.data().get(p.second.axis);
 
         const auto& sp = _document.model.data().get(axis.s);
         const auto& ep = _document.model.data().get(axis.e);
@@ -103,11 +94,8 @@ bool wall_t_join_handler::wall_move(
 
             if (d.value == 0.0)
             {
-                auto from = _ct.point_resolver().resolve(d.from);
-                auto to = _ct.point_resolver().resolve(d.to);
- 
-                auto *wa_from = std::get_if<wall_axis_point::index_t>(&from);
-                auto *wa_to = std::get_if<wall_axis_point::index_t>(&to);
+                auto *wa_from = std::get_if<wall_axis_point::index_t>(&(d.from.val()));
+                auto *wa_to = std::get_if<wall_axis_point::index_t>(&(d.to.val()));
 
                 if (wa_from && wa_to 
                     && (*wa_from == sp.index || *wa_from == ep.index) 
@@ -125,8 +113,8 @@ bool wall_t_join_handler::wall_move(
         {
             _document.active_wall_snaps.add(
                 parameter::parameter::create<parameter::distance>(
-                    parameter::wall_axis_point_locator { p.first, &wall_axis_line::s },
-                    _document.active_handle.value().handle_locators()[0],
+                    sp.index,
+                    ahid,
                     0.0,
                     t_joint_wall_alignment.value()
                 ),
@@ -135,8 +123,8 @@ bool wall_t_join_handler::wall_move(
             );
             _document.active_wall_snaps.add(
                 parameter::parameter::create<parameter::distance>(
-                    _document.active_handle.value().handle_locators()[0],
-                    parameter::wall_axis_point_locator { p.first, &wall_axis_line::e },
+                    ahid,
+                    ep.index,
                     0.0,
                     t_joint_wall_alignment.value()
                 ),
@@ -148,9 +136,9 @@ bool wall_t_join_handler::wall_move(
         {
             _document.active_wall_snaps.add(
                 parameter::parameter::create<parameter::colinear>(
-                    parameter::wall_axis_point_locator { p.first, &wall_axis_line::s },
-                    _document.active_handle.value().handle_locators()[0],
-                    parameter::wall_axis_point_locator { p.first, &wall_axis_line::e }
+                    sp.index,
+                    ahid,
+                    ep.index
                 ),
                 0.0,
                 sp.index, ep.index
@@ -201,13 +189,5 @@ post_apply_actions wall_t_join_handler::apply()
         _document.model.data().erase(_t_joint_wall_alignment_id);
     }
 
-    return post_apply_actions
-    {
-        .pl_replacement = point_locator_replacement
-        {
-            .wid_from = w.index,
-            .wid_to = new_wid,
-            .wall_point = &wall_axis_line::e
-        }
-    };
+    return {};
 }

@@ -12,7 +12,8 @@
 #include "property.h"
 #include "type_list.h"
 
-namespace gui {
+namespace gui
+{
     template <typename TList>
     class coord_translator;
 
@@ -21,16 +22,13 @@ namespace gui {
     {
         constexpr static float MinScale = 0.0001;
 
-        template<typename TVec>
-        using registry_ref_t = std::reference_wrapper<const corecad::model::registry<TVec>>;
-
         using vector_list = corecad::util::type_list<TVector...>;
         using vectors_variant = vector_list::variant_t;
         using vectors_indexes_variant = corecad::model::to_index_type_list <vector_list>::type::variant_t;
 
     public:
-        coord_translator(const corecad::model::registry<TVector>&... points)
-            : _points { std::ref(points)... }
+        coord_translator(const domain::plan::model::floor::data_t& data)
+            : _data { data }
         {
         }
 
@@ -92,8 +90,7 @@ namespace gui {
         {
             constexpr std::size_t idx = corecad::util::index_of<typename TIndex::tag_t, vector_list>::value;
 
-            const auto& registry = std::get<idx>(_points).get();
-            return to_view(registry.get(index));
+            return to_view(_data.get(index));
         }
 
         template <corecad::model::IsProperty TProperty>
@@ -123,7 +120,7 @@ namespace gui {
 
 
     private:
-        std::tuple<registry_ref_t<TVector>...> _points;
+        const domain::plan::model::floor::data_t& _data;
 
         int _x_offset = 0;
         int _y_offset = 0;

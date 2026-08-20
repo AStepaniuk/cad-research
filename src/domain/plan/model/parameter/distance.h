@@ -3,13 +3,16 @@
 #include "property.h"
 #include "point_locator.h"
 #include "coordinate2d.h"
+#include "wall.h"
 
 namespace domain::plan::model::parameter
 {
     template<typename TModel>
     struct distance
     {
-        distance(point_locator_t f, point_locator_t t, double v, corecad::model::coordinate2d d)
+        using point_id_t = shape::wall_point_id_t;
+
+        distance(point_id_t f, point_id_t t, double v, corecad::model::coordinate2d d)
             : direction { nullptr, d }
             , from { nullptr, f }
             , to { nullptr, t }
@@ -18,8 +21,8 @@ namespace domain::plan::model::parameter
 
         corecad::model::property<corecad::model::coordinate2d, TModel> direction;
 
-        corecad::model::property<point_locator_t, TModel> from;
-        corecad::model::property<point_locator_t, TModel> to;
+        corecad::model::property<point_id_t, TModel> from;
+        corecad::model::property<point_id_t, TModel> to;
 
         corecad::model::property<double, TModel> value;
 

@@ -10,79 +10,150 @@
 #include "traits.h"
 #include "property.h"
 
-namespace corecad { namespace model
+namespace corecad::model
 {
-    template<typename... TModel>
-    requires (std::derived_from<TModel, model_base<TModel, typename TModel::user_data_t>> && ...)
+    namespace impl
+    {
+        template <typename T>
+        struct model_type
+        {
+            using type = T;
+        };
+
+        template <typename T1, typename T2>
+        struct model_type<std::pair<T1, T2>>
+        {
+            using type = T1;
+        };
+
+        template <typename T>
+        using model_type_t = typename model_type<T>::type;
+
+
+        template <typename T>
+        struct user_data_type
+        {
+            using type = nothing;
+        };
+
+        template <typename T1, typename T2>
+        struct user_data_type<std::pair<T1, T2>>
+        {
+            using type = T2;
+        };
+
+        template <typename T>
+        using user_data_type_t = typename user_data_type<T>::type;
+
+
+        template <typename T, typename... Args>
+        constexpr size_t get_model_index()
+        {
+            bool matches[] = { std::is_same_v<T, model_type_t<Args>>... };
+            for (size_t i = 0; i < sizeof...(Args); ++i)
+            {
+                if (matches[i]) return i;
+            }
+            return -1; // Should be unreachable
+        }
+
+
+        template <typename TQueryModel, typename... TModelDataPack>
+        struct find_model_data_pack;
+
+        template <typename TQueryModel, typename Head, typename... Tail>
+        requires std::is_same_v<TQueryModel, impl::model_type_t<Head>>
+        struct find_model_data_pack<TQueryModel, Head, Tail...>
+        {
+            using data_pack_t = Head;
+        };
+
+        template <typename TQueryModel, typename Head, typename... Tail>
+        struct find_model_data_pack<TQueryModel, Head, Tail...> 
+            : find_model_data_pack<TQueryModel, Tail...> {};
+    }
+
+    template<typename... TModelData>
+    requires (std::derived_from<impl::model_type_t<TModelData>, model_base<impl::model_type_t<TModelData>>> && ...)
     class registry_pool
     {
     public:
+        template <typename TQueryModel>
+        using user_data_type_for_t = impl::user_data_type_t<
+            typename impl::find_model_data_pack<TQueryModel, TModelData...>::data_pack_t
+        >;
+
         template <typename T>
-        requires util::IsOneOf<T, TModel...>
-        const registry<T>& items() const
+        requires util::IsOneOf<T, impl::model_type_t<TModelData>...>
+        const auto& items() const
         {
-            return std::get<registry<T>>(_data);
+            constexpr size_t idx = impl::get_model_index<T, TModelData...>();
+            return std::get<idx>(_data);
         }
 
         template <typename T>
-        requires util::IsOneOf<T, TModel...>
-        registry<T>& items()
+        requires util::IsOneOf<T, impl::model_type_t<TModelData>...>
+        auto& items()
         {
-            return std::get<registry<T>>(_data);
+            constexpr size_t idx = impl::get_model_index<T, TModelData...>();
+            return std::get<idx>(_data);
         }
 
         template <typename T>
-        requires util::IsOneOf<T, TModel...>
+        requires util::IsOneOf<T, impl::model_type_t<TModelData>...>
         void clear()
         {
             items<T>().clear();
         }
 
         template <typename T>
-        requires util::IsOneOf<T, TModel...>
-        T::index_t put(T val)
+        requires util::IsOneOf<T, impl::model_type_t<TModelData>...>
+        typename T::index_t put(T val)
         {
             return items<T>().put(std::move(val));
         }
 
         template<typename U>
-        requires (util::ConstructibleIntoExactlyOne<U, TModel...> && !util::IsOneOf<U, TModel...>)
-        util::unique_constructible_t<U, TModel...>::index_t put(U val)
+        requires (
+            util::ConstructibleIntoExactlyOne<U, impl::model_type_t<TModelData>...>
+            && !util::IsOneOf<U, impl::model_type_t<TModelData>...>
+        )
+        typename util::unique_constructible_t<U, impl::model_type_t<TModelData>...>::index_t put(U val)
         {
-            using T = util::unique_constructible_t<U, TModel...>;
+            using T = util::unique_constructible_t<U, impl::model_type_t<TModelData>...>;
             return put(T { std::move(val) });
         }
 
         template <typename T, typename... TArgs>
-        requires util::IsOneOf<T, TModel...>
+        requires util::IsOneOf<T, impl::model_type_t<TModelData>...>
         T::index_t make(TArgs&&... vals)
         {
             return items<T>().make(vals...);
         }
 
         template <typename T>
-        requires util::IsOneOf<T, TModel...>
+        requires util::IsOneOf<T, impl::model_type_t<TModelData>...>
         void restore(T val)
         {
             return items<T>().restore(std::move(val));
         }
 
         template <typename TIndex>
-        requires util::IsOneOf<typename TIndex::tag_t, TModel...>
+        requires util::IsOneOf<typename TIndex::tag_t, impl::model_type_t<TModelData>...>
         bool erase(const TIndex& index)
         {
             return items<typename TIndex::tag_t>().erase(index);
         }
 
         template <typename TIndex>
-        requires (!IsProperty<TIndex> && util::IsOneOf<typename TIndex::tag_t, TModel...>)
+        requires (!IsProperty<TIndex> && util::IsOneOf<typename TIndex::tag_t, impl::model_type_t<TModelData>...>)
         const typename TIndex::tag_t& get(const TIndex& index) const
         {
             return items<typename TIndex::tag_t>().get(index);
         }
  
         template <typename TIndex>
-        requires (!IsProperty<TIndex> && util::IsOneOf<typename TIndex::tag_t, TModel...>)
+        requires (!IsProperty<TIndex> && util::IsOneOf<typename TIndex::tag_t, impl::model_type_t<TModelData>...>)
         typename TIndex::tag_t& get(const TIndex& index)
         {
             return items<typename TIndex::tag_t>().get(index);
@@ -90,7 +161,7 @@ namespace corecad { namespace model
 
         template <IsProperty TProperty>
         requires (IsRegistryIndex<typename TProperty::value_t>
-            && util::IsOneOf<typename TProperty::value_t::tag_t, TModel...>)
+            && util::IsOneOf<typename TProperty::value_t::tag_t, impl::model_type_t<TModelData>...>)
         const typename TProperty::value_t::tag_t& get(const TProperty& index_prop) const
         {
             return items<typename TProperty::value_t::tag_t>().get(index_prop.val());
@@ -98,10 +169,40 @@ namespace corecad { namespace model
 
         template <IsProperty TProperty>
         requires (IsRegistryIndex<typename TProperty::value_t>
-            && util::IsOneOf<typename TProperty::value_t::tag_t, TModel...>)
+            && util::IsOneOf<typename TProperty::value_t::tag_t, impl::model_type_t<TModelData>...>)
         typename TProperty::value_t::tag_t& get(const TProperty& index_prop)
         {
             return items<typename TProperty::value_t::tag_t>().get(index_prop.val());
+        }
+
+        template <typename TIndex>
+        requires (!IsProperty<TIndex> && util::IsOneOf<typename TIndex::tag_t, impl::model_type_t<TModelData>...>)
+        const user_data_type_for_t<typename TIndex::tag_t>& user_data(const TIndex& index) const
+        {
+            return items<typename TIndex::tag_t>().user_data(index);
+        }
+ 
+        template <typename TIndex>
+        requires (!IsProperty<TIndex> && util::IsOneOf<typename TIndex::tag_t, impl::model_type_t<TModelData>...>)
+        user_data_type_for_t<typename TIndex::tag_t>& user_data(const TIndex& index)
+        {
+            return items<typename TIndex::tag_t>().user_data(index);
+        }
+
+        template <IsProperty TProperty>
+        requires (IsRegistryIndex<typename TProperty::value_t>
+            && util::IsOneOf<typename TProperty::value_t::tag_t, impl::model_type_t<TModelData>...>)
+        const user_data_type_for_t<typename TProperty::value_t::tag_t>& user_data(const TProperty& index_prop) const
+        {
+            return items<typename TProperty::value_t::tag_t>().user_data(index_prop.val());
+        }
+
+        template <IsProperty TProperty>
+        requires (IsRegistryIndex<typename TProperty::value_t>
+            && util::IsOneOf<typename TProperty::value_t::tag_t, impl::model_type_t<TModelData>...>)
+        user_data_type_for_t<typename TProperty::value_t::tag_t>& user_data(const TProperty& index_prop)
+        {
+            return items<typename TProperty::value_t::tag_t>().user_data(index_prop.val());
         }
 
         template <typename T>
@@ -111,6 +212,12 @@ namespace corecad { namespace model
         }
 
     private:
-        std::tuple<registry<TModel>...> _data;
+        std::tuple<
+            registry<
+                impl::model_type_t<TModelData>,
+                impl::user_data_type_t<TModelData>
+            >...
+        > _data;
     };
-}}
+}
+

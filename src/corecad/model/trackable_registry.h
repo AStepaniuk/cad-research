@@ -6,20 +6,31 @@
 #include <algorithm>
 
 #include "registry_index.h"
+#include "i_model_update_tracker.h"
 
 namespace corecad::model
 {
-    template<typename TModel, typename TUserData>
+    struct nothing {};
+
+    template<typename TModel>
     class model_base;
 
-    template<typename T, typename THistory>
-    class trackable_registry
+    template<typename T, typename THistory, typename TUserData = nothing>
+    class trackable_registry : public i_model_update_tracker<T>
     {
     public:
         using index_t = registry_index_t<T>;
+        using data_t = T;
 
     private:
         using underlying_container_t = std::flat_map<index_t, T>;
+        using user_data_container_t = std::conditional_t<
+            std::same_as<TUserData, nothing>,
+            nothing,
+            std::flat_map<index_t, TUserData>
+        >;
+
+        static constexpr bool _has_user_data = !std::same_as<TUserData, nothing>;
 
     public:
         using const_iterator_t = underlying_container_t::const_iterator;
@@ -33,6 +44,11 @@ namespace corecad::model
             }
 
             _data.clear();
+
+            if constexpr (_has_user_data)
+            {
+                _user_data.clear();
+            }
         }
 
         index_t put(T val)
@@ -43,6 +59,11 @@ namespace corecad::model
             auto& item = (*(res.first)).second;
             item.index = _last_index;
             item.bind(this);
+
+            if constexpr (_has_user_data)
+            {
+                _user_data.emplace(_last_index, TUserData{});
+            }
 
             notify_created(item);
 
@@ -66,6 +87,11 @@ namespace corecad::model
             item.index = _last_index;
             item.bind(this);
 
+            if constexpr (_has_user_data)
+            {
+                _user_data.emplace(_last_index, TUserData{});
+            }
+
             notify_created(item);
 
             return _last_index;
@@ -83,6 +109,11 @@ namespace corecad::model
             auto& item = (*(res.first)).second;
             item.bind(this);
 
+            if constexpr (_has_user_data)
+            {
+                _user_data.emplace(_last_index, TUserData{});
+            }
+
             notify_created(item);
         }
 
@@ -96,6 +127,11 @@ namespace corecad::model
 
             notify_deleting(it->second);
             _data.erase(it);
+
+            if constexpr (_has_user_data)
+            {
+                _user_data.erase(index);
+            }
 
             return  true;
         }
@@ -145,14 +181,37 @@ namespace corecad::model
             _history = history;
         }
 
-        friend class model_base<T, typename T::user_data_t>;
+        const TUserData& user_data(const index_t& index) const
+        {
+            if constexpr (_has_user_data)
+            {
+                return _user_data.at(index);
+            }
+            else
+            {
+                static_assert(_has_user_data, "Registry has no user data configured");
+            }
+        }
+
+        TUserData& user_data(const index_t& index)
+        {
+            if constexpr (_has_user_data)
+            {
+                return _user_data.at(index);
+            }
+            else
+            {
+                static_assert(_has_user_data, "Registry has no user data configured");
+            }
+        }
      
     private:
         underlying_container_t _data;
+        user_data_container_t _user_data;
         index_t _last_index { 0 };
         THistory* _history = nullptr;
 
-        void notify_updating(const T& model)
+        void notify_updating(const T& model) override
         {
             if (_history) { _history->item_updating(model); }
         }
@@ -178,4 +237,14 @@ namespace corecad::model
 
         return os;
     }
+
+
+    template <typename T>
+    struct is_trackable_registry : std::false_type {};
+
+    template<typename T, typename THistory, typename TUserData>
+    struct is_trackable_registry<trackable_registry<T, THistory, TUserData>> : std::true_type {};
+
+    template <typename T>
+    concept IsTrackableRegistry = is_trackable_registry<std::remove_cvref_t<T>>::value;
 }

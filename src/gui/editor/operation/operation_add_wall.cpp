@@ -23,10 +23,7 @@ void operation_add_wall::start()
     _current_point = _document.model.data().make<wall_axis_point>(0.0, 0.0);
     _current_wall = std::nullopt;
 
-    _document.hovered_handle = handle_data {
-        { parameter::wall_axis_point_locator { {}, &wall_axis_line::s } },
-        _current_point.value()
-    };
+    _document.hovered_handle = handle_data { _current_point.value() };
 
     _sub_operation_move_handle.start();
 
@@ -103,7 +100,7 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
     _current_point = next_index;
 
     parameter::wall_axis_point_locator cpl { wall_index, &wall_axis_line::e };
-    _document.hovered_handle = handle_data { std::vector<parameter::point_locator_t> { cpl }, _current_point.value() };
+    _document.hovered_handle = handle_data { _current_point.value() };
 
     _sub_operation_move_handle.start();
     _sub_operation_move_handle.enable_commit_on_click();

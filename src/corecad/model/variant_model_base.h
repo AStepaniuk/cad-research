@@ -7,7 +7,8 @@
 #include "members_iterator.h"
 #include "property.h"
 
-namespace corecad::model {
+namespace corecad::model
+{
     template <typename TImpl, typename TBase>
     concept VariantModelInstance = requires(TImpl& impl, TBase& base)
     {
@@ -15,8 +16,8 @@ namespace corecad::model {
         impl.reset_properties_updated();
     };
 
-    template <typename TVariantModel, typename TUserData, typename... TInstance>
-    struct variant_model_base : public model_base<TVariantModel, TUserData>
+    template <typename TVariantModel, typename... TInstance>
+    struct variant_model_base : public model_base<TVariantModel>
     {
         using instances_tl = util::type_list<TInstance...>;
 
@@ -33,14 +34,14 @@ namespace corecad::model {
         }
 
         variant_model_base(const variant_model_base& other)
-            : model_base<TVariantModel, TUserData> { other }
+            : model_base<TVariantModel> { other }
             , instance { other.instance }
         {
             bind_internal();
         }
 
         variant_model_base(variant_model_base&& other) noexcept
-            : model_base<TVariantModel, TUserData>{ std::move(other) }
+            : model_base<TVariantModel>{ std::move(other) }
             , instance{ std::move(other.instance) }
         {
             bind_internal();
@@ -50,7 +51,7 @@ namespace corecad::model {
         {
             if (this != &other)
             {
-                model_base<TVariantModel, TUserData>::operator=(other);
+                model_base<TVariantModel>::operator=(other);
                 instance = other.instance;
                 bind_internal();
             }
@@ -62,7 +63,7 @@ namespace corecad::model {
         {
             if (this != &other)
             {
-                model_base<TVariantModel, TUserData>::operator=(std::move(other));
+                model_base<TVariantModel>::operator=(std::move(other));
                 instance = std::move(other.instance);
                 bind_internal();
             }

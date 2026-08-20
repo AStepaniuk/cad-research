@@ -28,43 +28,29 @@ void default_floor_generator::generate_floor(model::floor &floor)
     auto w1 = floor.data().make<wall>(l1, 600.0);
     floor.data().get(w1).axis_offset = -100.0;
 
-    auto w1l = floor.data().put(
-        model::parameter::parameter::create<distance>(
-            wall_axis_point_locator { w1, &wall_axis_line::s },
-            wall_axis_point_locator { w1, &wall_axis_line::e },
-            10000.0,
-            coordinate2d::x
-        )
-    );
-    auto w1a = floor.data().put(
-        model::parameter::parameter::create<distance>(
-            wall_axis_point_locator { w1, &wall_axis_line::s },
-            wall_axis_point_locator { w1, &wall_axis_line::e },
-            0.0,
-            coordinate2d::y
-        )
-    );
+    auto w1l = floor.data().put(model::parameter::parameter::create<distance>(tli, tri, 10000.0, coordinate2d::x));
+    auto w1a = floor.data().put(model::parameter::parameter::create<distance>(tli, tri, 0.0, coordinate2d::y));
 
     //floor.data().make<wall>(tri, bri, 400.0);
-    auto l2 = floor.data().make<wall_axis_line>(bri, bli);
-    auto w2 = floor.data().make<wall>(l2, 400.0);
+    //auto l2 = floor.data().make<wall_axis_line>(bri, bli);
+    //auto w2 = floor.data().make<wall>(l2, 400.0);
 
-    auto w2l = floor.data().put(
-        model::parameter::parameter::create<distance>(
-            wall_axis_point_locator { w2, &wall_axis_line::s },
-            wall_axis_point_locator { w2, &wall_axis_line::e },
-            -8000.0,
-            coordinate2d::x
-        )
-    );
-    auto w2a = floor.data().put(
-        model::parameter::parameter::create<distance>(
-            wall_axis_point_locator { w2, &wall_axis_line::s },
-            wall_axis_point_locator { w2, &wall_axis_line::e },
-            0.0,
-            coordinate2d::y
-        )
-    );
+    //auto w2l = floor.data().put(
+    //    model::parameter::parameter::create<distance>(
+    //        wall_axis_point_locator { w2, &wall_axis_line::s },
+    //        wall_axis_point_locator { w2, &wall_axis_line::e },
+    //        -8000.0,
+    //        coordinate2d::x
+    //    )
+    //);
+    //auto w2a = floor.data().put(
+    //    model::parameter::parameter::create<distance>(
+    //        wall_axis_point_locator { w2, &wall_axis_line::s },
+    //        wall_axis_point_locator { w2, &wall_axis_line::e },
+    //        0.0,
+    //        coordinate2d::y
+    //    )
+    //);
 
     auto l3 = floor.data().make<wall_axis_line>(tri, bri);
     auto w3 = floor.data().make<wall>(l3, 400.0);
@@ -88,21 +74,21 @@ void default_floor_generator::generate_floor(model::floor &floor)
     //floor.data().put(floor::constraint_t::create<floor::offset_wall_axis_point_t>(bri, boi, 0.0, offset_direction::vertical));
 
 
-    auto d1 = floor.data().put(
-        model::parameter::parameter::create<distance>(
-            wall_border_point_locator { w1, &wall::right, &wall_border_line::s },
-            wall_border_point_locator { w2, &wall::right, &wall_border_line::e },
-            5000.0,
-            coordinate2d::y
-        )
-    );
+    //auto d1 = floor.data().put(
+    //    model::parameter::parameter::create<distance>(
+    //        wall_border_point_locator { w1, &wall::right, &wall_border_line::s },
+    //        wall_border_point_locator { w2, &wall::right, &wall_border_line::e },
+    //        5000.0,
+    //        coordinate2d::y
+    //    )
+    //);
 
-    auto d2 = floor.data().put(
-        model::parameter::parameter::create<distance>(
-            wall_border_point_locator { w1, &wall::right, &wall_border_line::s },
-            wall_border_point_locator { w2, &wall::right, &wall_border_line::e },
-            0.0,
-            coordinate2d::x
-        )
-    );
+    //auto d2 = floor.data().put(
+    //    model::parameter::parameter::create<distance>(
+    //        wall_border_point_locator { w1, &wall::right, &wall_border_line::s },
+    //        wall_border_point_locator { w2, &wall::right, &wall_border_line::e },
+    //        0.0,
+    //        coordinate2d::x
+    //    )
+    //);
 }

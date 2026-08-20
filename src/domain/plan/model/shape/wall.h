@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "model_base.h"
 #include "registry.h"
 #include "type_list.h"
@@ -12,19 +14,33 @@ namespace domain::plan::model::shape
     class wall_axis_tag {};
     class wall_border_tag {};
 
+    class wall;
+
     using wall_axis_point = corecad::model::vector2d<wall_axis_tag>;
     using wall_axis_line = corecad::model::line2d<wall_axis_tag>;
     using point_on_wall_axis_ptr = corecad::model::point_on_line_ptr<wall_axis_tag>;
 
     using wall_border_point = corecad::model::vector2d<wall_border_tag>;
     using wall_border_line = corecad::model::line2d<wall_border_tag>;
+    using wall_border_line_ptr = wall_border_line::index_t wall::*;
     using point_on_wall_border_ptr = corecad::model::point_on_line_ptr<wall_border_tag>;
+    struct wall_border_point_locator
+    {
+        corecad::model::registry_index_t<wall> wall_id;
+        wall_border_line_ptr border_ptr;
+        point_on_wall_border_ptr point_on_border_ptr;
+    };
+    struct wall_border_point_data
+    {
+        std::array<wall_border_point_locator, 2> point_locators;
+    };
 
     using wall_points_tl = corecad::util::type_list<wall_axis_point, wall_border_point>;
     using wall_points_ids_tl = corecad::model::to_index_type_list<wall_points_tl>::type;
+    using wall_point_id_t = typename wall_points_ids_tl::variant_t;
 
     std::ostream& operator<<(std::ostream& os, const wall_points_tl::variant_t& val);
-    std::ostream& operator<<(std::ostream& os, const wall_points_ids_tl::variant_t& val);
+    std::ostream& operator<<(std::ostream& os, const wall_point_id_t& val);
 
     class wall : public corecad::model::model_base<wall>
     {
@@ -87,6 +103,4 @@ namespace domain::plan::model::shape
     };  
 
     std::ostream& operator<<(std::ostream& os, const wall& w);
-
-    using wall_border_line_ptr = wall_border_line::index_t wall::*;
 }

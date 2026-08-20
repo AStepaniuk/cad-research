@@ -14,7 +14,7 @@
 namespace corecad::model::history
 {
     template<typename TRegistryPool, typename... TModel>
-    requires (std::derived_from<TModel, model_base<TModel, typename TModel::user_data_t>> && ...)
+    requires (std::derived_from<TModel, model_base<TModel>> && ...)
     class history
     {
     public:
@@ -98,7 +98,7 @@ namespace corecad::model::history
     private:
         registry_pool_t& _registry_pool;
 
-        std::tuple<model_history<TModel>...> _model_histories;
+        std::tuple<model_history<TModel, typename registry_pool_t::user_data_type_for_t<TModel>>...> _model_histories;
 
         using transaction_t = std::tuple<transaction_data<TModel>...>;
 
@@ -122,11 +122,12 @@ namespace corecad::model::history
             }, _model_histories);
         }
 
-        template<typename TMod>
-        void track_registry(model_history<TMod>& model_history)
+        template<typename TModelHistory>
+        void track_registry(TModelHistory& model_history)
         {
-            auto& registry = _registry_pool.template items<TMod>();
-            auto& data = std::get<transaction_data<TMod>>(_current_transaction);
+            using model_t = typename TModelHistory::model_t;
+            auto& registry = _registry_pool.template items<model_t>();
+            auto& data = std::get<transaction_data<model_t>>(_current_transaction);
             model_history.track(&registry, &data);
         }
 
@@ -137,8 +138,8 @@ namespace corecad::model::history
             }, _model_histories);
         }
 
-        template<typename TMod>
-        void suspend_tracking(model_history<TMod>& model_history)
+        template<typename TModelHistory>
+        void suspend_tracking(TModelHistory& model_history)
         {
             model_history.suspend_tracking();
         }
@@ -150,8 +151,8 @@ namespace corecad::model::history
             }, _model_histories);
         }
 
-        template<typename TMod>
-        void resume_tracking(model_history<TMod>& model_history)
+        template<typename TModelHistory>
+        void resume_tracking(TModelHistory& model_history)
         {
             model_history.resume_tracking();
         }
@@ -169,10 +170,9 @@ namespace corecad::model::history
             }, _model_histories);
         }
 
-        template<typename TMod>
-        void finish_transaction(model_history<TMod>& model_history)
+        template<typename TModelHistory>
+        void finish_transaction(TModelHistory& model_history)
         {
-            auto& data = std::get<transaction_data<TMod>>(_current_transaction);
             model_history.finish_transaction();
         }
 
@@ -183,8 +183,8 @@ namespace corecad::model::history
             }, _model_histories);
         }
 
-        template<typename TMod>
-        void revert_uncommitted_changes(model_history<TMod>& model_history)
+        template<typename TModelHistory>
+        void revert_uncommitted_changes(TModelHistory& model_history)
         {
             model_history.revert_current_transaction();
         }
@@ -196,10 +196,11 @@ namespace corecad::model::history
             }, _model_histories);
         }
 
-        template<typename TMod>
-        void revert_transaction_changes(model_history<TMod>& model_history, transaction_t& transaction)
+        template<typename TModelHistory>
+        void revert_transaction_changes(TModelHistory& model_history, transaction_t& transaction)
         {
-            const auto& data = std::get<transaction_data<TMod>>(transaction);
+            using model_t = typename TModelHistory::model_t;
+            const auto& data = std::get<transaction_data<model_t>>(transaction);
             model_history.undo_transaction(&data);
         }
 
@@ -210,10 +211,11 @@ namespace corecad::model::history
             }, _model_histories);
         }
 
-        template<typename TMod>
-        void restore_transaction_changes(model_history<TMod>& model_history, transaction_t& transaction)
+        template<typename TModelHistory>
+        void restore_transaction_changes(TModelHistory& model_history, transaction_t& transaction)
         {
-            const auto& data = std::get<transaction_data<TMod>>(transaction);
+            using model_t = typename TModelHistory::model_t;
+            const auto& data = std::get<transaction_data<model_t>>(transaction);
             model_history.redo_transaction(&data);
         }
     };

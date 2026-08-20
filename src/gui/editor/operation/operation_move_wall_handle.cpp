@@ -81,12 +81,7 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     }
 
     // update model
-    const auto* pl = _document.active_handle->point_locator_of_type<parameter::wall_axis_point_locator>();
-    if (pl && pl->wid)
-    {
-        // ensure if active handle has valid point locator. I.e. there is no incomplete parameters generated
-        _tools.run_full_pipeline();
-    }
+    _tools.run_full_pipeline();
 
     return action_handle_status::operation_continues;
 }
@@ -128,52 +123,6 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
 
         std::cout << std::endl << "Parameters updated:" << std::endl;
         std::cout << _document.model.data().items<parameter::parameter>();
-    }
-
-    if (post_actions.pl_replacement)
-    {
-        const auto wid_from = post_actions.pl_replacement->wid_from;
-        const auto wid_to = post_actions.pl_replacement->wid_to;
-        const auto point_on_axis = post_actions.pl_replacement->wall_point;
-        const auto point_on_border = point_on_axis == &wall_axis_line::s ? &wall_border_line::s : &wall_border_line::e;
-
-        for (auto&& [_, p]: _document.model.data().items<parameter::parameter>())
-        {
-            std::visit([&](auto& parameter) {
-                corecad::util::visit_members<is_point_locator_property>(parameter, [&](auto& pl_prop) {
-                    std::optional<parameter::point_locator_t> new_pl;
-
-                    std::visit(corecad::util::overloaded {
-                        [&] (parameter::wall_axis_point_locator& wapl) {
-                            if (wapl.wid == wid_from && wapl.point_on_axis_ptr == point_on_axis)
-                            {
-                                new_pl = parameter::wall_axis_point_locator { wid_to, wapl.point_on_axis_ptr };
-                                needs_recalculation = true;
-                            }
-                        },
-                        [&] (parameter::wall_border_point_locator& wbpl) {
-                            if (wbpl.wid == wid_from && wbpl.point_on_border_ptr == point_on_border)
-                            {
-                                new_pl = parameter::wall_border_point_locator { wid_to, wbpl.border_ptr, wbpl.point_on_border_ptr };
-                                needs_recalculation = true;
-                            }
-                        },
-                    }, pl_prop.val());
-
-                    if (new_pl)
-                    {
-                        pl_prop = new_pl.value();
-                    }
-                });
-            }, p.instance);
-        }
-    };
-
-    const auto* pl = _document.active_handle->point_locator_of_type<parameter::wall_axis_point_locator>();
-    if (pl && pl->wid)
-    {
-        // ensure if active handle has valid point locator. I.e. there is no incomplete parameters generated
-        needs_recalculation = false;
     }
 
     if(needs_recalculation)

@@ -10,7 +10,6 @@ namespace domain::plan::model::parameter {
 
     using parameter_base = corecad::model::variant_model_base<
         parameter
-        , corecad::model::nothing
         , distance<parameter>
         , colinear<parameter>
         , pinned<parameter>

@@ -6,22 +6,18 @@
 #include "type_list.h"
 #include "members_iterator.h"
 #include "property.h"
+#include "i_model_update_tracker.h"
 
-namespace corecad::model {
-
-    struct nothing {};
-
-    template <typename TModel, typename TUserData = nothing>
+namespace corecad::model
+{
+    template <typename TModel>
     class model_base
     {
     public:
         using model_t = TModel;
-        using user_data_t = TUserData;
         using index_t = registry_index_t<TModel>;
-        using registry_t = registry<TModel>;
         
         index_t index;
-        user_data_t user_data = {};
 
         void reset_updated()
         {
@@ -37,20 +33,20 @@ namespace corecad::model {
             _updated = false;
         }
         
-        void bind(registry_t* owner) { _owner = owner; }
+        void bind(i_model_update_tracker<TModel>* update_tracker) { _update_tracker = update_tracker; }
 
     private:
         void notify_updated()
         {
-            if (!_updated && _owner)
+            if (!_updated && _update_tracker)
             {
-                _owner->notify_updating(static_cast<TModel&>(*this));
+                _update_tracker->notify_updating(static_cast<TModel&>(*this));
             }
 
             _updated = true;
         }
 
-        registry_t* _owner = nullptr;
+        i_model_update_tracker<TModel>* _update_tracker = nullptr;
         bool _updated = false;
 
         // class should have access to notify_updated()
@@ -65,11 +61,11 @@ namespace corecad::model {
         return os << "id:" << model.index;
     }
 
+
     template <typename TList>
     struct to_index_type_list;
 
     template <typename... Ts>
-    requires (std::is_base_of_v<model_base<Ts>, Ts> && ...)
     struct to_index_type_list<util::type_list<Ts...>>
     {
         using type = util::type_list<typename Ts::index_t...>;

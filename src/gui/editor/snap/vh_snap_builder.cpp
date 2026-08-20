@@ -16,7 +16,7 @@ vh_snap_builder::vh_snap_builder(doc::document &doc, floor_view &v)
 
 void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
 {
-    if (!_document.active_handle || _document.active_handle->handle_locators().empty())
+    if (!_document.active_handle)
     {
         return;
     }
@@ -31,12 +31,8 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
     const auto tol = _floor_view.model_interaction_tolerance();
 
     const wall_axis_point* x_ref_point = nullptr;
-    const wall* x_ref_wall = nullptr;
-    point_on_wall_axis_ptr x_ref_powa = nullptr;
     
     const wall_axis_point* y_ref_point = nullptr;
-    const wall* y_ref_wall = nullptr;
-    point_on_wall_axis_ptr y_ref_powa = nullptr;
 
     double dx = 0.0;
     double dy = 0.0;
@@ -59,8 +55,6 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
                 {
                     dy = std::abs(model_pos.y - p.y);
                     x_ref_point = &p;
-                    x_ref_wall = &w;
-                    x_ref_powa = powa;
                 }
             }
 
@@ -70,8 +64,6 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
                 {
                     dx = std::abs(model_pos.x - p.x);
                     y_ref_point = &p;
-                    y_ref_wall = &w;
-                    y_ref_powa = powa;
                 }
             }
         };
@@ -84,8 +76,8 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
     if (x_ref_point)
     {
         auto parameter = parameter::parameter::create<parameter::distance>(
-            parameter::wall_axis_point_locator { x_ref_wall->index, x_ref_powa }
-            , _document.active_handle->handle_locators()[0]
+            x_ref_point->index
+            , apid
             , 0.0
             , coordinate2d::x
         );
@@ -97,8 +89,8 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
     if (y_ref_point)
     {
         auto parameter = parameter::parameter::create<parameter::distance>(
-            parameter::wall_axis_point_locator { y_ref_wall->index, y_ref_powa }
-            , _document.active_handle->handle_locators()[0]
+            y_ref_point->index
+            , apid
             , 0.0
             , coordinate2d::y
         );

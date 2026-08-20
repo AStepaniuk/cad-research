@@ -56,4 +56,17 @@ namespace corecad::util
     template <typename T>
     concept EqualityComparableEx
         = std::equality_comparable<T> && check_variant_alternatives_comparable<T>::value;
+
+
+    template <typename T>
+    struct is_pair : std::false_type {};
+
+    template <typename T1, typename T2>
+    struct is_pair<std::pair<T1, T2>> : std::true_type {};
+
+    template <typename T>
+    inline constexpr bool is_pair_v = is_pair<std::remove_cvref_t<T>>::value; 
+
+    template <typename T>
+    concept IsPair = is_pair_v<T>;
 }

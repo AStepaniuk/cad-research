@@ -44,10 +44,7 @@ bool wall_join_handler::wall_move(
             if (model_pos.x > point.x - tol.x && model_pos.x < point.x + tol.x
                 && model_pos.y > point.y - tol.y && model_pos.y < point.y + tol.y)
             {
-                auto target_point_locators = _document.active_handle->handle_locators();
-                target_point_locators.push_back(wall_axis_point_locator { p.first, pptr });
-
-                _target_point_handle = doc::handle_data { target_point_locators, point.index };
+                _target_point_handle = doc::handle_data { point.index };
 
                 model_pos.x = point.x;
                 model_pos.y = point.y;
@@ -74,7 +71,7 @@ bool wall_join_handler::wall_move(
 
 post_apply_actions wall_join_handler::apply()
 {
-    if (!_target_point_handle || _target_point_handle->handle_locators().empty())
+    if (!_target_point_handle)
     {
         return {};
     }
@@ -85,14 +82,21 @@ post_apply_actions wall_join_handler::apply()
         return {};
     }
 
-    for (const auto pl : _target_point_handle->handle_locators())
+    const auto ahid = _document.active_handle->handle_id_of_type<wall_axis_point>();
+    if (!ahid)
     {
-        if (const auto* wapl = std::get_if<wall_axis_point_locator>(&pl))
-        {
-            auto& wall = _document.model.data().get(wapl->wid);
-            auto& axis = _document.model.data().get(wall.axis);
+        return {};
+    }
 
-            axis.*(wapl->point_on_axis_ptr) = tphid;
+    for (auto&& [_, axis] : _document.model.data().items<wall_axis_line>())   
+    {
+        if (axis.s == ahid)
+        {
+            axis.s = tphid;
+        }
+        else if (axis.e == ahid)
+        {
+            axis.e = tphid;
         }
     }
 

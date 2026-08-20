@@ -9,9 +9,9 @@
 #include "coord_translator.h"
 #include "walls_view.h"
 #include "parameters_view.h"
-#include "point_resolver.h"
 
-namespace gui {
+namespace gui
+{
     class floor_view
     {
         const doc::document& _document;
@@ -22,7 +22,7 @@ namespace gui {
         parameters_view _parameters_view;
 
     public:
-        floor_view(const doc::document& doc, domain::plan::resolver::point_resolver& pr);
+        floor_view(const doc::document& doc);
 
         int x_offset() const;
         void x_offset(int val);

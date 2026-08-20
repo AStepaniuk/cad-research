@@ -20,13 +20,13 @@ namespace domain::plan::model
             parameter::parameter::index_t source_parameter_index;
         };
 
-        using constraint_t = corecad::model::constraint::constraint<shape::wall_points_ids_tl, constraint_data>;
+        using constraint_t = corecad::model::constraint::constraint<shape::wall_points_ids_tl>;
 
         using data_t = corecad::model::registry_pool<
-            constraint_t,
+            std::pair<constraint_t, constraint_data>,
             shape::wall_axis_point,
             shape::wall_axis_line,
-            shape::wall_border_point,
+            std::pair<shape::wall_border_point, shape::wall_border_point_data>,
             shape::wall_border_line,
             shape::wall,
             parameter::parameter

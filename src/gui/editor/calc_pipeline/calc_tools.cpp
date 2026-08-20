@@ -2,25 +2,19 @@
 
 using namespace gui::editor;
 using namespace domain::plan::model;
-using namespace domain::plan::resolver;
 using namespace domain::plan::calculator;
 
 void calc_tools::run_full_pipeline()
 {
     _wall_calculator.recalculate_all_walls();
     _constraints_builder.rebuild_all_constraints();
-    _constraints_calculator.recalculate_all(_floor.data().items<floor::constraint_t>());
+    _constraints_calculator.recalculate_all();
     _wall_calculator.recalculate_all_walls();
 }
 
 floor_query &calc_tools::floor_query()
 {
     return _floor_query;
-}
-
-point_resolver &calc_tools::point_resolver()
-{
-    return _point_resolver;
 }
 
 parameters_redundance_checker &calc_tools::parameters_redundance_checker()

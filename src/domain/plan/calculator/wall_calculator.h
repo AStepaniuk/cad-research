@@ -113,9 +113,9 @@ namespace domain::plan::calculator
             const border_point_geometry_id& id,
             const model::shape::wall_border_point& p
         );
-        void assign_point_to_borders(
-            model::shape::wall_border_line& b1, model::shape::point_on_wall_border_ptr p1_ptr,
-            model::shape::wall_border_line& b2, model::shape::point_on_wall_border_ptr p2_ptr,
+        void assign_point_and_borders_to_walls(
+            model::shape::wall& w1, model::shape::wall_border_line_ptr b1_ptr, model::shape::point_on_wall_border_ptr p1_ptr,
+            model::shape::wall& w2, model::shape::wall_border_line_ptr b2_ptr, model::shape::point_on_wall_border_ptr p2_ptr,
             const model::shape::wall_border_point& point
         );
 

@@ -21,7 +21,7 @@ std::ostream& domain::plan::model::shape::operator<<(std::ostream& os, const wal
     return os;
 }
 
-std::ostream& domain::plan::model::shape::operator<<(std::ostream& os, const wall_points_ids_tl::variant_t& val)
+std::ostream& domain::plan::model::shape::operator<<(std::ostream& os, const wall_point_id_t& val)
 {
     std::visit(corecad::util::overloaded {
             [&](const wall_axis_point::index_t& v) { std::cout << 'a' << v; },
