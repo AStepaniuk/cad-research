@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-#include "wall_axis_point_locator.h"
-
 using namespace gui::doc;
 using namespace gui::editor::operation;
 using namespace corecad::model;
@@ -99,7 +97,6 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
 
     _current_point = next_index;
 
-    parameter::wall_axis_point_locator cpl { wall_index, &wall_axis_line::e };
     _document.hovered_handle = handle_data { _current_point.value() };
 
     _sub_operation_move_handle.start();

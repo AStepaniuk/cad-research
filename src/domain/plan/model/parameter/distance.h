@@ -1,7 +1,6 @@
 #pragma once
 
 #include "property.h"
-#include "point_locator.h"
 #include "coordinate2d.h"
 #include "wall.h"
 

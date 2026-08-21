@@ -1,7 +1,5 @@
 #include "vh_snap_builder.h"
 
-#include "wall_axis_point_locator.h"
-
 using namespace gui::editor::snap;
 using namespace corecad::model;
 using namespace corecad::model::constraint;

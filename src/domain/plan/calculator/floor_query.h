@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "floor.h"
-#include "point_locator.h"
 
 namespace domain::plan::calculator
 {

@@ -19,7 +19,6 @@ target_link_libraries(plan_model PUBLIC
 
 set(PLAN_MODEL_OBJECT_FILES
     $<TARGET_OBJECTS:plan_model>
-    $<TARGET_OBJECTS:plan_model_parameter>
     $<TARGET_OBJECTS:plan_model_shape>
 )
 
