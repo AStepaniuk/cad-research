@@ -56,14 +56,12 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     active_point.y = model_pos.y;
 
     _document.active_wall_snaps.clear();
-    if (!_last_worked_move_wall_handler)
+    for (auto wall_snap_builder : _snap_builders)
     {
-        for (auto wall_snap_builder : _snap_builders)
-        {
-            wall_snap_builder->calculate_snaps(mx, my);
-        }
-        _wall_snap_processor.process();
+        wall_snap_builder->calculate_snaps(mx, my);
     }
+    std::cout << std::endl << "Snap-driven parameters:" << std::endl;
+    std::cout << _document.active_wall_snaps.parameters();
 
     // check if model pos is applicable to any handler
     _last_worked_move_wall_handler = nullptr;
@@ -79,15 +77,18 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
             break;
         }
     }
+    std::cout << std::endl << "Handler-enriched parameters:" << std::endl;
+    std::cout << _document.active_wall_snaps.parameters();
+
+    _wall_snap_processor.process();
+    std::cout << std::endl << "Cleared parameters:" << std::endl;
+    std::cout << _document.active_wall_snaps.parameters();
 
     // update model
     _tools.run_full_pipeline();
 
     return action_handle_status::operation_continues;
 }
-
-template <typename T>
-using is_point_locator_property = corecad::model::is_property_of_type<T, parameter::point_locator_t>;
 
 action_handle_status operation_move_wall_handle::left_mouse_click(float mx, float my)
 {
@@ -108,6 +109,9 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
     }
 
     _document.hovered_handle = _document.active_handle;
+
+    std::cout << std::endl << "Applying parameters:" << std::endl;
+    std::cout << _document.active_wall_snaps.parameters();
 
     if (!_document.active_wall_snaps.parameters().empty())
     {

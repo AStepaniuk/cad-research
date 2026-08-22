@@ -72,6 +72,12 @@ namespace corecad::model
         else return os << "??";
     }
 
+    template <typename Tag>
+    point_on_line_ptr<Tag> opposite(point_on_line_ptr<Tag> pol)
+    {
+        return pol == &line2d<Tag>::s ? &line2d<Tag>::e : &line2d<Tag>::s;
+    };
+
 
     template <typename T>
     struct is_line2d : std::false_type {};

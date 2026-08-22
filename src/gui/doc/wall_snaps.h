@@ -5,7 +5,8 @@
 
 #include "floor.h"
 
-namespace gui::doc {
+namespace gui::doc
+{
     class wall_snaps
     {
         using wall_axis_point = domain::plan::model::shape::wall_axis_point;
@@ -13,7 +14,7 @@ namespace gui::doc {
         using constraint_t = domain::plan::model::floor::constraint_t;
 
 
-        const corecad::model::registry<wall_axis_point>& _wall_axis_points;
+        const domain::plan::model::floor::data_t& _data;
 
         corecad::model::registry<parameter_t> _parameters;
         corecad::model::registry<constraint_t> _anchors;
@@ -39,7 +40,7 @@ namespace gui::doc {
         > _affected_points_data;
 
     public:
-        wall_snaps(const corecad::model::registry<wall_axis_point>& wall_axis_points);
+        wall_snaps(const domain::plan::model::floor::data_t& data);
 
         void clear();
         
@@ -61,7 +62,7 @@ namespace gui::doc {
                 if (inserted)
                 {
                     it->second.refcount = 1;
-                    const auto& p_data = _wall_axis_points.get(p_idx);
+                    const auto& p_data = _data.get(p_idx);
 
                     // Create the anchor fixes for the affected point
                     it->second.h_fix = _anchors.put(

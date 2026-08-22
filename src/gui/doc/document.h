@@ -8,7 +8,8 @@
 #include "parameter.h"
 #include "handle_data.h"
 
-namespace gui::doc {
+namespace gui::doc
+{
     struct document
     {
         domain::plan::model::floor model;
@@ -26,6 +27,6 @@ namespace gui::doc {
         // handle is currenly being moved
         std::optional<handle_data> active_handle;
         // snaps of the active wall handle
-        wall_snaps active_wall_snaps { model.data().items<domain::plan::model::shape::wall_axis_point>() };
+        wall_snaps active_wall_snaps { model.data() };
     };
 }

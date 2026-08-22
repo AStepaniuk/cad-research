@@ -24,7 +24,7 @@ namespace domain::plan::model
 
         using data_t = corecad::model::registry_pool<
             std::pair<constraint_t, constraint_data>,
-            shape::wall_axis_point,
+            std::pair<shape::wall_axis_point, shape::wall_axis_point_data>,
             shape::wall_axis_line,
             std::pair<shape::wall_border_point, shape::wall_border_point_data>,
             shape::wall_border_line,

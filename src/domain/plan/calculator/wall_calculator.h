@@ -22,53 +22,27 @@ namespace domain::plan::calculator
         void calculate_stub_wall_start_borders(model::shape::wall& w);
         void calculate_stub_wall_end_borders(model::shape::wall& w);
 
-        enum class wall_location { start, end };
-        struct wall_finish_id
-        {
-            model::shape::wall_axis_line::index_t axis_id;
-            wall_location location;
-
-            auto operator<=>(const wall_finish_id&) const = default;
-        };
-
-        friend std::ostream& operator<<(std::ostream& os, wall_location wl)
-        {
-            return os << (wl == wall_location::start ? 's' : 'e');
-        }
-
-        friend std::ostream& operator<<(std::ostream& os, wall_finish_id wfid)
-        {
-            return os << '{' << wfid.axis_id << ',' << wfid.location << '}';
-        }
-
-
-        using walls_joints = std::map<wall_finish_id, std::vector<wall_finish_id>>;
-
         struct joined_walls
         {
             model::shape::wall_axis_point::index_t wall1_free_p;
             model::shape::wall_axis_point::index_t walls_common_p;
             model::shape::wall_axis_point::index_t wall2_free_p;
 
-            wall_finish_id wall2_fid;
+            model::shape::wall_axis_point_locator wall2_apl;
         };
 
-        void recalculate_wall_joints(model::shape::wall& w, walls_joints& joints);
+        void recalculate_wall_joints(model::shape::wall& w);
         void calculate_joined_2_walls_borders(
-            wall_finish_id fid,
-            const walls_joints& joints,
-            const std::map<model::shape::wall_axis_line::index_t, model::shape::wall::index_t>& wall_axis_owners,
-            std::vector<wall_finish_id>& processed_fids
+            const model::shape::wall_axis_point_locator& apl,
+            std::vector<model::shape::wall_axis_point_locator>& processed_apls
         );
         void calculate_joined_n_walls_borders(
-            wall_finish_id fid,
-            const walls_joints& joints,
-            const std::map<model::shape::wall_axis_line::index_t, model::shape::wall::index_t>& wall_axis_owners,
-            std::map<model::shape::wall_axis_line::index_t, double>& wall_axis_directions,
-            std::vector<wall_finish_id>& processed_fids
+            model::shape::wall_axis_point::index_t apid,
+            std::map<model::shape::wall::index_t, double>& walls_directions,
+            std::vector<model::shape::wall_axis_point_locator>& processed_apls
         );
 
-        joined_walls get_joined_walls_points(const wall_finish_id& wfid, const walls_joints& joints);
+        joined_walls get_joined_walls_points(const model::shape::wall_axis_point_locator& apl);
 
         struct border_point_geometry_id
         {
@@ -153,8 +127,8 @@ namespace domain::plan::calculator
         model::shape::wall_border_line& find_or_create_border(const wall_border_geometry_id& id);
 
         void assign_left_intersection_point(
-            model::shape::wall& wall1, wall_location wall1_location,
-            model::shape::wall& wall2, wall_location wall2_location,
+            model::shape::wall& wall1, model::shape::point_on_wall_axis_ptr wall1_location,
+            model::shape::wall& wall2, model::shape::point_on_wall_axis_ptr wall2_location,
             const std::pair<model::shape::wall_border_point, std::optional<model::shape::wall_border_point>>& intersection_pair
         );
 

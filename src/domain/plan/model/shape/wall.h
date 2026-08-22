@@ -19,6 +19,17 @@ namespace domain::plan::model::shape
     using wall_axis_point = corecad::model::vector2d<wall_axis_tag>;
     using wall_axis_line = corecad::model::line2d<wall_axis_tag>;
     using point_on_wall_axis_ptr = corecad::model::point_on_line_ptr<wall_axis_tag>;
+    struct wall_axis_point_locator
+    {
+        corecad::model::registry_index_t<wall> wall_id;
+        point_on_wall_axis_ptr point_on_axis_ptr;
+
+        auto operator<=>(const wall_axis_point_locator& rhs) const = default;
+    };
+    struct wall_axis_point_data
+    {
+        std::optional<std::vector<wall_axis_point_locator>> connected_walls;
+    };
 
     using wall_border_point = corecad::model::vector2d<wall_border_tag>;
     using wall_border_line = corecad::model::line2d<wall_border_tag>;

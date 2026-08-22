@@ -7,8 +7,8 @@ using namespace domain::plan::model;
 using namespace corecad::model;
 using namespace corecad::model::constraint;
 
-wall_snaps::wall_snaps(const corecad::model::registry<wall_axis_point> &wall_axis_points)
-    : _wall_axis_points { wall_axis_points }
+wall_snaps::wall_snaps(const floor::data_t& data)
+    : _data { data }
 {
 }
 

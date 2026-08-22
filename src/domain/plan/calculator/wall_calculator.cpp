@@ -124,6 +124,18 @@ wall_calculator::wall_calculator(model::floor &floor)
 
 void wall_calculator::recalculate_all_walls()
 {
+    // recalculate wall axis joints
+    for (auto&& [_, a] : _floor.data().items<wall_axis_point>())
+    {
+        _floor.data().user_data(a.index).connected_walls = std::nullopt;
+    }
+
+    for (auto&& [_, w] : _floor.data().items<wall>())
+    {
+        recalculate_wall_joints(w);
+    }
+
+
     // clean-up ref count for previously generated items
     for (auto& pair : _points_cache)
     {
@@ -131,22 +143,15 @@ void wall_calculator::recalculate_all_walls()
     }
 
     // recalculate new wall borders
-    walls_joints joints;
-    std::map<wall_axis_line::index_t, double> wall_axis_directions;
-    std::map<wall_axis_line::index_t, wall::index_t> wall_axis_owners;
+    std::map<wall::index_t, double> walls_directions;
+    std::vector<wall_axis_point_locator> processed_pls;
 
     for (auto&& [_, w] : _floor.data().items<wall>())
     {
-        recalculate_wall_joints(w, joints);
-        wall_axis_owners[w.axis] = w.index;
-    }
+        const auto& a = _floor.data().get(w.axis);
 
-    std::vector<wall_finish_id> processed_fids;
-    for (auto&& [_, w] : _floor.data().items<wall>())
-    {
         // start joint points
-        wall_finish_id wall_start_fid { w.axis, wall_location::start };
-        size_t start_joints_num = joints[wall_start_fid].size() - 1;
+        size_t start_joints_num = _floor.data().user_data(a.s).connected_walls->size() - 1;
         if (start_joints_num == 0)
         {
             calculate_stub_wall_start_borders(w);
@@ -155,22 +160,22 @@ void wall_calculator::recalculate_all_walls()
         {
             w.start_stub = {};
 
-            if (std::ranges::find(processed_fids, wall_start_fid) == processed_fids.end())
+            wall_axis_point_locator wall_start_pl { w.index, &wall_axis_line::s };
+            if (std::ranges::find(processed_pls, wall_start_pl) == processed_pls.end())
             {
                 if (start_joints_num == 1)
                 {            
-                    calculate_joined_2_walls_borders(wall_start_fid, joints, wall_axis_owners, processed_fids);
+                    calculate_joined_2_walls_borders(wall_start_pl, processed_pls);
                 }
                 else
                 {
-                    calculate_joined_n_walls_borders(wall_start_fid, joints, wall_axis_owners, wall_axis_directions, processed_fids);
+                    calculate_joined_n_walls_borders(a.s, walls_directions, processed_pls);
                 }
             }
         }
 
         // end joint points
-        wall_finish_id wall_end_fid { w.axis, wall_location::end };
-        size_t end_joints_num = joints[wall_end_fid].size() - 1;
+        size_t end_joints_num = _floor.data().user_data(a.e).connected_walls->size() - 1;
         if (end_joints_num == 0)
         {
             calculate_stub_wall_end_borders(w);
@@ -179,16 +184,17 @@ void wall_calculator::recalculate_all_walls()
         {
             w.end_stub = {};
 
-            if (std::ranges::find(processed_fids, wall_end_fid) == processed_fids.end())
+            wall_axis_point_locator wall_end_pl { w.index, &wall_axis_line::e };
+            if (std::ranges::find(processed_pls, wall_end_pl) == processed_pls.end())
             {
                 if (end_joints_num == 1)
                 {
                     
-                    calculate_joined_2_walls_borders(wall_end_fid, joints, wall_axis_owners, processed_fids);
+                    calculate_joined_2_walls_borders(wall_end_pl, processed_pls);
                 }
                 else
                 {
-                    calculate_joined_n_walls_borders(wall_end_fid, joints, wall_axis_owners, wall_axis_directions, processed_fids);
+                    calculate_joined_n_walls_borders(a.e, walls_directions, processed_pls);
                 }
             }
         }
@@ -274,79 +280,59 @@ void wall_calculator::calculate_stub_wall_end_borders(wall& w)
     );
 }
 
-void wall_calculator::recalculate_wall_joints(wall& w, walls_joints& joints)
+void wall_calculator::recalculate_wall_joints(wall& w)
 {
-    const auto axis = _floor.data().get(w.axis);
+    const auto& axis = _floor.data().get(w.axis);
 
-    wall_finish_id current_start_id { w.axis, wall_location::start };
-    if (joints.find(current_start_id) == joints.end())
-    {
-        std::vector<wall_finish_id> start_connected_walls;
-
-        for (auto&& [_, a2] : _floor.data().items<wall_axis_line>())
+    auto recalculate_joints_for_point = [&](wall_axis_point::index_t pid) {
+        auto& sud = _floor.data().user_data(pid);
+        if (!sud.connected_walls)
         {
-            if (axis.s == a2.s)
-            {
-                start_connected_walls.push_back(wall_finish_id { a2.index, wall_location::start });
-            }
-            else if (axis.s == a2.e)
-            {
-                start_connected_walls.push_back(wall_finish_id { a2.index, wall_location::end });
-            }
-        }
-        
-        for (const auto& cw : start_connected_walls)
-        {
-            joints[cw] = start_connected_walls;
-        }
-    }
+            std::vector<wall_axis_point_locator> pls;
 
-
-    wall_finish_id current_end_id { w.axis, wall_location::end };
-    if (joints.find(current_end_id) == joints.end())
-    {
-        std::vector<wall_finish_id> end_connected_walls;
-
-        for (auto&& [_, a2] : _floor.data().items<wall_axis_line>())
-        {
-            if (axis.e == a2.s)
+            for (auto&& [_, w2] : _floor.data().items<wall>())
             {
-                end_connected_walls.push_back(wall_finish_id { a2.index, wall_location::start });
+                const auto& a2 = _floor.data().get(w2.axis);            
+                if (pid == a2.s)
+                {
+                    pls.push_back(wall_axis_point_locator { w2.index, &wall_axis_line::s });
+                }
+                else if (pid == a2.e)
+                {
+                    pls.push_back(wall_axis_point_locator { w2.index, &wall_axis_line::e });
+                }
             }
-            else if (axis.e == a2.e)
+            
+            for (const auto& pl : pls)
             {
-                end_connected_walls.push_back(wall_finish_id { a2.index, wall_location::end });
+                const auto& w = _floor.data().get(pl.wall_id);
+                const auto& a = _floor.data().get(w.axis);
+                auto apid = a.*(pl.point_on_axis_ptr);
+                _floor.data().user_data(apid).connected_walls = pls;
             }
         }
-        
-        for (const auto& cw : end_connected_walls)
-        {
-            joints[cw] = end_connected_walls;
-        }
-    }
+    };
+
+    recalculate_joints_for_point(axis.s);
+    recalculate_joints_for_point(axis.e);
 }
 
 void wall_calculator::calculate_joined_2_walls_borders(
-    wall_finish_id fid,
-    const walls_joints& joints,
-    const std::map<wall_axis_line::index_t, wall::index_t>& wall_axis_owners,
-    std::vector<wall_finish_id>& processed_fids
+    const wall_axis_point_locator& apl,
+    std::vector<wall_axis_point_locator>& processed_apls
 )
 {
-    auto jw = get_joined_walls_points(fid, joints);
+    auto jw = get_joined_walls_points(apl);
 
     const auto& wall1_free_p = _floor.data().get(jw.wall1_free_p);
     const auto& walls_common_p = _floor.data().get(jw.walls_common_p);
     const auto& wall2_free_p = _floor.data().get(jw.wall2_free_p);
 
-    const auto wall1_id = wall_axis_owners.at(fid.axis_id);
-    const auto wall2_id = wall_axis_owners.at(jw.wall2_fid.axis_id);
+    auto& wall1 = _floor.data().get(apl.wall_id);
+    auto& wall2 = _floor.data().get(jw.wall2_apl.wall_id);
 
-    auto& wall1 = _floor.data().get(wall1_id);
-    auto& wall2 = _floor.data().get(wall2_id);
-
-    const auto& axis1 = _floor.data().get(fid.axis_id);
-    const auto& axis2 = _floor.data().get(jw.wall2_fid.axis_id);
+    const auto& axis1 = _floor.data().get(wall1.axis);
+    const auto& axis2 = _floor.data().get(wall2.axis);
 
     const auto left_intersection_p = calculate_joined_walls_left_border_intersection(
         wall1, wall2,
@@ -360,49 +346,48 @@ void wall_calculator::calculate_joined_2_walls_borders(
         wall2_free_p, walls_common_p, wall1_free_p
     );
 
-    assign_left_intersection_point(wall1, fid.location, wall2, jw.wall2_fid.location, left_intersection_p);
-    assign_left_intersection_point(wall2, jw.wall2_fid.location, wall1, fid.location, right_intersection_p);
+    assign_left_intersection_point(wall1, apl.point_on_axis_ptr, wall2, jw.wall2_apl.point_on_axis_ptr, left_intersection_p);
+    assign_left_intersection_point(wall2, jw.wall2_apl.point_on_axis_ptr, wall1, apl.point_on_axis_ptr, right_intersection_p);
     
-    processed_fids.push_back(fid);
-    processed_fids.push_back(jw.wall2_fid);
+    processed_apls.push_back(apl);
+    processed_apls.push_back(jw.wall2_apl);
 }
 
 void wall_calculator::calculate_joined_n_walls_borders(
-    wall_finish_id fid,
-    const walls_joints& joints,
-    const std::map<wall_axis_line::index_t, wall::index_t>& wall_axis_owners,
-    std::map<wall_axis_line::index_t, double>& wall_axis_directions,
-    std::vector<wall_finish_id>& processed_fids
+    wall_axis_point::index_t apid,
+    std::map<model::shape::wall::index_t, double>& walls_directions,
+    std::vector<wall_axis_point_locator>& processed_apls
 )
 {
-    const auto& w_joints = joints.at(fid);
+    const auto& ud = _floor.data().user_data(apid);
 
     struct wf_direction
     {
-        wall_finish_id wfid;
+        wall_axis_point_locator apl;
         double direction;
     };
     std::vector<wf_direction> w_joints_directions;
 
-    for (const auto& wfid : w_joints)
+    for (const auto& apl : ud.connected_walls.value())
     {
         double a = 0;
-        if (const auto it = wall_axis_directions.find(wfid.axis_id); it != wall_axis_directions.end())
+        if (const auto it = walls_directions.find(apl.wall_id); it != walls_directions.end())
         {
             a = it->second;
         }
         else
         {
-            a = calculate_line_direction(_floor.data().get(wfid.axis_id), _floor);
-            wall_axis_directions[wfid.axis_id] = a;
+            const auto& w = _floor.data().get(apl.wall_id);
+            a = calculate_line_direction(_floor.data().get(w.axis), _floor);
+            walls_directions[apl.wall_id] = a;
         }
 
-        if (wfid.location == wall_location::end)
+        if (apl.point_on_axis_ptr == &wall_axis_line::e)
         {
             a = inverse_angle(a);
         }
 
-        w_joints_directions.push_back({ wfid, a });
+        w_joints_directions.push_back({ apl, a });
     }
 
     std::ranges::sort(
@@ -418,21 +403,18 @@ void wall_calculator::calculate_joined_n_walls_borders(
             prev_i = w_joints_directions.size() - 1;
         }
 
-        const auto& wfid1 = w_joints_directions[i].wfid;
-        const auto& wfid2 = w_joints_directions[prev_i].wfid;
+        const auto& apl1 = w_joints_directions[i].apl;
+        const auto& apl2 = w_joints_directions[prev_i].apl;
 
-        const auto w1_id = wall_axis_owners.at(wfid1.axis_id);
-        const auto w2_id = wall_axis_owners.at(wfid2.axis_id);
+        auto& w1 = _floor.data().get(apl1.wall_id);
+        auto& w2 = _floor.data().get(apl2.wall_id);
 
-        auto& w1 = _floor.data().get(w1_id);
-        auto& w2 = _floor.data().get(w2_id);
+        const auto& l1 = _floor.data().get(w1.axis);
+        const auto& l2 = _floor.data().get(w2.axis);
 
-        const auto& l1 = _floor.data().get(wfid1.axis_id);
-        const auto& l2 = _floor.data().get(wfid2.axis_id);
-
-        const auto& wall1_free_p = _floor.data().get(wfid1.location == wall_location::start ? l1.e : l1.s);
-        const auto& walls_common_p = _floor.data().get(wfid1.location == wall_location::start ? l1.s : l1.e);
-        const auto& wall2_free_p = _floor.data().get(wfid2.location == wall_location::start ? l2.e : l2.s);
+        const auto& wall1_free_p = _floor.data().get(apl1.point_on_axis_ptr == &wall_axis_line::s ? l1.e : l1.s);
+        const auto& walls_common_p = _floor.data().get(apl1.point_on_axis_ptr == &wall_axis_line::s ? l1.s : l1.e);
+        const auto& wall2_free_p = _floor.data().get(apl2.point_on_axis_ptr == &wall_axis_line::s ? l2.e : l2.s);
 
         const auto left_intersection_p = calculate_joined_walls_left_border_intersection(
             w1, w2,
@@ -440,46 +422,34 @@ void wall_calculator::calculate_joined_n_walls_borders(
             wall1_free_p, walls_common_p, wall2_free_p
         );
 
-        assign_left_intersection_point(w1, wfid1.location, w2, wfid2.location, left_intersection_p);
+        assign_left_intersection_point(w1, apl1.point_on_axis_ptr, w2, apl2.point_on_axis_ptr, left_intersection_p);
     }
 
-    std::ranges::copy(w_joints, std::back_inserter(processed_fids));
+    std::ranges::copy(ud.connected_walls.value(), std::back_inserter(processed_apls));
 }
 
-wall_calculator::joined_walls wall_calculator::get_joined_walls_points(const wall_finish_id& wfid, const walls_joints& joints)
+wall_calculator::joined_walls wall_calculator::get_joined_walls_points(const wall_axis_point_locator& apl)
 {
     joined_walls result;
 
-    const auto& axis1 = _floor.data().get(wfid.axis_id);
-    if (wfid.location == wall_location::start)
-    {
-        result.wall1_free_p = axis1.e;
-        result.walls_common_p = axis1.s;
-    }
-    else
-    {
-        result.wall1_free_p = axis1.s;
-        result.walls_common_p = axis1.e;
-    }
+    const auto& wall1 = _floor.data().get(apl.wall_id);
+    const auto& axis1 = _floor.data().get(wall1.axis);
 
-    const auto& w1_joints = joints.at(wfid);
-    for (const auto& w2fid : w1_joints)
+    result.wall1_free_p = axis1.*(opposite(apl.point_on_axis_ptr));
+    result.walls_common_p = axis1.*(apl.point_on_axis_ptr);
+
+    const auto& common_p_data = _floor.data().user_data(result.walls_common_p);
+    for (const auto& w2apl : common_p_data.connected_walls.value())
     {
         // assuming wall1 has exactly one joined wall. i.e. w1_joints.size() == 2
-        if (w2fid.axis_id != wfid.axis_id)
+        if (w2apl.wall_id != apl.wall_id)
         {
-            const auto& axis2 = _floor.data().get(w2fid.axis_id);
+            const auto& wall2 = _floor.data().get(w2apl.wall_id);
+            const auto& axis2 = _floor.data().get(wall2.axis);
 
-            if (w2fid.location == wall_location::start)
-            {
-                result.wall2_free_p = axis2.e;
-            }
-            else
-            {
-                result.wall2_free_p = axis2.s;
-            }
+            result.wall2_free_p = axis2.*(opposite(w2apl.point_on_axis_ptr));
 
-            result.wall2_fid = w2fid;
+            result.wall2_apl = w2apl;
 
             break;
         }
@@ -556,42 +526,21 @@ wall_border_line &wall_calculator::find_or_create_border(const wall_border_geome
 }
 
 void wall_calculator::assign_left_intersection_point(
-    wall &wall1, wall_location wall1_location,
-    wall &wall2, wall_location wall2_location,
+    wall &wall1, point_on_wall_axis_ptr wall1_location,
+    wall &wall2, point_on_wall_axis_ptr wall2_location,
     const std::pair<wall_border_point, std::optional<wall_border_point>> &intersection_pair)
 {
-    if (wall1_location == wall_location::start && wall2_location == wall_location::start)
-    {
-        assign_walls_intersection_pair(
-            wall1, &wall::left, &wall_border_line::s,
-            wall2, &wall::right, &wall_border_line::s,
-            intersection_pair
-        );
-    }
-    else if (wall1_location == wall_location::start && wall2_location == wall_location::end)
-    {
-        assign_walls_intersection_pair(
-            wall1, &wall::left, &wall_border_line::s,
-            wall2, &wall::left, &wall_border_line::e,
-            intersection_pair
-        );
-    }
-    else if (wall1_location == wall_location::end && wall2_location == wall_location::start)
-    {
-        assign_walls_intersection_pair(
-            wall1, &wall::right, &wall_border_line::e, 
-            wall2, &wall::right, &wall_border_line::s, 
-            intersection_pair
-        );
-    }
-    else /*if (wall1_location == wall_location::end && wall2_location == wall_location::end) */
-    {
-        assign_walls_intersection_pair(
-            wall1, &wall::right, &wall_border_line::e,
-            wall2, &wall::left, &wall_border_line::e,
-            intersection_pair
-        );
-    }
+    const auto border1_ptr = wall1_location == &wall_axis_line::s ? &wall::left : &wall::right;
+    const auto border2_ptr = wall2_location == &wall_axis_line::s ? &wall::right : &wall::left;
+
+    const auto border1_point_ptr = wall1_location == &wall_axis_line::s ? &wall_border_line::s : &wall_border_line::e;
+    const auto border2_point_ptr = wall2_location == &wall_axis_line::s ? &wall_border_line::s : &wall_border_line::e;
+
+    assign_walls_intersection_pair(
+        wall1, border1_ptr, border1_point_ptr,
+        wall2, border2_ptr, border2_point_ptr,
+        intersection_pair
+    );
 }
 
 void wall_calculator::assign_walls_intersection_pair(
