@@ -20,7 +20,6 @@ namespace gui { namespace editor { namespace operation {
         calc_tools& _tools;
 
         std::optional<domain::plan::model::shape::wall_axis_point::index_t> _current_point = std::nullopt;
-        std::optional<domain::plan::model::shape::wall::index_t> _current_wall = std::nullopt;
 
         operation_move_wall_handle _sub_operation_move_handle;
 

@@ -7,6 +7,7 @@
 
 #include "registry_index.h"
 #include "i_model_update_tracker.h"
+#include "traits.h"
 
 namespace corecad::model
 {
@@ -227,12 +228,46 @@ namespace corecad::model
         }
     };
 
-    template<typename T, typename THistory>
-    std::ostream& operator<<(std::ostream& os, const trackable_registry<T, THistory>& r)
+    namespace io
     {
+        inline int get_ud_index()
+        {
+            static const int index = std::ios_base::xalloc();
+            return index;
+        }
+
+        inline std::ostream& show_ud(std::ostream& os)
+        {
+            os.iword(get_ud_index()) = 1;
+            return os;
+        }
+
+        inline std::ostream& noshow_ud(std::ostream& os)
+        {
+            os.iword(get_ud_index()) = 0;
+            return os;
+        }
+    }
+
+
+    template<typename T, typename THistory, typename TUserData>
+    std::ostream& operator<<(std::ostream& os, const trackable_registry<T, THistory, TUserData>& r)
+    {
+        bool show_user_data_runtime = os.iword(io::get_ud_index()) == 1;
+        
         for (const auto& [id, item] : r)
         {
-            std::cout << id << ": " << item << std::endl;
+            os << id << ": " << item;
+
+            if constexpr (util::streamable<TUserData>) 
+            {
+                if (show_user_data_runtime) 
+                {
+                    os << " // " << r.user_data(id);
+                }
+            }
+
+            os << std::endl;
         }
 
         return os;

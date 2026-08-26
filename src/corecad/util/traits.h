@@ -69,4 +69,11 @@ namespace corecad::util
 
     template <typename T>
     concept IsPair = is_pair_v<T>;
+
+
+    template<typename T>
+    concept streamable = requires(std::ostream& os, const T& value)
+    {
+        { os << value } -> std::same_as<std::ostream&>;
+    };
 }

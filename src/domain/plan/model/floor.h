@@ -34,7 +34,6 @@ namespace domain::plan::model
 
         using history_t = corecad::model::history::history<
             data_t,
-            constraint_t,
             shape::wall_axis_point,
             shape::wall_axis_line,
             shape::wall,

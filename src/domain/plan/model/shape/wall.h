@@ -26,10 +26,12 @@ namespace domain::plan::model::shape
 
         auto operator<=>(const wall_axis_point_locator& rhs) const = default;
     };
+    std::ostream& operator<<(std::ostream& os, const wall_axis_point_locator& wapl);
     struct wall_axis_point_data
     {
         std::optional<std::vector<wall_axis_point_locator>> connected_walls;
     };
+    std::ostream& operator<<(std::ostream& os, const wall_axis_point_data& wapd);
 
     using wall_border_point = corecad::model::vector2d<wall_border_tag>;
     using wall_border_line = corecad::model::line2d<wall_border_tag>;

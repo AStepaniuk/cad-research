@@ -60,8 +60,6 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
     {
         wall_snap_builder->calculate_snaps(mx, my);
     }
-    std::cout << std::endl << "Snap-driven parameters:" << std::endl;
-    std::cout << _document.active_wall_snaps.parameters();
 
     // check if model pos is applicable to any handler
     _last_worked_move_wall_handler = nullptr;
@@ -77,12 +75,8 @@ action_handle_status operation_move_wall_handle::mouse_move(float mx, float my)
             break;
         }
     }
-    std::cout << std::endl << "Handler-enriched parameters:" << std::endl;
-    std::cout << _document.active_wall_snaps.parameters();
 
     _wall_snap_processor.process();
-    std::cout << std::endl << "Cleared parameters:" << std::endl;
-    std::cout << _document.active_wall_snaps.parameters();
 
     // update model
     _tools.run_full_pipeline();
@@ -103,15 +97,15 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
         if (post_actions.new_active_handle)
         {
             _document.active_handle = post_actions.new_active_handle.value();
+
+            // clear active wall snaps
+            _document.active_wall_snaps.clear();
         }
 
         needs_recalculation = true;
     }
 
     _document.hovered_handle = _document.active_handle;
-
-    std::cout << std::endl << "Applying parameters:" << std::endl;
-    std::cout << _document.active_wall_snaps.parameters();
 
     if (!_document.active_wall_snaps.parameters().empty())
     {
