@@ -27,7 +27,7 @@ namespace corecad::model
             }
             else
             {
-                util::visit_members<is_property>(static_cast<TModel&>(*this), [](auto& prop) { prop.reset_updated(); });
+                meta::visit_members<is_property>(static_cast<TModel&>(*this), [](auto& prop) { prop.reset_updated(); });
             }
 
             _updated = false;

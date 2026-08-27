@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-namespace corecad::util
+namespace corecad::meta
 {
     // A concept to check if a model actually supports the static field visitor
     template <typename T>

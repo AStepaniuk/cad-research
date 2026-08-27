@@ -2,7 +2,7 @@
 
 #include <array>
 
-namespace corecad::util
+namespace corecad::meta
 {
     template <std::size_t N1, std::size_t N2>
     struct compile_time_string
