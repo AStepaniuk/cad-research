@@ -119,16 +119,7 @@ namespace domain::plan::model::shape
                 corecad::meta::member("end_stub", &wall::end_stub)
             );
         };
-        static constexpr auto members_metadata = std::make_tuple(
-            &wall::index,
-            &wall::width,
-            &wall::axis_offset,
-            &wall::left,
-            &wall::right,
-            &wall::start_stub,
-            &wall::end_stub
-        );
-    };  
+     };  
 
     std::ostream& operator<<(std::ostream& os, const wall& w);
 }
