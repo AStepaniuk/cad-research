@@ -3,6 +3,7 @@
 #include "property.h"
 #include "coordinate2d.h"
 #include "wall.h"
+#include "member_info.h"
 
 namespace domain::plan::model::parameter
 {
@@ -21,11 +22,16 @@ namespace domain::plan::model::parameter
         corecad::model::property<point_id_t, TModel> point2;
         corecad::model::property<point_id_t, TModel> point3;
 
-        static constexpr auto members_metadata = std::make_tuple(
-            &colinear::point1,
-            &colinear::point2,
-            &colinear::point3
-        );
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "colinear"; 
+
+            static constexpr auto members = std::make_tuple(
+                corecad::meta::member("point1", &colinear::point1),
+                corecad::meta::member("point2", &colinear::point2),
+                corecad::meta::member("point3", &colinear::point3)
+            );
+        };
     };
 
     template<typename TModel>

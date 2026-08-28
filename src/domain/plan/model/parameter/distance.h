@@ -25,12 +25,17 @@ namespace domain::plan::model::parameter
 
         corecad::model::property<double, TModel> value;
 
-        static constexpr auto members_metadata = std::make_tuple(
-            &distance::direction,
-            &distance::from,
-            &distance::to,
-            &distance::value
-        );
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "distance"; 
+
+            static constexpr auto members = std::make_tuple(
+                corecad::meta::member("direction", &distance::direction),
+                corecad::meta::member("from", &distance::from),
+                corecad::meta::member("to", &distance::to),
+                corecad::meta::member("value", &distance::value)
+            );
+        };
     };
 
     template<typename TModel>

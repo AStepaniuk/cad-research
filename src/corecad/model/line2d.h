@@ -8,6 +8,7 @@
 #include "vector2d.h"
 #include "registry.h"
 #include "property.h"
+#include "member_info.h"
 
 namespace corecad::model
 {
@@ -45,11 +46,16 @@ namespace corecad::model
         point_property_t s;
         point_property_t e;
 
-        static constexpr auto members_metadata = std::make_tuple(
-            &line2d::index,
-            &line2d::s,
-            &line2d::e
-        );
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "line2d_" + meta::type_name<Tag>(); 
+
+            static constexpr auto members = std::make_tuple(
+                meta::member("index", &line2d::index),
+                meta::member("s", &line2d::s),
+                meta::member("e", &line2d::e)
+            );
+        };
     };  
 
     template<typename Tag>

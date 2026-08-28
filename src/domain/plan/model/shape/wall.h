@@ -8,6 +8,7 @@
 #include "vector2d.h"
 #include "line2d.h"
 #include "property.h"
+#include "member_info.h"
 
 namespace domain::plan::model::shape
 {
@@ -104,6 +105,20 @@ namespace domain::plan::model::shape
         wall_border_line::index_t start_stub {};
         wall_border_line::index_t end_stub {};
 
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "wall"; 
+
+            static constexpr auto members = std::make_tuple(
+                corecad::meta::member("index", &wall::index),
+                corecad::meta::member("width", &wall::width),
+                corecad::meta::member("axis_offset", &wall::axis_offset),
+                corecad::meta::member("left", &wall::left),
+                corecad::meta::member("right", &wall::right),
+                corecad::meta::member("start_stub", &wall::start_stub),
+                corecad::meta::member("end_stub", &wall::end_stub)
+            );
+        };
         static constexpr auto members_metadata = std::make_tuple(
             &wall::index,
             &wall::width,

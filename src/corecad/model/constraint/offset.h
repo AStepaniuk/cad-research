@@ -27,12 +27,17 @@ namespace corecad::model::constraint
 
         property<double, TModel> distance;
 
-        static constexpr auto members_metadata = std::make_tuple(
-            &offset::direction,
-            &offset::from,
-            &offset::to,
-            &offset::distance
-        );
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "offset"; 
+
+            static constexpr auto members = std::make_tuple(
+                meta::member("direction", &offset::direction),
+                meta::member("from", &offset::from),
+                meta::member("to", &offset::to),
+                meta::member("distance", &offset::distance)
+            );
+        };
     };
 
     template <typename TVector2DIndexList, typename TModel>

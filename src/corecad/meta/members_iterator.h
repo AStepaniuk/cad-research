@@ -2,11 +2,13 @@
 
 #include <type_traits>
 
+#include "member_info.h"
+
 namespace corecad::meta
 {
     // A concept to check if a model actually supports the static field visitor
     template <typename T>
-    concept HasMembersMetadata = requires { T::members_metadata; };
+    concept HasMembersMetadata = requires { T::metadata::members; };
 
     template <template<typename> typename Predicate, typename T, typename F>
     constexpr void visit_members(T&& instance, F&& func)
@@ -15,21 +17,22 @@ namespace corecad::meta
         
         static_assert(
             HasMembersMetadata<U>,
-            "Error: The type passed to visit_members lacks metadata. "
-            "Ensure the class defines a 'static constexpr auto members_metadata = std::make_tuple(...);' field."
+            "Error: The type passed to visit_members lacks the required metadata layout. "
+            "Ensure the class defines a nested 'struct metadata { static constexpr auto members = std::make_tuple(...); };'."
         );
 
         if constexpr (HasMembersMetadata<U>)
         {
-            std::apply([&](auto... member_ptrs) {
+            std::apply([&](auto... descs) {
                 ([&] {
-                    auto& field = instance.*member_ptrs;
-                    if constexpr (Predicate<std::remove_cvref_t<decltype(field)>>::value)
+                    auto& field = instance.*(descs.ptr);
+                    using FieldType = std::remove_cvref_t<decltype(field)>;
+                    if constexpr (Predicate<FieldType>::value)
                     {
                         func(field);
                     }
                 }(), ...);
-            }, U::members_metadata);
+            }, U::metadata::members);
         }
     }
 }

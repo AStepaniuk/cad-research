@@ -64,10 +64,22 @@ namespace corecad::meta
     template <typename T>
     struct type_meta_info
     {
-        // Automatically strips const, volatile, and references
         static consteval std::string_view name()
         {
             return detail::type_meta_info_impl<std::remove_cvref_t<T>>::name();
         }
     };
+
+    template <typename T>
+    constexpr std::string_view type_name()
+    {
+        if constexpr (requires { T::metadata::type_name; })
+        {
+            return T::metadata::type_name;
+        }
+        else
+        {
+            return type_meta_info<T>::name();
+        }
+    }
 }

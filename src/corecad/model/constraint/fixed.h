@@ -23,11 +23,16 @@ namespace corecad::model::constraint
 
         property<point_id_t, TModel> point;
 
-        static constexpr auto members_metadata = std::make_tuple(
-            &fixed::value,
-            &fixed::coordinate,
-            &fixed::point
-        );
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "fixed"; 
+
+            static constexpr auto members = std::make_tuple(
+                meta::member("value", &fixed::value),
+                meta::member("coordinate", &fixed::coordinate),
+                meta::member("point", &fixed::point)
+            );
+        };
     };
 
     template <typename TVector2DIndexList, typename TModel>

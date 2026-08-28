@@ -27,13 +27,18 @@ namespace corecad::model::constraint
         property<point_id_t, TModel> line2_end;
         property<double, TModel> distance;
 
-        static constexpr auto members_metadata = std::make_tuple(
-            &parallel_distant::line1_start,
-            &parallel_distant::line1_end,
-            &parallel_distant::line2_start,
-            &parallel_distant::line2_end,
-            &parallel_distant::distance
-        );
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "parallel_distant"; 
+
+            static constexpr auto members = std::make_tuple(
+                meta::member("line1_start", &parallel_distant::line1_start),
+                meta::member("line1_end", &parallel_distant::line1_end),
+                meta::member("line2_start", &parallel_distant::line2_start),
+                meta::member("line2_end", &parallel_distant::line2_end),
+                meta::member("distance", &parallel_distant::distance)
+            );
+        };
     };
 
     template <typename TVector2DIndexList, typename TModel>

@@ -22,11 +22,16 @@ namespace corecad::model::constraint
         property<point_id_t, TModel> point2;
         property<point_id_t, TModel> point3;
 
-        static constexpr auto members_metadata = std::make_tuple(
-            &aligned::point1,
-            &aligned::point2,
-            &aligned::point3
-        );
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "aligned"; 
+
+            static constexpr auto members = std::make_tuple(
+                meta::member("point1", &aligned::point1),
+                meta::member("point2", &aligned::point2),
+                meta::member("point3", &aligned::point3)
+            );
+        };
     };
 
     template <typename TVector2DIndexList, typename TModel>

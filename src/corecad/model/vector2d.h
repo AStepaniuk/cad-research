@@ -5,6 +5,8 @@
 #include "model_base.h"
 #include "registry.h"
 #include "property.h"
+#include "type_meta_info.h"
+#include "member_info.h"
 
 namespace corecad::model
 {
@@ -45,11 +47,16 @@ namespace corecad::model
         property<double, vector2d> x { *this };
         property<double, vector2d> y { *this };
 
-        static constexpr auto members_metadata = std::make_tuple(
-            &vector2d::index,
-            &vector2d::x,
-            &vector2d::y
-        );
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "vector2d_" + meta::type_name<Tag>(); 
+
+            static constexpr auto members = std::make_tuple(
+                meta::member("index", &vector2d::index),
+                meta::member("x", &vector2d::x),
+                meta::member("y", &vector2d::y)
+            );
+        };
     };  
 
     template<typename Tag>

@@ -21,11 +21,16 @@ namespace domain::plan::model::parameter
         corecad::model::property<point_id_t, TModel> point;
         corecad::model::property<double, TModel> value;
 
-        static constexpr auto members_metadata = std::make_tuple(
-            &pinned::coordinate,
-            &pinned::point,
-            &pinned::value
-        );
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "pinned"; 
+
+            static constexpr auto members = std::make_tuple(
+                corecad::meta::member("coordinate", &pinned::coordinate),
+                corecad::meta::member("point", &pinned::point),
+                corecad::meta::member("value", &pinned::value)
+            );
+        };
     };
 
     template<typename TModel>
