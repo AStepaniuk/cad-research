@@ -12,8 +12,21 @@
 
 namespace domain::plan::model::shape
 {
-    class wall_axis_tag {};
-    class wall_border_tag {};
+    struct wall_axis_tag
+    {
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "axis";
+        };
+    };
+
+    struct wall_border_tag
+    {
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "border";
+        };
+    };
 
     class wall;
 

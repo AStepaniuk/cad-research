@@ -6,6 +6,7 @@
 #include "registry.h"
 #include "one_of.h"
 #include "type_list.h"
+#include "member_info.h"
 
 #include "aligned.h"
 #include "fixed.h"
@@ -35,6 +36,16 @@ namespace corecad::model::constraint
 
         template<template <typename, typename> typename TInst>
         using concrete_t = TInst<TVector2DIndexList, constraint<TVector2DIndexList>>;
+
+        struct metadata
+        {
+            static constexpr std::string_view type_name = "constraint";
+
+            static constexpr auto members = std::make_tuple(
+                meta::member("index", &constraint::index),
+                meta::member("instance", &constraint::instance)
+            );
+        };
 
     protected:
         explicit constraint(typename constraint_base<TVector2DIndexList>::instance_t i)
