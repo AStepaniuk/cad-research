@@ -2,7 +2,6 @@
 
 #include "tagged_value.h"
 #include "type_meta_info.h"
-#include "compile_time_string.h"
 
 namespace corecad::model
 {

@@ -9,6 +9,7 @@
 #include "one_of.h"
 #include "traits.h"
 #include "property.h"
+#include "type_meta_info.h"
 
 namespace corecad::model
 {
@@ -219,5 +220,21 @@ namespace corecad::model
             >...
         > _data;
     };
+
+    template<typename... TModelData>
+    std::ostream& operator<<(std::ostream& os, const registry_pool<TModelData...>& p)
+    {
+        auto out_model = [&](const auto& registry) {
+            using registry_t = std::remove_cvref_t<decltype(registry)>;
+            using data_t = typename registry_t::data_t;
+
+            os << meta::type_name<data_t>() << std::endl;
+            os << registry;
+        };
+
+        (out_model(p.template items<impl::model_type_t<TModelData>>()), ...);
+
+        return os;
+    }
 }
 

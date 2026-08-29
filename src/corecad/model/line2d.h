@@ -48,7 +48,9 @@ namespace corecad::model
 
         struct metadata
         {
-            static constexpr std::string_view type_name = "line2d_" + meta::type_name<Tag>(); 
+            static constexpr std::string_view base_type_name = "line2d_";
+            static constexpr std::string_view tag_name = corecad::meta::type_name<Tag>();
+            static constexpr std::string_view type_name = corecad::util::join_v<base_type_name, tag_name>;
 
             static constexpr auto members = std::make_tuple(
                 meta::member("index", &line2d::index),

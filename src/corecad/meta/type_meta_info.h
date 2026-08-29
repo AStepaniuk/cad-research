@@ -3,9 +3,11 @@
 #include <string_view>
 #include <type_traits>
 
+#include "string_view_join.h"
+
 namespace corecad::meta
 {
-    namespace detail
+    namespace impl
     {
         template <typename U>
         static consteval std::string_view raw_name()
@@ -38,12 +40,13 @@ namespace corecad::meta
                 constexpr auto start = func.find(prefix) + prefix.size();
                 constexpr auto end = func.rfind(">(void)");
                 
+                static_assert(start != std::string_view::npos && end != std::string_view::npos, 
+                              "Unsupported MSVC __FUNCSIG__ format");
+
                 std::string_view raw = func.substr(start, end - start);
                 if (raw.starts_with("struct ")) raw = raw.substr(7);
                 else if (raw.starts_with("class ")) raw = raw.substr(6);
                 else if (raw.starts_with("enum "))  raw = raw.substr(5);
-                static_assert(start != std::string_view::npos && end != std::string_view::npos, 
-                              "Unsupported MSVC __FUNCSIG__ format");
                 return raw;
 
             #else
@@ -54,19 +57,19 @@ namespace corecad::meta
         template <typename CleanT>
         struct type_meta_info_impl
         {
-            static consteval std::string_view name()
-            {
-                return raw_name<CleanT>();
-            }
+            static constexpr std::string_view raw_view = raw_name<CleanT>();
+
+            // Bake the structural string into the type-level registry permanently
+            static constexpr std::string_view view = util::join_v<raw_view>;
         };
     }
 
     template <typename T>
     struct type_meta_info
     {
-        static consteval std::string_view name()
+        static constexpr std::string_view name()
         {
-            return detail::type_meta_info_impl<std::remove_cvref_t<T>>::name();
+            return impl::type_meta_info_impl<std::remove_cvref_t<T>>::view;
         }
     };
 
@@ -75,6 +78,8 @@ namespace corecad::meta
     {
         if constexpr (requires { T::metadata::type_name; })
         {
+            static_assert(std::is_same_v<std::remove_cvref_t<decltype(T::metadata::type_name)>, std::string_view>,
+                "Error: T::metadata::type_name must strictly be specified as a std::string_view");
             return T::metadata::type_name;
         }
         else

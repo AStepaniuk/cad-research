@@ -1,19 +1,19 @@
 #pragma once
 
-#include "compile_time_string.h"
+#include <string_view>
 
 namespace corecad::meta
 {
-    template<std::size_t N, typename TClass, typename TMember>
+    template<typename TClass, typename TMember>
     struct member_info
     {
-        compile_time_string<N> name;
+        std::string_view name;
         TMember TClass::*ptr;
     };
 
-    template<std::size_t N, typename TClass, typename TMember>
-    constexpr member_info<N, TClass, TMember> member(const char (&str)[N], TMember TClass::*ptr)
+    template<typename TClass, typename TMember>
+    constexpr member_info<TClass, TMember> member(std::string_view name, TMember TClass::*ptr)
     {
-        return member_info { compile_time_string<N> { str }, ptr };
+        return member_info { name, ptr };
     }
 }
