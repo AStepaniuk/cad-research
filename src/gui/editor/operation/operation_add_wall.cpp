@@ -64,9 +64,6 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
         return action_handle_status::operation_finished;
     }
 
-    auto m_model = _view.to_model(mx, my);
-    auto next_index = _document.model.data().make<wall_axis_point>(m_model.x, m_model.y);
-
     if (hhid != _current_point.value())
     {
         _document.model.data().erase(_current_point.value());
@@ -75,6 +72,9 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
 
     _document.model.history().commit("Add wall");
 
+    auto m_model = _view.to_model(mx, my);
+    auto next_index = _document.model.data().make<wall_axis_point>(m_model.x, m_model.y);
+    
     const auto axis_index = _document.model.data().make<wall_axis_line>(_current_point.value(), next_index);
     auto wall_index = _document.model.data().make<wall>(axis_index, 400.0);
 
