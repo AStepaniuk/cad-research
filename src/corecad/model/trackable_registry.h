@@ -230,21 +230,21 @@ namespace corecad::model
 
     namespace io
     {
-        inline int get_ud_index()
+        inline int get_annotation_index()
         {
             static const int index = std::ios_base::xalloc();
             return index;
         }
 
-        inline std::ostream& show_ud(std::ostream& os)
+        inline std::ostream& show_annotation(std::ostream& os)
         {
-            os.iword(get_ud_index()) = 1;
+            os.iword(get_annotation_index()) = 1;
             return os;
         }
 
-        inline std::ostream& noshow_ud(std::ostream& os)
+        inline std::ostream& noshow_annotation(std::ostream& os)
         {
-            os.iword(get_ud_index()) = 0;
+            os.iword(get_annotation_index()) = 0;
             return os;
         }
     }
@@ -253,7 +253,7 @@ namespace corecad::model
     template<typename T, typename THistory, typename TAnnotation>
     std::ostream& operator<<(std::ostream& os, const trackable_registry<T, THistory, TAnnotation>& r)
     {
-        bool show_annotation_runtime = os.iword(io::get_ud_index()) == 1;
+        bool show_annotation_runtime = os.iword(io::get_annotation_index()) == 1;
         
         for (const auto& [id, item] : r)
         {
