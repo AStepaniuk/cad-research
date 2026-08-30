@@ -32,19 +32,19 @@ namespace corecad::model
 
 
         template <typename T>
-        struct user_data_type
+        struct annotation_type
         {
             using type = nothing;
         };
 
         template <typename T1, typename T2>
-        struct user_data_type<std::pair<T1, T2>>
+        struct annotation_type<std::pair<T1, T2>>
         {
             using type = T2;
         };
 
         template <typename T>
-        using user_data_type_t = typename user_data_type<T>::type;
+        using annotation_type_t = typename annotation_type<T>::type;
 
 
         template <typename T, typename... Args>
@@ -80,7 +80,7 @@ namespace corecad::model
     {
     public:
         template <typename TQueryModel>
-        using user_data_type_for_t = impl::user_data_type_t<
+        using annotation_type_for_t = impl::annotation_type_t<
             typename impl::find_model_data_pack<TQueryModel, TModelData...>::data_pack_t
         >;
 
@@ -178,32 +178,32 @@ namespace corecad::model
 
         template <typename TIndex>
         requires (!IsProperty<TIndex> && util::IsOneOf<typename TIndex::tag_t, impl::model_type_t<TModelData>...>)
-        const user_data_type_for_t<typename TIndex::tag_t>& user_data(const TIndex& index) const
+        const annotation_type_for_t<typename TIndex::tag_t>& annotation(const TIndex& index) const
         {
-            return items<typename TIndex::tag_t>().user_data(index);
+            return items<typename TIndex::tag_t>().annotation(index);
         }
  
         template <typename TIndex>
         requires (!IsProperty<TIndex> && util::IsOneOf<typename TIndex::tag_t, impl::model_type_t<TModelData>...>)
-        user_data_type_for_t<typename TIndex::tag_t>& user_data(const TIndex& index)
+        annotation_type_for_t<typename TIndex::tag_t>& annotation(const TIndex& index)
         {
-            return items<typename TIndex::tag_t>().user_data(index);
+            return items<typename TIndex::tag_t>().annotation(index);
         }
 
         template <IsProperty TProperty>
         requires (IsRegistryIndex<typename TProperty::value_t>
             && util::IsOneOf<typename TProperty::value_t::tag_t, impl::model_type_t<TModelData>...>)
-        const user_data_type_for_t<typename TProperty::value_t::tag_t>& user_data(const TProperty& index_prop) const
+        const annotation_type_for_t<typename TProperty::value_t::tag_t>& annotation(const TProperty& index_prop) const
         {
-            return items<typename TProperty::value_t::tag_t>().user_data(index_prop.val());
+            return items<typename TProperty::value_t::tag_t>().annotation(index_prop.val());
         }
 
         template <IsProperty TProperty>
         requires (IsRegistryIndex<typename TProperty::value_t>
             && util::IsOneOf<typename TProperty::value_t::tag_t, impl::model_type_t<TModelData>...>)
-        user_data_type_for_t<typename TProperty::value_t::tag_t>& user_data(const TProperty& index_prop)
+        annotation_type_for_t<typename TProperty::value_t::tag_t>& annotation(const TProperty& index_prop)
         {
-            return items<typename TProperty::value_t::tag_t>().user_data(index_prop.val());
+            return items<typename TProperty::value_t::tag_t>().annotation(index_prop.val());
         }
 
         template <typename T>
@@ -216,7 +216,7 @@ namespace corecad::model
         std::tuple<
             registry<
                 impl::model_type_t<TModelData>,
-                impl::user_data_type_t<TModelData>
+                impl::annotation_type_t<TModelData>
             >...
         > _data;
     };

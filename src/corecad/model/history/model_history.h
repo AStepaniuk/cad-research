@@ -17,11 +17,11 @@ namespace corecad::model::history
         std::vector<TModel> deleted_items;
     };
     
-    template<typename TModel, typename TUserData>
+    template<typename TModel, typename TAnnotation>
     class model_history
     {
     public:
-        using registry_t = trackable_registry<TModel, model_history, TUserData>;
+        using registry_t = trackable_registry<TModel, model_history, TAnnotation>;
         using model_t = TModel;
 
         void track(registry_t* registry, transaction_data<model_t>* _transaction_data)

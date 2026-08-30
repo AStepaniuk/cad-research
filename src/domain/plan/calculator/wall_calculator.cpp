@@ -127,7 +127,7 @@ void wall_calculator::recalculate_all_walls()
     // recalculate wall axis joints
     for (auto&& [_, a] : _floor.data().items<wall_axis_point>())
     {
-        _floor.data().user_data(a.index).connected_walls = std::nullopt;
+        _floor.data().annotation(a.index).connected_walls = std::nullopt;
     }
 
     for (auto&& [_, w] : _floor.data().items<wall>())
@@ -151,7 +151,7 @@ void wall_calculator::recalculate_all_walls()
         const auto& a = _floor.data().get(w.axis);
 
         // start joint points
-        size_t start_joints_num = _floor.data().user_data(a.s).connected_walls->size() - 1;
+        size_t start_joints_num = _floor.data().annotation(a.s).connected_walls->size() - 1;
         if (start_joints_num == 0)
         {
             calculate_stub_wall_start_borders(w);
@@ -175,7 +175,7 @@ void wall_calculator::recalculate_all_walls()
         }
 
         // end joint points
-        size_t end_joints_num = _floor.data().user_data(a.e).connected_walls->size() - 1;
+        size_t end_joints_num = _floor.data().annotation(a.e).connected_walls->size() - 1;
         if (end_joints_num == 0)
         {
             calculate_stub_wall_end_borders(w);
@@ -285,7 +285,7 @@ void wall_calculator::recalculate_wall_joints(wall& w)
     const auto& axis = _floor.data().get(w.axis);
 
     auto recalculate_joints_for_point = [&](wall_axis_point::index_t pid) {
-        auto& sud = _floor.data().user_data(pid);
+        auto& sud = _floor.data().annotation(pid);
         if (!sud.connected_walls)
         {
             std::vector<wall_axis_point_locator> pls;
@@ -308,7 +308,7 @@ void wall_calculator::recalculate_wall_joints(wall& w)
                 const auto& w = _floor.data().get(pl.wall_id);
                 const auto& a = _floor.data().get(w.axis);
                 auto apid = a.*(pl.point_on_axis_ptr);
-                _floor.data().user_data(apid).connected_walls = pls;
+                _floor.data().annotation(apid).connected_walls = pls;
             }
         }
     };
@@ -359,7 +359,7 @@ void wall_calculator::calculate_joined_n_walls_borders(
     std::vector<wall_axis_point_locator>& processed_apls
 )
 {
-    const auto& ud = _floor.data().user_data(apid);
+    const auto& ud = _floor.data().annotation(apid);
 
     struct wf_direction
     {
@@ -438,7 +438,7 @@ wall_calculator::joined_walls wall_calculator::get_joined_walls_points(const wal
     result.wall1_free_p = axis1.*(opposite(apl.point_on_axis_ptr));
     result.walls_common_p = axis1.*(apl.point_on_axis_ptr);
 
-    const auto& common_p_data = _floor.data().user_data(result.walls_common_p);
+    const auto& common_p_data = _floor.data().annotation(result.walls_common_p);
     for (const auto& w2apl : common_p_data.connected_walls.value())
     {
         // assuming wall1 has exactly one joined wall. i.e. w1_joints.size() == 2
@@ -498,7 +498,7 @@ void wall_calculator::assign_point_and_borders_to_walls(
     b1.*p1_ptr = pi;
     b2.*p2_ptr = pi;
 
-    auto& bpud = _floor.data().user_data(pi);
+    auto& bpud = _floor.data().annotation(pi);
 
     bpud.point_locators[0].wall_id = w1.index;
     bpud.point_locators[0].border_ptr = b1_ptr;

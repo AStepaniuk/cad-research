@@ -7,10 +7,10 @@
 
 namespace corecad::model
 {
-    template<typename TModel, typename TUserData = nothing>
+    template<typename TModel, typename TAnnotation = nothing>
     using registry = trackable_registry<
         TModel,
-        history::model_history<TModel, TUserData>,
-        TUserData
+        history::model_history<TModel, TAnnotation>,
+        TAnnotation
     >;
 }

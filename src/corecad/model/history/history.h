@@ -98,7 +98,7 @@ namespace corecad::model::history
     private:
         registry_pool_t& _registry_pool;
 
-        std::tuple<model_history<TModel, typename registry_pool_t::user_data_type_for_t<TModel>>...> _model_histories;
+        std::tuple<model_history<TModel, typename registry_pool_t::annotation_type_for_t<TModel>>...> _model_histories;
 
         using transaction_t = std::tuple<transaction_data<TModel>...>;
 

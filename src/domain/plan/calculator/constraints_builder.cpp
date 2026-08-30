@@ -26,7 +26,7 @@ void constraints_builder::rebuild_all_constraints()
     for (const auto& pair : _floor.data().items<parameter>())
     {
         const auto cid = _floor.data().put(to_constraint(pair.second));
-        _floor.data().user_data(cid).source_parameter_index = pair.first;
+        _floor.data().annotation(cid).source_parameter_index = pair.first;
     }
 }
 
@@ -49,7 +49,7 @@ model::floor::constraint_t constraints_builder::to_constraint(const model::param
                 // if distance is specified to wall border points, translate it to axis points
                 auto get_wbpl_distance_adjustment = [&](const wall_border_point::index_t wbpid) {
                     const auto& wbp = _floor.data().get(wbpid);
-                    const auto& wbpud = _floor.data().user_data(wbpid);
+                    const auto& wbpud = _floor.data().annotation(wbpid);
 
                     for (const auto& wbpl : wbpud.point_locators)
                     {

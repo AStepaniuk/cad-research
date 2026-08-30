@@ -16,7 +16,7 @@ namespace corecad::model
     template<typename TModel>
     class model_base;
 
-    template<typename T, typename THistory, typename TUserData = nothing>
+    template<typename T, typename THistory, typename TAnnotation = nothing>
     class trackable_registry : public i_model_update_tracker<T>
     {
     public:
@@ -25,13 +25,13 @@ namespace corecad::model
 
     private:
         using underlying_container_t = std::flat_map<index_t, T>;
-        using user_data_container_t = std::conditional_t<
-            std::same_as<TUserData, nothing>,
+        using annotation_container_t = std::conditional_t<
+            std::same_as<TAnnotation, nothing>,
             nothing,
-            std::flat_map<index_t, TUserData>
+            std::flat_map<index_t, TAnnotation>
         >;
 
-        static constexpr bool _has_user_data = !std::same_as<TUserData, nothing>;
+        static constexpr bool _has_annotation = !std::same_as<TAnnotation, nothing>;
 
     public:
         using const_iterator_t = underlying_container_t::const_iterator;
@@ -46,9 +46,9 @@ namespace corecad::model
 
             _data.clear();
 
-            if constexpr (_has_user_data)
+            if constexpr (_has_annotation)
             {
-                _user_data.clear();
+                _annotation.clear();
             }
         }
 
@@ -61,9 +61,9 @@ namespace corecad::model
             item.index = _last_index;
             item.bind(this);
 
-            if constexpr (_has_user_data)
+            if constexpr (_has_annotation)
             {
-                _user_data.emplace(_last_index, TUserData{});
+                _annotation.emplace(_last_index, TAnnotation{});
             }
 
             notify_created(item);
@@ -88,9 +88,9 @@ namespace corecad::model
             item.index = _last_index;
             item.bind(this);
 
-            if constexpr (_has_user_data)
+            if constexpr (_has_annotation)
             {
-                _user_data.emplace(_last_index, TUserData{});
+                _annotation.emplace(_last_index, TAnnotation{});
             }
 
             notify_created(item);
@@ -110,9 +110,9 @@ namespace corecad::model
             auto& item = (*(res.first)).second;
             item.bind(this);
 
-            if constexpr (_has_user_data)
+            if constexpr (_has_annotation)
             {
-                _user_data.emplace(_last_index, TUserData{});
+                _annotation.emplace(_last_index, TAnnotation{});
             }
 
             notify_created(item);
@@ -129,9 +129,9 @@ namespace corecad::model
             notify_deleting(it->second);
             _data.erase(it);
 
-            if constexpr (_has_user_data)
+            if constexpr (_has_annotation)
             {
-                _user_data.erase(index);
+                _annotation.erase(index);
             }
 
             return  true;
@@ -182,33 +182,33 @@ namespace corecad::model
             _history = history;
         }
 
-        const TUserData& user_data(const index_t& index) const
+        const TAnnotation& annotation(const index_t& index) const
         {
-            if constexpr (_has_user_data)
+            if constexpr (_has_annotation)
             {
-                return _user_data.at(index);
+                return _annotation.at(index);
             }
             else
             {
-                static_assert(_has_user_data, "Registry has no user data configured");
+                static_assert(_has_annotation, "Registry has no user data configured");
             }
         }
 
-        TUserData& user_data(const index_t& index)
+        TAnnotation& annotation(const index_t& index)
         {
-            if constexpr (_has_user_data)
+            if constexpr (_has_annotation)
             {
-                return _user_data.at(index);
+                return _annotation.at(index);
             }
             else
             {
-                static_assert(_has_user_data, "Registry has no user data configured");
+                static_assert(_has_annotation, "Registry has no user data configured");
             }
         }
      
     private:
         underlying_container_t _data;
-        user_data_container_t _user_data;
+        annotation_container_t _annotation;
         index_t _last_index { 0 };
         THistory* _history = nullptr;
 
@@ -250,20 +250,20 @@ namespace corecad::model
     }
 
 
-    template<typename T, typename THistory, typename TUserData>
-    std::ostream& operator<<(std::ostream& os, const trackable_registry<T, THistory, TUserData>& r)
+    template<typename T, typename THistory, typename TAnnotation>
+    std::ostream& operator<<(std::ostream& os, const trackable_registry<T, THistory, TAnnotation>& r)
     {
-        bool show_user_data_runtime = os.iword(io::get_ud_index()) == 1;
+        bool show_annotation_runtime = os.iword(io::get_ud_index()) == 1;
         
         for (const auto& [id, item] : r)
         {
             os << id << ": " << item;
 
-            if constexpr (util::streamable<TUserData>) 
+            if constexpr (util::streamable<TAnnotation>) 
             {
-                if (show_user_data_runtime) 
+                if (show_annotation_runtime) 
                 {
-                    os << " // " << r.user_data(id);
+                    os << " // " << r.annotation(id);
                 }
             }
 
@@ -277,8 +277,8 @@ namespace corecad::model
     template <typename T>
     struct is_trackable_registry : std::false_type {};
 
-    template<typename T, typename THistory, typename TUserData>
-    struct is_trackable_registry<trackable_registry<T, THistory, TUserData>> : std::true_type {};
+    template<typename T, typename THistory, typename TAnnotation>
+    struct is_trackable_registry<trackable_registry<T, THistory, TAnnotation>> : std::true_type {};
 
     template <typename T>
     concept IsTrackableRegistry = is_trackable_registry<std::remove_cvref_t<T>>::value;
