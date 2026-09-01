@@ -22,6 +22,7 @@ void operation_add_wall::start()
     _current_point = _document.model.data().make<wall_axis_point>(0.0, 0.0);
 
     _document.hovered_handle = handle_data { _current_point.value() };
+    _document.selected_walls.clear();
 
     _sub_operation_move_handle.start();
 }
@@ -70,11 +71,15 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
         _current_point = hhid;
     }
 
-    _document.model.history().commit("Add wall");
+    if (!_document.selected_walls.empty())
+    {
+        // Do commit only if wall has already been added. I.e. don't commit first added point, which has no wall
+        _document.model.history().commit("Add wall");
+    }
 
     auto m_model = _view.to_model(mx, my);
     auto next_index = _document.model.data().make<wall_axis_point>(m_model.x, m_model.y);
-    
+
     const auto axis_index = _document.model.data().make<wall_axis_line>(_current_point.value(), next_index);
     auto wall_index = _document.model.data().make<wall>(axis_index, 400.0);
 
