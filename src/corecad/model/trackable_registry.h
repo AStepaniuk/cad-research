@@ -112,7 +112,7 @@ namespace corecad::model
 
             if constexpr (_has_annotation)
             {
-                _annotation.emplace(_last_index, TAnnotation{});
+                _annotation.emplace(item.index, TAnnotation{});
             }
 
             notify_created(item);
