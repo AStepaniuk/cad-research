@@ -127,5 +127,8 @@ post_apply_actions wall_join_handler::apply()
         );
     }
 
+    // remove disconnected wall axis point
+    _document.model.data().erase(ahid);
+
     return post_apply_actions { .new_active_handle = _target_point_handle };
 }
