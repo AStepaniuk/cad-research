@@ -3,6 +3,10 @@
 #include <ranges>
 #include <iostream>
 
+#include "members_iterator.h"
+#include "overloaded.h"
+#include "property.h"
+
 using namespace gui::editor::handler;
 using namespace domain::plan::model::shape;
 using namespace domain::plan::model::parameter;
@@ -69,6 +73,9 @@ bool wall_join_handler::wall_move(
     return false;
 }
 
+template <typename TMember>
+using point_id_property = is_property_of_type<TMember, wall_point_id_t>;
+
 post_apply_actions wall_join_handler::apply()
 {
     if (!_target_point_handle)
@@ -88,6 +95,7 @@ post_apply_actions wall_join_handler::apply()
         return {};
     }
 
+    // update axises, which are connected to ahid, so they are connected to tphid instead
     for (auto&& [_, axis] : _document.model.data().items<wall_axis_line>())   
     {
         if (axis.s == ahid)
@@ -98,6 +106,25 @@ post_apply_actions wall_join_handler::apply()
         {
             axis.e = tphid;
         }
+    }
+
+    // update parameters ahid ==> tphid
+    for (auto&& [_, p] : _document.model.data().items<parameter>())
+    {
+        std::visit([&](auto& param) {
+                corecad::meta::visit_members<point_id_property>(param, [&](auto& prop) {
+                    std::visit(corecad::util::overloaded {
+                        [&] (wall_axis_point::index_t& a) {
+                            if (a == ahid)
+                            {
+                                a = tphid;
+                            }
+                        },
+                        [&] (wall_border_point::index_t& b) { }
+                    }, prop.val());
+                });
+            }, p.instance
+        );
     }
 
     return post_apply_actions { .new_active_handle = _target_point_handle };
