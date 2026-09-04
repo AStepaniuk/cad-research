@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include "main_menu.h"
+#include "cmd_panel.h"
 #include "workspace.h"
 
 using namespace gui;
@@ -33,6 +34,7 @@ void main_window::run()
     ImGui_ImplOpenGL3_Init("#version 130");
 
     main_menu mm;
+    cmd_panel cp;
 
     // workspace init
     // TODO: consider creation multi-workspace environments
@@ -47,8 +49,9 @@ void main_window::run()
         ImGui::NewFrame();
 
         mm.process_frame();
+        cp.process_frame();
 
-        bool is_mouse_in_workspace = !mm.is_mouse_hovering();
+        bool is_mouse_in_workspace = !mm.is_mouse_hovering() && !cp.is_mouse_hovering();
 
         ws.process_frame(is_mouse_in_workspace);
 
