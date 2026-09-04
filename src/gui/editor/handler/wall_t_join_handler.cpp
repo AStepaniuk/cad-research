@@ -181,7 +181,7 @@ post_apply_actions wall_t_join_handler::apply()
     a.e = ahid;
 
     const auto new_aid = _document.model.data().make<wall_axis_line>(ahid, epid);
-    const auto new_wid = _document.model.data().make<wall>(new_aid, w.width);
+    const auto new_wid = _document.model.data().make<wall>(new_aid, w.thickness);
     _document.model.data().get(new_wid).axis_offset = w.axis_offset;
 
     if (_t_joint_wall_alignment_id)

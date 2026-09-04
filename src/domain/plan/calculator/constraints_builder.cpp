@@ -75,8 +75,8 @@ model::floor::constraint_t constraints_builder::to_constraint(const model::param
                         else
                         {
                             auto adjustment = wbpl.border_ptr == &wall::left
-                                ? -(wall.width * 0.5 + wall.axis_offset)
-                                : wall.width * 0.5  - wall.axis_offset;
+                                ? -(wall.thickness * 0.5 + wall.axis_offset)
+                                : wall.thickness * 0.5  - wall.axis_offset;
                             
                             if (wall_orienation.value().s == sign::neg)
                             {

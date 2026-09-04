@@ -72,9 +72,9 @@ namespace domain::plan::model::shape
     class wall : public corecad::model::model_base<wall>
     {
     public:
-        wall(wall_axis_line::index_t a, double w)
+        wall(wall_axis_line::index_t a, double t)
             : axis { this, a }
-            , width { this, w }
+            , thickness { this, t }
             , axis_offset { this, 0.0 }
         {
         }
@@ -82,7 +82,7 @@ namespace domain::plan::model::shape
         wall(const wall& other)
             : corecad::model::model_base<wall> { other }
             , axis { this, other.axis }
-            , width { this, other.width }
+            , thickness { this, other.thickness }
             , axis_offset { this, other.axis_offset }
             , left { other.left }
             , right { other.right }
@@ -94,7 +94,7 @@ namespace domain::plan::model::shape
         wall(wall&& other) noexcept
             : corecad::model::model_base<wall> { other }
             , axis { this, other.axis }
-            , width { this, other.width }
+            , thickness { this, other.thickness }
             , axis_offset { this, other.axis_offset }
             , left { other.left }
             , right { other.right }
@@ -109,7 +109,7 @@ namespace domain::plan::model::shape
         // primary model properties
         corecad::model::property<wall_axis_line::index_t, wall> axis;
 
-        corecad::model::property<double, wall> width;
+        corecad::model::property<double, wall> thickness;
         corecad::model::property<double, wall> axis_offset;
 
         // calculated properties
@@ -124,7 +124,7 @@ namespace domain::plan::model::shape
 
             static constexpr auto members = std::make_tuple(
                 corecad::meta::member("index", &wall::index),
-                corecad::meta::member("width", &wall::width),
+                corecad::meta::member("width", &wall::thickness),
                 corecad::meta::member("axis_offset", &wall::axis_offset),
                 corecad::meta::member("left", &wall::left),
                 corecad::meta::member("right", &wall::right),

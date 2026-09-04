@@ -72,8 +72,8 @@ namespace
         double w1_axis_offset = (common_p.index == l1.s? w1.axis_offset : -w1.axis_offset);
         double w2_axis_offset = (common_p.index == l2.s? -w2.axis_offset : w2.axis_offset);
 
-        double w1_offset = w1.width * 0.5 + w1_axis_offset;
-        double w2_offset = -(w2.width * 0.5 + w2_axis_offset);
+        double w1_offset = w1.thickness * 0.5 + w1_axis_offset;
+        double w2_offset = -(w2.thickness * 0.5 + w2_axis_offset);
 
         auto left_w1_offset_p = calculate_point_with_offset_from_line(common_p, w1_free_p, w1_offset);
         auto right_w2_offset_p = calculate_point_with_offset_from_line(common_p, w2_free_p, w2_offset);
@@ -237,8 +237,8 @@ void wall_calculator::calculate_stub_wall_start_borders(wall& w)
     const auto& start_p = _floor.data().get(axis.s);
     const auto& end_p = _floor.data().get(axis.e);
 
-    const double left_offset = w.width * 0.5 + w.axis_offset;
-    const double right_offset = -(w.width * 0.5 - w.axis_offset);
+    const double left_offset = w.thickness * 0.5 + w.axis_offset;
+    const double right_offset = -(w.thickness * 0.5 - w.axis_offset);
 
     const auto left_p = calculate_point_with_offset_from_line(start_p, end_p, left_offset);
     const auto right_p = calculate_point_with_offset_from_line(start_p, end_p, right_offset);
@@ -262,8 +262,8 @@ void wall_calculator::calculate_stub_wall_end_borders(wall& w)
     const auto& start_p = _floor.data().get(axis.s);
     const auto& end_p = _floor.data().get(axis.e);
 
-    double left_offset = -(w.width * 0.5 + w.axis_offset);
-    double right_offset = w.width * 0.5 - w.axis_offset;
+    double left_offset = -(w.thickness * 0.5 + w.axis_offset);
+    double right_offset = w.thickness * 0.5 - w.axis_offset;
 
     auto left_p = calculate_point_with_offset_from_line(end_p, start_p, left_offset);
     auto right_p = calculate_point_with_offset_from_line(end_p, start_p, right_offset);
