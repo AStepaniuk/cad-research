@@ -44,6 +44,31 @@ void gui::editor::floor_editor::reset_selection()
     _document.hovered_handle = std::nullopt;
 }
 
+bool floor_editor::execute_instruction(const cmd_parser::instruction &instruction)
+{
+    if (_current_operation)
+    {
+        auto result = _current_operation->execute_instruction(instruction);
+
+        if (result == operation::action_handle_status::unhandled)
+        {
+            return false;
+        }
+
+        if (result == operation::action_handle_status::operation_finished)
+        {
+            switch_operation(&_operation_idle);
+        }
+
+        return true;
+    }
+    else
+    {
+        // no instructions are supported at the floor_editor level
+        return false;
+    }
+}
+
 void floor_editor::process_frame(bool mouse_in_workspace)
 {
     const auto mp = ImGui::GetIO().MousePos;

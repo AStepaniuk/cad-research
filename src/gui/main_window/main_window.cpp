@@ -1,5 +1,7 @@
 #include "main_window.h"
 
+#include <format>
+
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -7,6 +9,7 @@
 
 #include "main_menu.h"
 #include "cmd_panel.h"
+#include "cmd_parser.h"
 #include "workspace.h"
 
 using namespace gui;
@@ -51,8 +54,23 @@ void main_window::run()
         mm.process_frame();
         cp.process_frame();
 
-        bool is_mouse_in_workspace = !mm.is_mouse_hovering() && !cp.is_mouse_hovering();
+        auto command = cp.take_entered_command();
 
+        if (command)
+        {
+            auto instructions = cmd_parser::parser::parse(command.value());
+
+            for (const auto& i : instructions.list)
+            {
+                auto res = ws.execute_instruction(i.instr);
+                if (!res)
+                {
+                    cp.error(std::format("Unknown command: '{}'", i.src_text));
+                }
+            }
+        }
+
+        bool is_mouse_in_workspace = !mm.is_mouse_hovering() && !cp.is_mouse_hovering();
         ws.process_frame(is_mouse_in_workspace);
 
         // other ImGui windows/widgets here

@@ -2,6 +2,7 @@ add_subdirectory(main_window)
 add_subdirectory(doc)
 add_subdirectory(view)
 add_subdirectory(editor)
+add_subdirectory(cmd_parser)
 
 find_package(OpenGL REQUIRED)
 
@@ -11,6 +12,7 @@ add_executable(
   ${CADGUI_EDITOR_ALL_OBJECTS}
   $<TARGET_OBJECTS:cadgui_doc>
   $<TARGET_OBJECTS:cadgui_view>
+  $<TARGET_OBJECTS:cadgui_cmd_parser>
   $<TARGET_OBJECTS:cadgui_main_window>
 )
 
@@ -29,5 +31,6 @@ target_link_libraries(
   cadgui_editor
   cadgui_doc
   cadgui_view
+  cadgui_cmd_parser
   cadgui_main_window
 )

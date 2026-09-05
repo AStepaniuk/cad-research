@@ -42,6 +42,8 @@ namespace gui { namespace editor { namespace operation {
         action_handle_status mouse_move(float mx, float my) override;
         action_handle_status left_mouse_click(float mx, float my) override;
 
+        action_handle_status execute_instruction(const cmd_parser::instruction& instruction) override;
+
         void enable_commit_on_click();
         void disable_commit_on_click();
     };

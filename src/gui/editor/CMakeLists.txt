@@ -33,4 +33,5 @@ target_link_libraries(cadgui_editor PUBLIC
     cadgui_editor_snap
     cadgui_editor_calc_pipeline
     cadgui_view
+    cadgui_cmd_parser
 )

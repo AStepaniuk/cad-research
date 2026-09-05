@@ -1,7 +1,5 @@
 #include "workspace.h"
 
-#include <imgui.h>
-
 using namespace gui;
 
 workspace::workspace(GLFWwindow* window, main_menu& mm)
@@ -9,6 +7,11 @@ workspace::workspace(GLFWwindow* window, main_menu& mm)
     , _document {}
     , _editor { window, _document }
 {
+}
+
+bool gui::workspace::execute_instruction(const cmd_parser::instruction& instruction)
+{
+    return _editor.execute_instruction(instruction);
 }
 
 void workspace::process_frame(bool mouse_in_workspace)

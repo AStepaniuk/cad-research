@@ -4,9 +4,11 @@
 
 #include "main_menu.h"
 #include "document.h"
+#include "cmd_ast.h"
 #include "floor_editor.h"
 
-namespace gui {
+namespace gui
+{
     class workspace
     {
         main_menu& _main_menu;
@@ -17,6 +19,7 @@ namespace gui {
     public:
         workspace(GLFWwindow* window, main_menu& mm);
 
+        bool execute_instruction(const cmd_parser::instruction& instruction);
         void process_frame(bool mouse_in_workspace);
     };
 }

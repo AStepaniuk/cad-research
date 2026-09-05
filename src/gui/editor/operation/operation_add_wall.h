@@ -12,7 +12,8 @@
 
 #include "vector2d.h"
 
-namespace gui { namespace editor { namespace operation {
+namespace gui::editor::operation
+{
     class operation_add_wall : public i_operation
     {
         doc::document& _document;
@@ -31,5 +32,7 @@ namespace gui { namespace editor { namespace operation {
 
         action_handle_status mouse_move(float mx, float my) override;
         action_handle_status left_mouse_click(float mx, float my) override;
+
+        action_handle_status execute_instruction(const cmd_parser::instruction& instruction) override;
     };
-}}}
+}

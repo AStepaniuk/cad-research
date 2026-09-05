@@ -17,4 +17,5 @@ target_link_libraries(cadgui_main_window PRIVATE
     plan
     cadgui_doc
     cadgui_editor
+    cadgui_cmd_parser
 )

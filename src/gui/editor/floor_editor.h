@@ -4,6 +4,7 @@
 #include "floor_view.h"
 #include "mouse.h"
 #include "calc_tools.h"
+#include "cmd_ast.h"
 
 #include "operation/operation_idle.h"
 #include "operation/operation_add_wall.h"
@@ -29,6 +30,7 @@ namespace gui::editor {
     public:
         floor_editor(GLFWwindow* window, doc::document& doc);
 
+        bool execute_instruction(const cmd_parser::instruction& instruction);
         void process_frame(bool mouse_in_workspace);
 
         void start_operation_add_wall();

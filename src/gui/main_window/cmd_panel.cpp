@@ -1,5 +1,7 @@
 #include "cmd_panel.h"
 
+#include <utility>
+
 using namespace gui;
 
 namespace
@@ -14,7 +16,7 @@ namespace
     }
 }
 
-gui::cmd_panel::cmd_panel()
+cmd_panel::cmd_panel()
 {
     _command_buffer[0] = '\0';
 }
@@ -103,8 +105,10 @@ void cmd_panel::process_frame()
             _log += _command_buffer.data();
             _log += "\n";
 
+            _entered_command = _command_buffer.data();
         }
-        _command_buffer[0] = '\0'; 
+        _command_buffer[0] = '\0';
+
         ImGui::SetKeyboardFocusHere(-1); 
     }
     ImGui::PopItemWidth();
@@ -115,7 +119,30 @@ void cmd_panel::process_frame()
     ImGui::End();
 }
 
-bool gui::cmd_panel::is_mouse_hovering() const
+bool cmd_panel::is_mouse_hovering() const
 {
     return _is_mouse_hovering;
+}
+
+std::optional<std::string> cmd_panel::take_entered_command()
+{
+    return std::exchange(_entered_command, std::nullopt);
+}
+
+void cmd_panel::info(std::string_view data)
+{
+    _log += data;
+    _log += '\n';
+}
+
+void cmd_panel::warning(std::string_view data)
+{
+    _log += data;
+    _log += '\n';
+}
+
+void cmd_panel::error(std::string_view data)
+{
+    _log += data;
+    _log += '\n';
 }

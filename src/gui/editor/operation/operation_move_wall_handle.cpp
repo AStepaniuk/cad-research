@@ -136,6 +136,11 @@ action_handle_status operation_move_wall_handle::left_mouse_click(float mx, floa
     return action_handle_status::operation_finished;
 }
 
+action_handle_status operation_move_wall_handle::execute_instruction(const cmd_parser::instruction &instruction)
+{
+    return action_handle_status::unhandled;
+}
+
 void operation_move_wall_handle::enable_commit_on_click()
 {
     _do_commit_on_click = true;

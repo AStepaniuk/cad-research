@@ -13,6 +13,7 @@ target_link_libraries(cadgui_editor_operation PRIVATE
     plan
     cadgui_doc
     cadgui_view
+    cadgui_cmd_parser
     cadgui_editor_handler
     cadgui_editor_calc_pipeline
 )

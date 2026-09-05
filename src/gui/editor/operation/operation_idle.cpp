@@ -102,3 +102,15 @@ action_handle_status gui::editor::operation::operation_idle::left_mouse_click(fl
         }
     }
 }
+
+action_handle_status operation_idle::execute_instruction(const cmd_parser::instruction &instruction)
+{
+    if (_sub_operation)
+    {
+        return _sub_operation->execute_instruction(instruction);
+    }
+    else
+    {
+        return action_handle_status::unhandled;
+    }
+}

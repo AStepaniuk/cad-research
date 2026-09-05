@@ -95,3 +95,8 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
 
     return action_handle_status::operation_continues;
 }
+
+action_handle_status operation_add_wall::execute_instruction(const cmd_parser::instruction &instruction)
+{
+    return _sub_operation_move_handle.execute_instruction(instruction);
+}
