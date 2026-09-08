@@ -4,8 +4,10 @@
 #include <imgui.h>
 
 #include "overloaded.h"
+#include "translate.h"
 
 using namespace gui;
+using namespace gui::localization;
 
 main_menu::main_menu()
 {
@@ -13,32 +15,32 @@ main_menu::main_menu()
     {
         menu_meta
         {
-            .caption = "File",
+            .caption = tr("File"),
             .items =
             {
                 menu_item_meta 
                 {
-                    .caption = "Open"
+                    .caption = tr("Open")
                 },                
                 menu_item_meta 
                 {
-                    .caption = "Save"
+                    .caption = tr("Save")
                 },
                 separator_meta {},
                 menu_item_meta 
                 {
-                    .caption = "Exit"
+                    .caption = tr("Exit")
                 }
             }
         },
         menu_meta
         {
-            .caption = "Edit",
+            .caption = tr("Edit"),
             .items =
             {
                 menu_item_meta 
                 {
-                    .caption = "Undo",
+                    .caption = tr("Undo"),
                     .hotkey = ImGuiKey_Z,
                     .key_mods = ImGuiMod_Ctrl,
                     .hotkey_text = "Ctrl+Z",
@@ -46,7 +48,7 @@ main_menu::main_menu()
                 },                
                 menu_item_meta 
                 {
-                    .caption = "Redo",
+                    .caption = tr("Redo"),
                     .hotkey = ImGuiKey_Y,
                     .key_mods = ImGuiMod_Ctrl,
                     .hotkey_text = "Ctrl+Y",
@@ -56,12 +58,12 @@ main_menu::main_menu()
         },
         menu_meta
         {
-            .caption = "Draw",
+            .caption = tr("Draw"),
             .items = 
             {
                 menu_item_meta
                 {
-                    .caption = "Wall",
+                    .caption = tr("Wall"),
                     .hotkey = ImGuiKey_W,
                     .item_choice = item::add_wall
                 }

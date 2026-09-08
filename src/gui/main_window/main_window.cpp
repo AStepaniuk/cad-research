@@ -11,8 +11,10 @@
 #include "cmd_panel.h"
 #include "cmd_parser.h"
 #include "workspace.h"
+#include "translate.h"
 
 using namespace gui;
+using namespace gui::localization;
 
 void main_window::run()
 {
@@ -65,7 +67,7 @@ void main_window::run()
                 auto res = ws.execute_instruction(i.instr);
                 if (!res)
                 {
-                    cp.error(std::format("Unknown command: '{}'", i.src_text));
+                    cp.error(tr("Unknown command: '{}'", i.src_text));
                 }
             }
         }
