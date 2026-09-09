@@ -11,14 +11,14 @@ namespace gui::cmd_parser
         double data;
     };
     
-    struct parameter
+    struct attribute
     {
         std::string name;
     };
 
     struct assignment
     {
-        parameter param;
+        attribute attr;
         value val;
     };
 

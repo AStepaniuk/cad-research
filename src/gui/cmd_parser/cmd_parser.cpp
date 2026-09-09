@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <format>
 
+#include "parser_error.h"
+
 using namespace gui::cmd_parser;
 
 namespace
@@ -95,12 +97,12 @@ namespace
         return { numeric_data, cursor };
     }
 
-    parse_result<parameter> parse_parameter(std::string_view source)
+    parse_result<attribute> parse_attribute(std::string_view source)
     {
         auto [name, name_size] = parse_identifier(source);
         if (name)
         {
-            return { parameter { .name = std::move(name.value()) }, name_size };
+            return { attribute { .name = std::move(name.value()) }, name_size };
         }
         else
         {
@@ -125,12 +127,12 @@ namespace
     {
         size_t cursor = 0;
 
-        auto [param, param_size] = parse_parameter(source);
-        if (!param)
+        auto [attr, attr_size] = parse_attribute(source);
+        if (!attr)
         {
             return { std::nullopt, 0 };
         }
-        cursor += param_size;
+        cursor += attr_size;
 
         cursor += skip_whitespaces(advance(source, cursor));
 
@@ -152,7 +154,7 @@ namespace
         return {
             assignment
             {
-                .param = std::move(param.value()),
+                .param = std::move(attr.value()),
                 .val = std::move(val.value())
             },
             cursor
@@ -197,8 +199,9 @@ instructions parser::parse(std::string_view source)
 
     if (!instrs || instrs_size < source.size())
     {
-        std::string_view error_location = source.substr(std::min(instrs_size, source.size()));
-        throw std::runtime_error(std::format("Syntax Error: Could not read command completely. Near: '{}'", error_location));
+        auto error_pos = std::min(instrs_size, source.size());
+        std::string failed_text = std::string { source.substr(error_pos) };
+        throw parser_error(failed_text, error_pos);
     }
 
     return instrs.value();
