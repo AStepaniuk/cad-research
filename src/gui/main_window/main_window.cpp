@@ -10,6 +10,7 @@
 #include "main_menu.h"
 #include "cmd_panel.h"
 #include "cmd_parser.h"
+#include "parser_error.h"
 #include "workspace.h"
 #include "translate.h"
 
@@ -60,15 +61,22 @@ void main_window::run()
 
         if (command)
         {
-            auto instructions = cmd_parser::parser::parse(command.value());
-
-            for (const auto& i : instructions.list)
+            try
             {
-                auto res = ws.execute_instruction(i.instr);
-                if (!res)
+                auto instructions = cmd_parser::parser::parse(command.value());
+
+                for (const auto& i : instructions.list)
                 {
-                    cp.error(tr("Unknown command: '{}'", i.src_text));
+                    auto res = ws.execute_instruction(i.instr);
+                    if (!res)
+                    {
+                        cp.error(tr("Unknown command: '{}'", i.src_text));
+                    }
                 }
+            }
+            catch (const cmd_parser::parser_error& pe)
+            {
+                cp.error(tr("Syntax error: '{}'", pe.failed_text()));
             }
         }
 
