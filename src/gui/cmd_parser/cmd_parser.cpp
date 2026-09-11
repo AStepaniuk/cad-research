@@ -154,7 +154,7 @@ namespace
         return {
             assignment
             {
-                .param = std::move(attr.value()),
+                .attr = std::move(attr.value()),
                 .val = std::move(val.value())
             },
             cursor

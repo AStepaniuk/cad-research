@@ -2,16 +2,20 @@
 
 #include <iostream>
 
+#include "overloaded.h"
+
 using namespace gui::doc;
 using namespace gui::editor::operation;
+using namespace gui::editor::attribute;
 using namespace corecad::model;
 using namespace domain::plan::model;
 using namespace domain::plan::model::shape;
 
-operation_add_wall::operation_add_wall(doc::document &doc, floor_view &v, calc_tools &t)
+operation_add_wall::operation_add_wall(doc::document &doc, floor_view &v, calc_tools &t, attribute_service& as)
     : _document { doc }
     , _view { v }
     , _tools { t }
+    , _attribute_service { as }
     , _sub_operation_move_handle { doc, v, t, "" }
 {
     _sub_operation_move_handle.disable_commit_on_click();
@@ -98,5 +102,19 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
 
 action_handle_status operation_add_wall::execute_instruction(const cmd_parser::instruction &instruction)
 {
-    return _sub_operation_move_handle.execute_instruction(instruction);
+    return std::visit(corecad::util::overloaded {
+        [&](const cmd_parser::assignment& a) {
+            if (_document.selected_walls.empty())
+            {
+                return action_handle_status::unhandled;
+            }
+
+            auto& active_wall = _document.model.data().get(*(_document.selected_walls.begin()));
+
+            _attribute_service.set_attribute(&active_wall, a.attr.name, a.val.data);
+            _tools.run_full_pipeline();
+
+            return action_handle_status::operation_continues;
+        }
+    }, instruction);
 }

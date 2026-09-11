@@ -4,20 +4,23 @@
 #include "floor_view.h"
 #include "mouse.h"
 #include "calc_tools.h"
+#include "attribute_service.h"
 #include "cmd_ast.h"
 
 #include "operation/operation_idle.h"
 #include "operation/operation_add_wall.h"
 
-namespace gui::editor {
+namespace gui::editor
+{
     class floor_editor
     {
         doc::document& _document;
 
         calc_tools _tools;
+        attribute::attribute_service _attribute_service;
 
         floor_view _view;
-        editor::mouse _mouse;
+        mouse _mouse;
         
         operation::operation_idle _operation_idle;
         operation::operation_add_wall _operation_add_wall;
