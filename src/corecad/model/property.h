@@ -111,6 +111,13 @@ namespace corecad::model
         void reset_updated() { _updated = false; }
         void bind(TModel& parent) { _parent = &parent; }
 
+        struct metadata
+        {
+            static constexpr std::string_view base_type_name = "property_";
+            static constexpr std::string_view value_name = corecad::meta::type_name<TValue>();
+            static constexpr std::string_view type_name = corecad::util::join_v<base_type_name, value_name>;
+        };
+
     private:
         void handle_update()
         {
