@@ -124,7 +124,7 @@ namespace domain::plan::model::shape
 
             static constexpr auto members = std::make_tuple(
                 corecad::meta::member("index", &wall::index),
-                corecad::meta::member("width", &wall::thickness),
+                corecad::meta::member("thickness", &wall::thickness),
                 corecad::meta::member("axis_offset", &wall::axis_offset),
                 corecad::meta::member("left", &wall::left),
                 corecad::meta::member("right", &wall::right),
