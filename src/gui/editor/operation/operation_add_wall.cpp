@@ -79,13 +79,16 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
     {
         // Do commit only if wall has already been added. I.e. don't commit first added point, which has no wall
         _document.model.history().commit("Add wall");
+
+        auto& active_wall = _document.model.data().get(*(_document.selected_walls.begin()));
+        _last_thickness = active_wall.thickness;
     }
 
     auto m_model = _view.to_model(mx, my);
     auto next_index = _document.model.data().make<wall_axis_point>(m_model.x, m_model.y);
 
     const auto axis_index = _document.model.data().make<wall_axis_line>(_current_point.value(), next_index);
-    auto wall_index = _document.model.data().make<wall>(axis_index, 400.0);
+    auto wall_index = _document.model.data().make<wall>(axis_index, _last_thickness);
 
     _document.selected_walls.clear();
     _document.selected_walls.put(wall_index);
