@@ -71,11 +71,11 @@ void walls_view::render(ImDrawList* draw_list)
             draw_list->AddLine(polygon[0], polygon[3], Styles::WallSelectedMidLineColor, Styles::WallSelectedMidLineThickness);
             if (w.start_stub)
             {
-                draw_list->AddLine(polygon[1], polygon[5], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
+                render_line(draw_list, w.start_stub, Styles::WallSelectedLineThickness, Styles::WallSelectedLineColor);
             }
             if (w.end_stub)
             {
-                draw_list->AddLine(polygon[2], polygon[4], Styles::WallSelectedLineColor, Styles::WallSelectedLineThickness);
+                render_line(draw_list, w.end_stub, Styles::WallSelectedLineThickness, Styles::WallSelectedLineColor);
             }
         }
         else
@@ -85,11 +85,11 @@ void walls_view::render(ImDrawList* draw_list)
             draw_list->AddLine(polygon[0], polygon[3], Styles::WallMidLineColor, Styles::WallMidLineThickness);
             if (w.start_stub)
             {
-                draw_list->AddLine(polygon[1], polygon[5], Styles::WallLineColor, Styles::WallLineThickness);
+                render_line(draw_list, w.start_stub, Styles::WallLineThickness, Styles::WallLineColor);
             }
             if (w.end_stub)
             {
-                draw_list->AddLine(polygon[2], polygon[4], Styles::WallLineColor, Styles::WallLineThickness);
+                render_line(draw_list, w.end_stub, Styles::WallLineThickness, Styles::WallLineColor);
             }
         }
     }
@@ -105,11 +105,11 @@ void walls_view::render(ImDrawList* draw_list)
         draw_list->AddLine(polygon[4], polygon[5], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
         if (w.start_stub)
         {
-            draw_list->AddLine(polygon[1], polygon[5], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
+            render_line(draw_list, w.start_stub, Styles::WallHoveredLineThickness, Styles::WallHoveredLineColor);
         }
         if (w.end_stub)
         {
-            draw_list->AddLine(polygon[2], polygon[4], Styles::WallHoveredLineColor, Styles::WallHoveredLineThickness);
+            render_line(draw_list, w.end_stub, Styles::WallHoveredLineThickness, Styles::WallHoveredLineColor);
         }
 
         draw_list->AddLine(polygon[0], polygon[3], Styles::WallHoveredMidLineColor, Styles::WallHoveredMidLineThickness);
@@ -210,6 +210,19 @@ std::vector<wall_axis_point::index_t> walls_view::get_handles(float screen_x, fl
    }
 
    return result;
+}
+
+void gui::walls_view::render_line(ImDrawList *draw_list, wall_border_line::index_t lid, float line_thickness, ImU32 line_color) const
+{
+    if (lid)
+    {
+        const auto& l = _document.model.data().get(lid);
+
+        const auto s = _translator.to_view(l.s);
+        const auto e = _translator.to_view(l.e);
+
+        draw_list->AddLine(s, e, line_color, line_thickness);
+    }
 }
 
 std::vector<ImVec2> walls_view::to_view_polygon(const wall &w) const
