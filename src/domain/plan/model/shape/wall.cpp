@@ -1,6 +1,7 @@
 #include "wall.h"
 
 #include "overloaded.h"
+#include "std_ostream_extensions.h"
 
 std::ostream& domain::plan::model::shape::operator<<(std::ostream &os, const wall &w)
 {
@@ -17,23 +18,26 @@ std::ostream &domain::plan::model::shape::operator<<(std::ostream &os, const wal
 
 std::ostream &domain::plan::model::shape::operator<<(std::ostream &os, const wall_axis_point_data &wapd)
 {
-    if (wapd.connected_walls)
-    {
-        bool first = true;
-        for (const auto& wapl : wapd.connected_walls.value())
-        {
-            if (!first) os << " | ";
-            os << wapl;
+    return os << wapd.connected_walls;
+}
 
-            first = false;
-        }
+std::ostream &domain::plan::model::shape::operator<<(std::ostream &os, const wall_border_line_ptr &wblp)
+{
+    if (wblp == &wall::left) return os << 'l';
+    if (wblp == &wall::right) return os << 'r';
+    if (wblp == &wall::start_stub) return os << "ss";
+    if (wblp == &wall::end_stub) return os << "es";
+    return os << "??";
+}
 
-        return os;
-    }
-    else
-    {
-        return os << "[empty]";
-    }
+std::ostream &domain::plan::model::shape::operator<<(std::ostream &os, const wall_border_point_locator &wbpl)
+{
+    return os << "wid:" << wbpl.wall_id << "-" << wbpl.border_ptr << wbpl.point_on_border_ptr;
+}
+
+std::ostream &domain::plan::model::shape::operator<<(std::ostream &os, const wall_border_point_data &wbpd)
+{
+    return os << wbpd.point_locators[0] << " | " << wbpd.point_locators[1];
 }
 
 std::ostream &domain::plan::model::shape::operator<<(std::ostream &os, const wall_points_tl::variant_t &val)

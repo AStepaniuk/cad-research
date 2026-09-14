@@ -43,7 +43,7 @@ namespace domain::plan::model::shape
     std::ostream& operator<<(std::ostream& os, const wall_axis_point_locator& wapl);
     struct wall_axis_point_data
     {
-        std::optional<std::vector<wall_axis_point_locator>> connected_walls;
+        std::vector<wall_axis_point_locator> connected_walls;
     };
     std::ostream& operator<<(std::ostream& os, const wall_axis_point_data& wapd);
 
@@ -57,10 +57,13 @@ namespace domain::plan::model::shape
         wall_border_line_ptr border_ptr;
         point_on_wall_border_ptr point_on_border_ptr;
     };
+    std::ostream& operator<<(std::ostream& os, const wall_border_line_ptr& wblp);
+    std::ostream& operator<<(std::ostream& os, const wall_border_point_locator& wbpl);
     struct wall_border_point_data
     {
         std::array<wall_border_point_locator, 2> point_locators;
     };
+    std::ostream& operator<<(std::ostream& os, const wall_border_point_data& wbpd);
 
     using wall_points_tl = corecad::util::type_list<wall_axis_point, wall_border_point>;
     using wall_points_ids_tl = corecad::model::to_index_type_list<wall_points_tl>::type;
