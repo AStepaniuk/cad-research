@@ -74,6 +74,7 @@ namespace corecad::model
         {
             std::visit([this](auto& impl) {
                 meta::visit_members<is_property>(impl, [](auto& prop) { prop.reset_updated(); });
+                meta::visit_members<is_list>(impl, [](auto& prop) { prop.reset_updated(); });
             }, instance);
         }
 
@@ -87,6 +88,7 @@ namespace corecad::model
         {
            std::visit([this](auto& impl) {
                 meta::visit_members<is_property>(impl, [this](auto& prop) { prop.bind(static_cast<TVariantModel&>(*this)); });
+                meta::visit_members<is_list>(impl, [this](auto& prop) { prop.bind(static_cast<TVariantModel&>(*this)); });
             }, instance);
         }
     };

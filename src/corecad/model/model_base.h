@@ -6,6 +6,7 @@
 #include "type_list.h"
 #include "members_iterator.h"
 #include "property.h"
+#include "list.h"
 #include "i_model_update_tracker.h"
 
 namespace corecad::model
@@ -28,6 +29,7 @@ namespace corecad::model
             else
             {
                 meta::visit_members<is_property>(static_cast<TModel&>(*this), [](auto& prop) { prop.reset_updated(); });
+                meta::visit_members<is_list>(static_cast<TModel&>(*this), [](auto& prop) { prop.reset_updated(); });
             }
 
             _updated = false;
