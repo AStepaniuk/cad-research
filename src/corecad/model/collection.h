@@ -18,11 +18,11 @@ namespace corecad { namespace model
         using index_t = registry_index_t<T>;
 
     private:
-        using underlying_contaier_t = std::vector<index_t>;
+        using underlying_container_t = std::vector<index_t>;
 
     public:
-        using const_iterator_t = underlying_contaier_t::const_iterator;
-        using iterator_t = underlying_contaier_t::iterator;
+        using const_iterator_t = underlying_container_t::const_iterator;
+        using iterator_t = underlying_container_t::iterator;
 
         void clear()
         {
@@ -82,7 +82,7 @@ namespace corecad { namespace model
         }
 
     private:
-        underlying_contaier_t _data;
+        underlying_container_t _data;
     };
 
     template<typename T>
