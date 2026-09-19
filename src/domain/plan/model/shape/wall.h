@@ -3,7 +3,7 @@
 #include <array>
 
 #include "model_base.h"
-#include "registry.h"
+#include "wall_compound_type.h"
 #include "type_list.h"
 #include "vector2d.h"
 #include "line2d.h"
@@ -43,7 +43,7 @@ namespace domain::plan::model::shape
     std::ostream& operator<<(std::ostream& os, const wall_axis_point_locator& wapl);
     struct wall_axis_point_data
     {
-        std::vector<wall_axis_point_locator> connected_walls;
+        std::optional<std::vector<wall_axis_point_locator>> connected_walls;
     };
     std::ostream& operator<<(std::ostream& os, const wall_axis_point_data& wapd);
 
@@ -77,6 +77,7 @@ namespace domain::plan::model::shape
     public:
         wall(wall_axis_line::index_t a, double t)
             : axis { this, a }
+            , compound_type { this, {} }
             , thickness { this, t }
             , axis_offset { this, 0.0 }
         {
@@ -85,6 +86,7 @@ namespace domain::plan::model::shape
         wall(const wall& other)
             : corecad::model::model_base<wall> { other }
             , axis { this, other.axis }
+            , compound_type { this, other.compound_type }
             , thickness { this, other.thickness }
             , axis_offset { this, other.axis_offset }
             , left { other.left }
@@ -97,6 +99,7 @@ namespace domain::plan::model::shape
         wall(wall&& other) noexcept
             : corecad::model::model_base<wall> { other }
             , axis { this, other.axis }
+            , compound_type { this, other.compound_type }
             , thickness { this, other.thickness }
             , axis_offset { this, other.axis_offset }
             , left { other.left }
@@ -111,6 +114,8 @@ namespace domain::plan::model::shape
 
         // primary model properties
         corecad::model::property<wall_axis_line::index_t, wall> axis;
+
+        corecad::model::property<wall_compound_type::index_t, wall> compound_type;
 
         corecad::model::property<double, wall> thickness;
         corecad::model::property<double, wall> axis_offset;
@@ -127,6 +132,7 @@ namespace domain::plan::model::shape
 
             static constexpr auto members = std::make_tuple(
                 corecad::meta::member("index", &wall::index),
+                corecad::meta::member("compound_type", &wall::compound_type),
                 corecad::meta::member("thickness", &wall::thickness),
                 corecad::meta::member("axis_offset", &wall::axis_offset),
                 corecad::meta::member("left", &wall::left),

@@ -28,6 +28,9 @@ namespace domain::plan::model
             shape::wall_axis_line,
             std::pair<shape::wall_border_point, shape::wall_border_point_data>,
             shape::wall_border_line,
+            shape::wall_material_definition,
+            shape::wall_layer,
+            shape::wall_compound_type,
             shape::wall,
             parameter::parameter
         >;
@@ -36,6 +39,9 @@ namespace domain::plan::model
             data_t,
             shape::wall_axis_point,
             shape::wall_axis_line,
+            shape::wall_material_definition,
+            shape::wall_layer,
+            shape::wall_compound_type,
             shape::wall,
             parameter::parameter
         >;

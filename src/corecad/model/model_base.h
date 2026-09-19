@@ -51,10 +51,14 @@ namespace corecad::model
         i_model_update_tracker<TModel>* _update_tracker = nullptr;
         bool _updated = false;
 
-        // class should have access to notify_updated()
+        // classes should have access to notify_updated()
+
         template<typename TValue, typename TMod>
         requires util::EqualityComparableEx<TValue>
         friend class property;
+
+        template <typename TValue, typename TMod>
+        friend class list;
     };
 
     template<typename TModel>

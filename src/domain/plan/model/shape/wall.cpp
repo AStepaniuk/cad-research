@@ -18,7 +18,9 @@ std::ostream &domain::plan::model::shape::operator<<(std::ostream &os, const wal
 
 std::ostream &domain::plan::model::shape::operator<<(std::ostream &os, const wall_axis_point_data &wapd)
 {
-    return os << wapd.connected_walls;
+    return wapd.connected_walls
+        ? os << wapd.connected_walls.value()
+        : os << "[empty]";
 }
 
 std::ostream &domain::plan::model::shape::operator<<(std::ostream &os, const wall_border_line_ptr &wblp)

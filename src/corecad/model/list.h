@@ -23,6 +23,11 @@ namespace corecad::model
         using const_iterator_t = underlying_container_t::const_iterator;
         using iterator_t = const_iterator_t;
 
+        list(TModel* parent, list other)
+            : _data { std::move(other._data) }
+            , _parent { parent }
+        {}
+
         list(TModel* parent)
             : _data { }
             , _parent { parent }
