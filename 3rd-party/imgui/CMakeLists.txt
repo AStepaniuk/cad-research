@@ -2,25 +2,28 @@ include(FetchContent)
 
 find_package(OpenGL REQUIRED)
 
-FetchContent_Declare(
-  glfw
-  GIT_REPOSITORY https://github.com/glfw/glfw.git
-  GIT_TAG 3.4
-)
 set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(glfw)
-
-FetchContent_Declare(
-  imgui
-  GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG v1.92.4
+CPMFindPackage(
+    NAME glfw
+    VERSION 3.5.1
+    GIT_TAG 3.5.1
+    GITHUB_REPOSITORY glfw/glfw
+    SYSTEM YES
+    EXCLUDE_FROM_ALL YES
 )
-FetchContent_MakeAvailable(imgui)
+
+CPMFindPackage(
+    NAME imgui
+    VERSION 1.92.4
+    GITHUB_REPOSITORY ocornut/imgui
+    SYSTEM YES
+    EXCLUDE_FROM_ALL YES
+)
 
 file(GLOB IMGUI_SOURCES "${imgui_SOURCE_DIR}/*.cpp")
 add_library(imgui STATIC ${IMGUI_SOURCES})
