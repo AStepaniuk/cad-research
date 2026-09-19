@@ -122,7 +122,7 @@ wall_calculator::wall_calculator(model::floor &floor)
 {
 }
 
-void wall_calculator::recalculate_all_walls()
+void domain::plan::calculator::wall_calculator::calculate_wall_joints()
 {
     // recalculate wall axis joints
     for (auto&& [_, a] : _floor.data().items<wall_axis_point>())
@@ -134,8 +134,10 @@ void wall_calculator::recalculate_all_walls()
     {
         recalculate_wall_joints(w);
     }
+}
 
-
+void domain::plan::calculator::wall_calculator::calculate_wall_borders()
+{
     // clean-up ref count for previously generated items
     for (auto& pair : _points_cache)
     {
@@ -484,8 +486,11 @@ void wall_calculator::assign_point_and_borders_to_walls(
     const wall_border_point &point
 )
 {
-    auto& b1 = find_or_create_border({ w1.index, b1_ptr });
-    auto& b2 = find_or_create_border({ w2.index, b2_ptr });
+    const auto b1id = find_or_create_border({ w1.index, b1_ptr });
+    const auto b2id = find_or_create_border({ w2.index, b2_ptr });
+
+    auto& b1 = _floor.data().get(b1id);
+    auto& b2 = _floor.data().get(b2id);
 
     w1.*b1_ptr = b1.index;
     w2.*b2_ptr = b2.index;
@@ -505,7 +510,7 @@ void wall_calculator::assign_point_and_borders_to_walls(
     bpud.point_locators[1].point_on_border_ptr = p2_ptr;
 }
 
-wall_border_line &wall_calculator::find_or_create_border(const wall_border_geometry_id &id)
+wall_border_line::index_t wall_calculator::find_or_create_border(const wall_border_geometry_id &id)
 {
     auto [it, inserted] = _borders_cache.try_emplace(id);
 
@@ -518,7 +523,7 @@ wall_border_line &wall_calculator::find_or_create_border(const wall_border_geome
     {
         it->second.refcount++;
     }
-    return _floor.data().get(it->second.index);
+    return it->second.index;
 }
 
 void wall_calculator::assign_left_intersection_point(

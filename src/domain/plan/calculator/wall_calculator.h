@@ -16,7 +16,8 @@ namespace domain::plan::calculator
     public:
         wall_calculator(model::floor& floor);
 
-        void recalculate_all_walls();
+        void calculate_wall_joints();
+        void calculate_wall_borders();
 
     private:
         void calculate_stub_wall_start_borders(model::shape::wall& w);
@@ -124,7 +125,7 @@ namespace domain::plan::calculator
 
         std::unordered_map<wall_border_geometry_id, wall_border_info, wall_border_geometry_id_hasher> _borders_cache;
 
-        model::shape::wall_border_line& find_or_create_border(const wall_border_geometry_id& id);
+        model::shape::wall_border_line::index_t find_or_create_border(const wall_border_geometry_id& id);
 
         void assign_left_intersection_point(
             model::shape::wall& wall1, model::shape::point_on_wall_axis_ptr wall1_location,

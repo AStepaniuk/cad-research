@@ -6,10 +6,10 @@ using namespace domain::plan::calculator;
 
 void calc_tools::run_full_pipeline()
 {
-    _wall_calculator.recalculate_all_walls();
+    _wall_calculator.calculate_wall_joints();
     _constraints_builder.rebuild_all_constraints();
     _constraints_calculator.recalculate_all();
-    _wall_calculator.recalculate_all_walls();
+    _wall_calculator.calculate_wall_borders();
 }
 
 floor_query &calc_tools::floor_query()

@@ -45,7 +45,8 @@ void wall_calculator_base_fixture::given_two_walls_floor_generated(
 
 void wall_calculator_base_fixture::given_recalculating_all_walls()
 {
-    wc.recalculate_all_walls();
+    wc.calculate_wall_joints();
+    wc.calculate_wall_borders();
 }
 
 void wall_calculator_base_fixture::given_wall_point_is_moved_to(
@@ -64,7 +65,8 @@ void wall_calculator_base_fixture::given_wall_point_is_moved_to(
 
 void wall_calculator_base_fixture::when_recalculating_all_walls()
 {
-    wc.recalculate_all_walls();
+    wc.calculate_wall_joints();
+    wc.calculate_wall_borders();
 }
 
 void wall_calculator_base_fixture::then_border_points_number_should_be(size_t n)
