@@ -1,8 +1,9 @@
 #pragma once
 
-#include "vector2d.h"
+#include "point2d.h"
 
-namespace gui {
+namespace gui 
+{
     class abstract_point_tag {};
-    using abstract_point = corecad::model::vector2d<abstract_point_tag>;
+    using abstract_point = corecad::model::point2d<abstract_point_tag>;
 }

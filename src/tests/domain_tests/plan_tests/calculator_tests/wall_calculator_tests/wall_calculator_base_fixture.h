@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "wall_calculator.h"
-#include "vector2d_assertion.h"
+#include "point2d_assertion.h"
 
 #include <vector>
 

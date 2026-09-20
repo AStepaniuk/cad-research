@@ -8,14 +8,14 @@
 
 #include "history/history.h"
 #include "registry_pool.h"
-#include "vector2d.h"
-#include "vector2d_assertion.h"
+#include "point2d.h"
+#include "point2d_assertion.h"
 
 class history_base_fixture : public ::testing::Test
 {
 protected:
     class test_point_tag {};
-    using test_point = corecad::model::vector2d<test_point_tag>;
+    using test_point = corecad::model::point2d<test_point_tag>;
 
     void given_history_is_empty();
     void given_point_added_to_registry(test_point p);

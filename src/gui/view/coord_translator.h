@@ -6,7 +6,7 @@
 #include <imgui.h>
 
 #include "registry.h"
-#include "vector2d.h"
+#include "point2d.h"
 #include "abstract_point.h"
 #include "one_of.h"
 #include "property.h"

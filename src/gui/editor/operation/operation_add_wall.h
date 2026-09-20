@@ -11,8 +11,6 @@
 
 #include "operation_move_wall_handle.h"
 
-#include "vector2d.h"
-
 namespace gui::editor::operation
 {
     class operation_add_wall : public i_operation

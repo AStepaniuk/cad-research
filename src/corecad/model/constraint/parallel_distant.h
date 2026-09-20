@@ -1,16 +1,16 @@
 #pragma once
 
-#include "vector2d.h"
+#include "point2d.h"
 #include "property.h"
 #include "type_list.h"
 
 namespace corecad::model::constraint
 {
-    template <typename TVector2DIndexList, typename TModel>
-    requires util::AllElementsAre<TVector2DIndexList, is_vector2d_index>
+    template <typename TPoint2DIndexList, typename TModel>
+    requires util::AllElementsAre<TPoint2DIndexList, is_point2d_index>
     struct parallel_distant
     {
-        using point_id_t = TVector2DIndexList::variant_t;
+        using point_id_t = TPoint2DIndexList::variant_t;
 
         parallel_distant(point_id_t l1s, point_id_t l1e, point_id_t l2s, point_id_t l2e, double d)
             : line1_start { nullptr, l1s }

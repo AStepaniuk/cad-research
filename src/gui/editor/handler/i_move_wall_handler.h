@@ -2,7 +2,6 @@
 
 #include <optional>
 
-#include "vector2d.h"
 #include "wall.h"
 #include "handle_data.h"
 

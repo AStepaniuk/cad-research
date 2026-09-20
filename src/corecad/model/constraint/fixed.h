@@ -1,16 +1,16 @@
 #pragma once
 
-#include "vector2d.h"
+#include "point2d.h"
 #include "coordinate2d.h"
 #include "property.h"
 
 namespace corecad::model::constraint
 {
-    template <typename TVector2DIndexList, typename TModel>
-    requires util::AllElementsAre<TVector2DIndexList, is_vector2d_index>
+    template <typename TPoint2DIndexList, typename TModel>
+    requires util::AllElementsAre<TPoint2DIndexList, is_point2d_index>
     struct fixed
     {
-        using point_id_t = TVector2DIndexList::variant_t;
+        using point_id_t = TPoint2DIndexList::variant_t;
 
         fixed(point_id_t p, double v, coordinate2d c)
             : coordinate { nullptr, c }
@@ -35,8 +35,8 @@ namespace corecad::model::constraint
         };
     };
 
-    template <typename TVector2DIndexList, typename TModel>
-    std::ostream& operator<<(std::ostream& os, const fixed<TVector2DIndexList, TModel>& f)
+    template <typename TPoint2DIndexList, typename TModel>
+    std::ostream& operator<<(std::ostream& os, const fixed<TPoint2DIndexList, TModel>& f)
     {
         return os << f.coordinate << "=" << f.value << " p:" << f.point;
     }

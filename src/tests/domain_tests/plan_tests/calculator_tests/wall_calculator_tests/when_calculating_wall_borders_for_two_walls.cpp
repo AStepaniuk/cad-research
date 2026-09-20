@@ -1,7 +1,7 @@
 #include "wall_calculator_base_fixture.h"
 
 #include "wall_calculator.h"
-#include "vector2d_assertion.h"
+#include "point2d_assertion.h"
 
 using namespace domain::plan::model::shape;
 using namespace domain::plan::calculator;

@@ -5,7 +5,7 @@
 #include <type_traits>
 
 #include "model_base.h"
-#include "vector2d.h"
+#include "point2d.h"
 #include "registry.h"
 #include "property.h"
 #include "member_info.h"
@@ -16,7 +16,7 @@ namespace corecad::model
     class line2d : public corecad::model::model_base<line2d<Tag>>
     {
     public:
-        using point_t = vector2d<Tag>;
+        using point_t = point2d<Tag>;
         using point_property_t = property<typename point_t::index_t, line2d>;
         using base_t = corecad::model::model_base<line2d>;
 

@@ -2,12 +2,12 @@
 
 #include <gtest/gtest.h>
 
-#include "vector2d.h"
+#include "point2d.h"
 
 template<typename TVectorTag>
-::testing::AssertionResult are_vectors_equal(
-    const corecad::model::vector2d<TVectorTag>& actual,
-    const corecad::model::vector2d<TVectorTag>& expected,
+::testing::AssertionResult are_points_equal(
+    const corecad::model::point2d<TVectorTag>& actual,
+    const corecad::model::point2d<TVectorTag>& expected,
     double tolerance = 0.01
 )
 {

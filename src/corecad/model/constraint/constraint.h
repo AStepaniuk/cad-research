@@ -15,27 +15,27 @@
 
 namespace corecad::model::constraint
 {
-    template <typename TVector2DIndexList>
-    requires util::AllElementsAre<TVector2DIndexList, is_vector2d_index>
+    template <typename TPoint2DIndexList>
+    requires util::AllElementsAre<TPoint2DIndexList, is_point2d_index>
     struct constraint;
 
-    template <typename TVector2DIndexList>
+    template <typename TPoint2DIndexList>
     using constraint_base = variant_model_base<
-        constraint<TVector2DIndexList>
-        , aligned<TVector2DIndexList, constraint<TVector2DIndexList>>
-        , fixed<TVector2DIndexList, constraint<TVector2DIndexList>>
-        , offset<TVector2DIndexList, constraint<TVector2DIndexList>>
-        , parallel_distant<TVector2DIndexList, constraint<TVector2DIndexList>>
+        constraint<TPoint2DIndexList>
+        , aligned<TPoint2DIndexList, constraint<TPoint2DIndexList>>
+        , fixed<TPoint2DIndexList, constraint<TPoint2DIndexList>>
+        , offset<TPoint2DIndexList, constraint<TPoint2DIndexList>>
+        , parallel_distant<TPoint2DIndexList, constraint<TPoint2DIndexList>>
     >;
     
-    template <typename TVector2DIndexList>
-    requires util::AllElementsAre<TVector2DIndexList, is_vector2d_index>
-    struct constraint : constraint_base<TVector2DIndexList>
+    template <typename TPoint2DIndexList>
+    requires util::AllElementsAre<TPoint2DIndexList, is_point2d_index>
+    struct constraint : constraint_base<TPoint2DIndexList>
     {
-        using point_id_t = TVector2DIndexList::variant_t;
+        using point_id_t = TPoint2DIndexList::variant_t;
 
         template<template <typename, typename> typename TInst>
-        using concrete_t = TInst<TVector2DIndexList, constraint<TVector2DIndexList>>;
+        using concrete_t = TInst<TPoint2DIndexList, constraint<TPoint2DIndexList>>;
 
         struct metadata
         {
@@ -48,19 +48,19 @@ namespace corecad::model::constraint
         };
 
     protected:
-        explicit constraint(typename constraint_base<TVector2DIndexList>::instance_t i)
-            : constraint_base<TVector2DIndexList> { std::move(i) }
+        explicit constraint(typename constraint_base<TPoint2DIndexList>::instance_t i)
+            : constraint_base<TPoint2DIndexList> { std::move(i) }
         {
         }
 
     private:
-        friend constraint_base<TVector2DIndexList>; 
+        friend constraint_base<TPoint2DIndexList>; 
     };
 
-    template <typename TVector2DIndexList>
-    std::ostream& operator<<(std::ostream& os, const constraint<TVector2DIndexList>& c)
+    template <typename TPoint2DIndexList>
+    std::ostream& operator<<(std::ostream& os, const constraint<TPoint2DIndexList>& c)
     {
-        os << static_cast<const constraint_base<TVector2DIndexList>&>(c);
+        os << static_cast<const constraint_base<TPoint2DIndexList>&>(c);
 
         return os;
     }
@@ -68,8 +68,8 @@ namespace corecad::model::constraint
     template <typename T>
     struct is_constraint : std::false_type {};
 
-    template <typename TVector2DIndexList>
-    struct is_constraint<constraint<TVector2DIndexList>> : std::true_type {};
+    template <typename TPoint2DIndexList>
+    struct is_constraint<constraint<TPoint2DIndexList>> : std::true_type {};
 
     template <typename T>
     concept IsConstraint = is_constraint<std::remove_cvref_t<T>>::value;

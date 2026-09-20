@@ -14,7 +14,7 @@
 
 #include "overloaded.h"
 #include "constraint.h"
-#include "vector2d.h"
+#include "point2d.h"
 #include "registry.h"
 
 namespace corecad::calculator

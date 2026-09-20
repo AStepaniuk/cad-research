@@ -1,17 +1,17 @@
 #pragma once
 
-#include "vector2d.h"
+#include "point2d.h"
 #include "coordinate2d.h"
 #include "property.h"
 #include "type_list.h"
 
 namespace corecad::model::constraint
 {
-    template <typename TVector2DIndexList, typename TModel>
-    requires util::AllElementsAre<TVector2DIndexList, is_vector2d_index>
+    template <typename TPoint2DIndexList, typename TModel>
+    requires util::AllElementsAre<TPoint2DIndexList, is_point2d_index>
     struct offset
     {
-        using point_id_t = TVector2DIndexList::variant_t;
+        using point_id_t = TPoint2DIndexList::variant_t;
 
         offset(point_id_t f, point_id_t t, double o, coordinate2d d)
             : direction { nullptr, d }
@@ -40,8 +40,8 @@ namespace corecad::model::constraint
         };
     };
 
-    template <typename TVector2DIndexList, typename TModel>
-    std::ostream& operator<<(std::ostream& os, const offset<TVector2DIndexList, TModel>& o)
+    template <typename TPoint2DIndexList, typename TModel>
+    std::ostream& operator<<(std::ostream& os, const offset<TPoint2DIndexList, TModel>& o)
     {
         return os << (o.direction == coordinate2d::x ? "x" : "y")
             << " from:" << o.from << " to:" << o.to << " dist:" << o.distance;

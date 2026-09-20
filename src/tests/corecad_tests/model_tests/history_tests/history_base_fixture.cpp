@@ -78,7 +78,7 @@ void history_base_fixture::then_points_number_should_be(size_t num)
 void history_base_fixture::then_point_should_be(size_t p_num, const test_point &p)
 {
     const auto& actual_p = _registry.get(_points_indexes[p_num]);
-    ASSERT_TRUE(are_vectors_equal(actual_p, p));
+    ASSERT_TRUE(are_points_equal(actual_p, p));
 }
 
 void history_base_fixture::then_runtime_error_should_be_thrown()

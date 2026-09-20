@@ -1,15 +1,15 @@
 #pragma once
 
-#include "vector2d.h"
+#include "point2d.h"
 #include "property.h"
 
 namespace corecad::model::constraint
 {
-    template <typename TVector2DIndexList, typename TModel>
-    requires util::AllElementsAre<TVector2DIndexList, is_vector2d_index>
+    template <typename TPoint2DIndexList, typename TModel>
+    requires util::AllElementsAre<TPoint2DIndexList, is_point2d_index>
     struct aligned
     {
-        using point_id_t = TVector2DIndexList::variant_t;
+        using point_id_t = TPoint2DIndexList::variant_t;
 
         aligned(point_id_t p1, point_id_t p2, point_id_t p3)
             : point1 { nullptr, p1 }
@@ -34,8 +34,8 @@ namespace corecad::model::constraint
         };
     };
 
-    template <typename TVector2DIndexList, typename TModel>
-    std::ostream& operator<<(std::ostream& os, const aligned<TVector2DIndexList, TModel>& a)
+    template <typename TPoint2DIndexList, typename TModel>
+    std::ostream& operator<<(std::ostream& os, const aligned<TPoint2DIndexList, TModel>& a)
     {
         return os << a.point1 << " - " << a.point2 << " - " << a.point3;
     }

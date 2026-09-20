@@ -86,5 +86,5 @@ void wall_calculator_base_fixture::then_border_point_should_be(
     const auto& border = test_floor.data().get(wall.*border_definition);
     const auto& actual_p = test_floor.data().get(border.*point_definition);
 
-    ASSERT_TRUE(are_vectors_equal(actual_p, p));
+    ASSERT_TRUE(are_points_equal(actual_p, p));
 }

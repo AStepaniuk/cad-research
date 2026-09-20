@@ -5,7 +5,7 @@
 #include "model_base.h"
 #include "wall_compound_type.h"
 #include "type_list.h"
-#include "vector2d.h"
+#include "point2d.h"
 #include "line2d.h"
 #include "property.h"
 #include "member_info.h"
@@ -30,7 +30,7 @@ namespace domain::plan::model::shape
 
     class wall;
 
-    using wall_axis_point = corecad::model::vector2d<wall_axis_tag>;
+    using wall_axis_point = corecad::model::point2d<wall_axis_tag>;
     using wall_axis_line = corecad::model::line2d<wall_axis_tag>;
     using point_on_wall_axis_ptr = corecad::model::point_on_line_ptr<wall_axis_tag>;
     struct wall_axis_point_locator
@@ -47,7 +47,7 @@ namespace domain::plan::model::shape
     };
     std::ostream& operator<<(std::ostream& os, const wall_axis_point_data& wapd);
 
-    using wall_border_point = corecad::model::vector2d<wall_border_tag>;
+    using wall_border_point = corecad::model::point2d<wall_border_tag>;
     using wall_border_line = corecad::model::line2d<wall_border_tag>;
     using wall_border_line_ptr = wall_border_line::index_t wall::*;
     using point_on_wall_border_ptr = corecad::model::point_on_line_ptr<wall_border_tag>;
