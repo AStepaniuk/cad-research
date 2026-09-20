@@ -1,0 +1,11 @@
+CPMFindPackage(
+    NAME mp-units
+    VERSION 2.5.0
+    GIT_TAG 6e06eddf205deaf6c2f2f63500c8c70ec220a99f
+    GITHUB_REPOSITORY mpusz/mp-units
+    SOURCE_SUBDIR src
+    SYSTEM YES
+    EXCLUDE_FROM_ALL YES
+    OPTIONS
+        "MP_UNITS_BUILD_INSTALL OFF"
+)

@@ -1,0 +1,11 @@
+CPMFindPackage(
+    NAME gsl-lite
+    VERSION 0.41.0
+    GIT_TAG v0.41.0
+    GITHUB_REPOSITORY gsl-lite/gsl-lite
+    SYSTEM YES
+    EXCLUDE_FROM_ALL YES
+    OPTIONS
+        "GSL_LITE_OPT_BUILD_TESTS OFF"
+        "GSL_LITE_OPT_BUILD_EXAMPLES OFF"
+)

@@ -1,2 +1,5 @@
+add_subdirectory(cpm)
+add_subdirectory(gsl-lite)
 add_subdirectory(freecad-planegcs)
 add_subdirectory(imgui)
+add_subdirectory(mp-units)

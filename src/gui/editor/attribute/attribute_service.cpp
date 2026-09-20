@@ -24,7 +24,7 @@ namespace
                 .reader = make_getter(&wall::thickness),
                 .writer = make_writer(
                     &wall::thickness,
-                    [](const wall& _, double new_thickness, const floor& __) -> std::optional<std::string> {
+                    [](const wall& _, double new_thickness, const domain::plan::model::floor& __) -> std::optional<std::string> {
                         if (new_thickness > 0.0)
                         {
                             return std::nullopt;
@@ -119,7 +119,7 @@ namespace
     }
 }
 
-attribute_service::attribute_service(const floor &f)
+attribute_service::attribute_service(const domain::plan::model::floor &f)
     : _floor { f }
 {
 }

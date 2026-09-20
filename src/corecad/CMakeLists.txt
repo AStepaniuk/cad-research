@@ -16,6 +16,7 @@ target_link_libraries(
     corecad
     PUBLIC
     planegcs
+    mp-units::mp-units
 )
 
 target_include_directories(
