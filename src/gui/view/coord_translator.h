@@ -17,7 +17,7 @@ namespace gui
     template <typename TList>
     class coord_translator;
 
-    template <corecad::model::IsVector2D... TVector>
+    template <corecad::model::IsPoint2D... TVector>
     class coord_translator<corecad::util::type_list<TVector...>>
     {
         constexpr static float MinScale = 0.0001;

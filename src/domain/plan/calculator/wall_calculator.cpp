@@ -19,48 +19,15 @@ namespace
 {
     double calculate_line_direction(const wall_axis_line& l, const model::floor& f)
     {
-        const auto& ps = f.data().get(l.s);
-        const auto& pe = f.data().get(l.e);
+        const auto sv = f.data().get(l.s).vector();
+        const auto ev = f.data().get(l.e).vector();
 
-        return std::atan2(pe.y - ps.y, pe.x - ps.x);
+        return angle(ev - sv);
     }
 
     wall_border_point calculate_point_with_offset_from_line(const wall_axis_point& start, const wall_axis_point& end, double left_offset)
     {
-        double dx = end.x - start.x;
-        double dy = end.y - start.y;
-        double l = std::sqrt(dx*dx + dy*dy);
-
-        return
-        {
-            start.x + dy / l * left_offset,
-            start.y - dx / l * left_offset
-        };
-    }
-
-    std::optional<wall_border_point> calculate_lines_intersection(
-        const wall_border_point& start1, const wall_border_point& end1,
-        const wall_border_point& start2, const wall_border_point& end2
-    )
-    {
-        double A1 = end1.y - start1.y;
-        double B1 = start1.x - end1.x;
-        double C1 = A1 * start1.x + B1 * start1.y;
-
-        double A2 = end2.y - start2.y;
-        double B2 = start2.x - end2.x;
-        double C2 = A2 * start2.x + B2 * start2.y;
-
-        double det = A1 * B2 - A2 * B1;
-        if (std::abs(det) < 0.0001)
-        {
-            return std::nullopt;
-        }
-
-        double x = (B2 * C1 - B1 * C2) / det;
-        double y = (A1 * C2 - A2 * C1) / det;
-
-        return wall_border_point {x, y};
+        return wall_border_point { point_offset(start.vector(), end.vector(), left_offset) };
     }
 
     std::pair<wall_border_point, std::optional<wall_border_point>> calculate_joined_walls_left_border_intersection(
@@ -78,23 +45,24 @@ namespace
         auto left_w1_offset_p = calculate_point_with_offset_from_line(common_p, w1_free_p, w1_offset);
         auto right_w2_offset_p = calculate_point_with_offset_from_line(common_p, w2_free_p, w2_offset);
 
-        auto intersection_p = calculate_lines_intersection(
-            left_w1_offset_p,
-            left_w1_offset_p + wall_border_point(w1_free_p - common_p),
-            right_w2_offset_p,
-            right_w2_offset_p + wall_border_point(w2_free_p - common_p)
-        );
+        const auto p1 = left_w1_offset_p.vector();
+        const auto p2 = right_w2_offset_p.vector();
 
-        if (intersection_p)
+        const auto v1 = w1_free_p.vector() - common_p.vector();
+        const auto v2 = w2_free_p.vector() - common_p.vector();
+
+        auto intersection_vec = corecad::math::lines_intersection(p1, v1, p2, v2);
+
+        if (intersection_vec)
         {
-            return { intersection_p.value(), std::nullopt };
+            return { wall_border_point{ intersection_vec->x, intersection_vec->y }, std::nullopt };
         }
         else
         {
-           // borders are coincident
+            // Lines are parallel or collinear. Check if borders are coincident.
             if (std::abs(w1_offset + w2_offset) < 0.0001)
             {
-                return { left_w1_offset_p, std::nullopt }; // should be same as right_w2_offset_p
+                return { left_w1_offset_p, std::nullopt }; 
             }
             else
             {

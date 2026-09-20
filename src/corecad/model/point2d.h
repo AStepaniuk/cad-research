@@ -7,6 +7,7 @@
 #include "property.h"
 #include "type_meta_info.h"
 #include "member_info.h"
+#include "vector2d.h"
 
 namespace corecad::model
 {
@@ -34,6 +35,12 @@ namespace corecad::model
         {
         }
 
+        explicit point2d(const math::vector2d<double>& v) noexcept
+            : x { this, v.x }
+            , y { this, v.y }
+        {
+        }
+
         template<typename TagOther>
         explicit point2d(const point2d<TagOther>& other)
             : x { this, static_cast<double>(other.x) }
@@ -46,6 +53,16 @@ namespace corecad::model
 
         property<double, point2d> x { *this };
         property<double, point2d> y { *this };
+
+        math::vector2d<double> vector() const
+        {
+            return { x, y };
+        }
+
+        operator math::vector2d<double>() const
+        {
+            return vector();
+        }
 
         struct metadata
         {
@@ -62,18 +79,6 @@ namespace corecad::model
     };  
 
     template<typename Tag>
-    point2d<Tag> operator+(const point2d<Tag>& lhs, const point2d<Tag>& rhs)
-    {
-        return point2d<Tag> { lhs.x + rhs.x, lhs.y + rhs.y };
-    }
-
-    template<typename Tag>
-    point2d<Tag> operator-(const point2d<Tag>& lhs, const point2d<Tag>& rhs)
-    {
-        return point2d<Tag> { lhs.x - rhs.x, lhs.y - rhs.y };
-    }
-
-    template<typename Tag>
     std::ostream& operator<<(std::ostream& os, const point2d<Tag>& v)
     {
         return os << static_cast<const corecad::model::model_base<point2d<Tag>>&>(v) << " x:" << v.x << " y:" << v.y;
@@ -88,7 +93,7 @@ namespace corecad::model
     struct is_point2d<point2d<Tag>> : std::true_type {};
 
     template <typename T>
-    concept IsVector2D = is_point2d<std::remove_cvref_t<T>>::value;
+    concept IsPoint2D = is_point2d<std::remove_cvref_t<T>>::value;
 
 
     template <typename T>
@@ -98,5 +103,5 @@ namespace corecad::model
     struct is_point2d_index<registry_index_t<Tag>> : std::bool_constant<is_point2d<Tag>::value> {};
 
     template <typename T>
-    concept IsVector2DIndex = is_point2d_index<std::remove_cvref_t<T>>::value;
+    concept IsPoint2DIndex = is_point2d_index<std::remove_cvref_t<T>>::value;
 }

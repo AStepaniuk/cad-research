@@ -2,6 +2,7 @@ add_subdirectory(model)
 add_subdirectory(util)
 add_subdirectory(calculator)
 add_subdirectory(meta)
+add_subdirectory(math)
 
 add_library(
     corecad
@@ -10,6 +11,7 @@ add_library(
     ${CORE_UTIL_SOURCES}
     ${CORE_CALCULATOR_SOURCES}
     ${CORE_META_SOURCES}
+    ${CORE_MATH_SOURCES}
 )
 
 target_link_libraries(
@@ -27,4 +29,5 @@ target_include_directories(
     ${CORE_UTIL_INCLUDES}
     ${CORE_CALCULATOR_INCLUDES}
     ${CORE_META_INCLUDES}
+    ${CORE_MATH_INCLUDES}
 )

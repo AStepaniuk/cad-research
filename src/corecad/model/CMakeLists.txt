@@ -9,4 +9,3 @@ set(CORE_MODEL_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/constraint
     PARENT_SCOPE
 )
-

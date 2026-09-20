@@ -27,7 +27,7 @@ namespace corecad::calculator
     template <template<typename> typename TConstraintModel, typename TRegistryPool, typename... TVectorIndex>
     requires (
         model::constraint::IsConstraint<TConstraintModel<corecad::util::type_list<TVectorIndex...>>>
-        && (model::IsVector2D<typename TVectorIndex::tag_t> && ...)
+        && (model::IsPoint2D<typename TVectorIndex::tag_t> && ...)
     )
     class constraints_calculator<TConstraintModel<corecad::util::type_list<TVectorIndex...>>, TRegistryPool>
     {
