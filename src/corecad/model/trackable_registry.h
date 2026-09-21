@@ -24,14 +24,14 @@ namespace corecad::model
         using data_t = T;
 
     private:
+        static constexpr bool _has_annotation = !std::same_as<TAnnotation, nothing>;
+
         using underlying_container_t = std::flat_map<index_t, T>;
         using annotation_container_t = std::conditional_t<
-            std::same_as<TAnnotation, nothing>,
-            nothing,
-            std::flat_map<index_t, TAnnotation>
+            _has_annotation,
+            std::flat_map<index_t, TAnnotation>,
+            nothing
         >;
-
-        static constexpr bool _has_annotation = !std::same_as<TAnnotation, nothing>;
 
     public:
         using const_iterator_t = underlying_container_t::const_iterator;
