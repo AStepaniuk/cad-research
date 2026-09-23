@@ -29,6 +29,7 @@ namespace domain::plan::model::shape
     };
 
     class wall;
+    class wall_junction;
 
     using wall_axis_point = corecad::model::point2d<wall_axis_tag>;
     using wall_axis_line = corecad::model::line2d<wall_axis_tag>;
@@ -44,6 +45,7 @@ namespace domain::plan::model::shape
     struct wall_axis_point_data
     {
         std::optional<std::vector<wall_axis_point_locator>> connected_walls;
+        std::optional<corecad::model::registry_index_t<wall_junction>> wall_junction_id;
     };
     std::ostream& operator<<(std::ostream& os, const wall_axis_point_data& wapd);
 

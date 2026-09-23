@@ -4,6 +4,7 @@
 
 #include "model_base.h"
 #include "wall_material_definition.h"
+#include "units.h"
 
 namespace domain::plan::model::shape
 {
@@ -24,7 +25,7 @@ namespace domain::plan::model::shape
     
         wall_layer()
             : material { this, {} }
-            , thickness { this, 0.0 }
+            , thickness { this, 0.0 * corecad::model::mm }
             , function { this, wall_layer_function::load_bearing }
             , priority { this, 1000 }
             , wraps_at_ends { this, false }
@@ -55,7 +56,7 @@ namespace domain::plan::model::shape
         wall_layer& operator=(wall_layer&&) = default;
 
         property<wall_material_definition::index_t> material;
-        property<double> thickness;
+        property<corecad::model::length_mm_t> thickness;
         property<wall_layer_function> function;
 
         // Priority dictates intersection rules. 

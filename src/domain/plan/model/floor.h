@@ -7,6 +7,7 @@
 #include "offset.h"
 #include "aligned.h"
 #include "wall.h"
+#include "wall_junction.h"
 #include "parameter.h"
 #include "history/history.h"
 
@@ -32,6 +33,7 @@ namespace domain::plan::model
             shape::wall_layer,
             shape::wall_compound_type,
             shape::wall,
+            shape::wall_junction,
             parameter::parameter
         >;
 
@@ -43,6 +45,7 @@ namespace domain::plan::model
             shape::wall_layer,
             shape::wall_compound_type,
             shape::wall,
+            shape::wall_junction,
             parameter::parameter
         >;
 
