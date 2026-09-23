@@ -17,7 +17,7 @@ using namespace corecad::model;
 
 namespace
 {
-    double calculate_line_direction(const wall_axis_line& l, const model::floor& f)
+    angle_rad_t calculate_line_direction(const wall_axis_line& l, const model::floor& f)
     {
         const auto sv = f.data().get(l.s).vector();
         const auto ev = f.data().get(l.e).vector();
@@ -25,8 +25,15 @@ namespace
         return angle(ev - sv);
     }
 
-    wall_border_point calculate_point_with_offset_from_line(const wall_axis_point& start, const wall_axis_point& end, double left_offset)
+    wall_border_point calculate_point_with_offset_from_line(const wall_axis_point& start, const wall_axis_point& end, length_mm_t left_offset)
     {
+        if (start.x == end.x && start.y == end.y)
+        {
+            // not possible to calculate offset of zero-length vector.
+            // returning start point
+            return wall_border_point { start };
+        }
+        
         return wall_border_point { point_offset(start.vector(), end.vector(), left_offset) };
     }
 
@@ -36,11 +43,11 @@ namespace
         const wall_axis_point& w1_free_p, const wall_axis_point& common_p, const wall_axis_point& w2_free_p
     )
     {
-        double w1_axis_offset = (common_p.index == l1.s? w1.axis_offset : -w1.axis_offset);
-        double w2_axis_offset = (common_p.index == l2.s? -w2.axis_offset : w2.axis_offset);
+        const auto w1_axis_offset = (common_p.index == l1.s? w1.axis_offset.val() : -w1.axis_offset.val());
+        const auto w2_axis_offset = (common_p.index == l2.s? -w2.axis_offset.val() : w2.axis_offset.val());
 
-        double w1_offset = w1.thickness * 0.5 + w1_axis_offset;
-        double w2_offset = -(w2.thickness * 0.5 + w2_axis_offset);
+        const auto w1_offset = w1.thickness.val() * 0.5 + w1_axis_offset;
+        const auto w2_offset = -(w2.thickness.val() * 0.5 + w2_axis_offset);
 
         auto left_w1_offset_p = calculate_point_with_offset_from_line(common_p, w1_free_p, w1_offset);
         auto right_w2_offset_p = calculate_point_with_offset_from_line(common_p, w2_free_p, w2_offset);
@@ -60,7 +67,7 @@ namespace
         else
         {
             // Lines are parallel or collinear. Check if borders are coincident.
-            if (std::abs(w1_offset + w2_offset) < 0.0001)
+            if (mp_units::abs(w1_offset + w2_offset) < 0.0001 * mm)
             {
                 return { left_w1_offset_p, std::nullopt }; 
             }
@@ -71,17 +78,20 @@ namespace
         }
     }
 
-    double normailze_angle(double a)
+    constexpr auto pi_rad   = std::numbers::pi * rad;
+    constexpr auto pi2_rad  = 2.0 * pi_rad;
+
+    angle_rad_t normailze_angle(angle_rad_t a)
     {
-        while (a < -std::numbers::pi) a += 2 * std::numbers::pi;
-        while (a > std::numbers::pi) a -= 2 * std::numbers::pi;
+        while (a < -pi_rad) a += pi2_rad;
+        while (a > pi_rad) a -= pi2_rad;
 
         return a;
     }
 
-    double inverse_angle(double a)
+    angle_rad_t inverse_angle(angle_rad_t a)
     {
-        return normailze_angle(a - std::numbers::pi);
+        return normailze_angle(a - pi_rad);
     }
 }
 
@@ -113,7 +123,7 @@ void domain::plan::calculator::wall_calculator::calculate_wall_borders()
     }
 
     // recalculate new wall borders
-    std::map<wall::index_t, double> walls_directions;
+    std::map<wall::index_t, angle_rad_t> walls_directions;
     std::vector<wall_axis_point_locator> processed_pls;
 
     for (auto&& [_, w] : _floor.data().items<wall>())
@@ -203,8 +213,8 @@ void wall_calculator::calculate_stub_wall_start_borders(wall& w)
     const auto& start_p = _floor.data().get(axis.s);
     const auto& end_p = _floor.data().get(axis.e);
 
-    const double left_offset = w.thickness * 0.5 + w.axis_offset;
-    const double right_offset = -(w.thickness * 0.5 - w.axis_offset);
+    const auto left_offset = w.thickness.val() * 0.5 + w.axis_offset.val();
+    const auto right_offset = -(w.thickness.val() * 0.5 - w.axis_offset.val());
 
     const auto left_p = calculate_point_with_offset_from_line(start_p, end_p, left_offset);
     const auto right_p = calculate_point_with_offset_from_line(start_p, end_p, right_offset);
@@ -228,8 +238,8 @@ void wall_calculator::calculate_stub_wall_end_borders(wall& w)
     const auto& start_p = _floor.data().get(axis.s);
     const auto& end_p = _floor.data().get(axis.e);
 
-    double left_offset = -(w.thickness * 0.5 + w.axis_offset);
-    double right_offset = w.thickness * 0.5 - w.axis_offset;
+    const auto left_offset = -(w.thickness.val() * 0.5 + w.axis_offset.val());
+    const auto right_offset = w.thickness.val() * 0.5 - w.axis_offset.val();
 
     auto left_p = calculate_point_with_offset_from_line(end_p, start_p, left_offset);
     auto right_p = calculate_point_with_offset_from_line(end_p, start_p, right_offset);
@@ -321,7 +331,7 @@ void wall_calculator::calculate_joined_2_walls_borders(
 
 void wall_calculator::calculate_joined_n_walls_borders(
     wall_axis_point::index_t apid,
-    std::map<model::shape::wall::index_t, double>& walls_directions,
+    std::map<model::shape::wall::index_t, angle_rad_t>& walls_directions,
     std::vector<wall_axis_point_locator>& processed_apls
 )
 {
@@ -330,13 +340,13 @@ void wall_calculator::calculate_joined_n_walls_borders(
     struct wf_direction
     {
         wall_axis_point_locator apl;
-        double direction;
+        angle_rad_t direction;
     };
     std::vector<wf_direction> w_joints_directions;
 
     for (const auto& apl : ud.connected_walls.value())
     {
-        double a = 0;
+        angle_rad_t a = 0.0 * rad;
         if (const auto it = walls_directions.find(apl.wall_id); it != walls_directions.end())
         {
             a = it->second;

@@ -11,7 +11,7 @@ namespace domain::plan::model::parameter
     {
         using point_id_t = shape::wall_point_id_t;
 
-        distance(point_id_t f, point_id_t t, double v, corecad::model::coordinate2d d)
+        distance(point_id_t f, point_id_t t, corecad::model::length_mm_t v, corecad::model::coordinate2d d)
             : direction { nullptr, d }
             , from { nullptr, f }
             , to { nullptr, t }
@@ -23,7 +23,7 @@ namespace domain::plan::model::parameter
         corecad::model::property<point_id_t, TModel> from;
         corecad::model::property<point_id_t, TModel> to;
 
-        corecad::model::property<double, TModel> value;
+        corecad::model::property<corecad::model::length_mm_t, TModel> value;
 
         struct metadata
         {

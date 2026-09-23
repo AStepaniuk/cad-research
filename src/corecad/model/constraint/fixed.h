@@ -12,14 +12,14 @@ namespace corecad::model::constraint
     {
         using point_id_t = TPoint2DIndexList::variant_t;
 
-        fixed(point_id_t p, double v, coordinate2d c)
+        fixed(point_id_t p, length_mm_t v, coordinate2d c)
             : coordinate { nullptr, c }
             , value { nullptr, v }
             , point { nullptr, p }
         {}
 
         property<coordinate2d, TModel> coordinate;
-        property<double, TModel> value;
+        property<length_mm_t, TModel> value;
 
         property<point_id_t, TModel> point;
 

@@ -32,8 +32,8 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
     
     const wall_axis_point* y_ref_point = nullptr;
 
-    double dx = 0.0;
-    double dy = 0.0;
+    length_mm_t dx = 0.0 * mm;
+    length_mm_t dy = 0.0 * mm;
 
     for (const auto& pair : _document.model.data().items<wall>())
     {
@@ -47,20 +47,22 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
 
             const auto& p = _document.model.data().get(spid);
 
-            if (model_pos.x > p.x - tol.x && model_pos.x < p.x + tol.x)
+            if (model_pos.x.val() > p.x.val() - tol.x.val() && model_pos.x.val() < p.x.val() + tol.x.val())
             {
-                if (!x_ref_point || (std::abs(model_pos.y - p.y) < dy))
+                auto pdy = mp_units::abs(model_pos.y.val() - p.y.val());
+                if (!x_ref_point || (pdy < dy))
                 {
-                    dy = std::abs(model_pos.y - p.y);
+                    dy = pdy;
                     x_ref_point = &p;
                 }
             }
 
-            if (model_pos.y > p.y - tol.y && model_pos.y < p.y + tol.y)
+            if (model_pos.y.val() > p.y.val() - tol.y.val() && model_pos.y.val() < p.y.val() + tol.y.val())
             {
-                if (!y_ref_point || (std::abs(model_pos.x - p.x) < dx))
+                auto pdx = mp_units::abs(model_pos.x.val() - p.x.val());
+                if (!y_ref_point || (pdx < dx))
                 {
-                    dx = std::abs(model_pos.x - p.x);
+                    dx = pdx;
                     y_ref_point = &p;
                 }
             }
@@ -76,12 +78,12 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
         auto parameter = parameter::parameter::create<parameter::distance>(
             x_ref_point->index
             , apid
-            , 0.0
+            , 0.0 * mm
             , coordinate2d::x
         );
 
-        const auto rank = std::abs(model_pos.x - x_ref_point->x);
-        _document.active_wall_snaps.add(std::move(parameter), rank, x_ref_point->index);
+        const auto rank = mp_units::abs(model_pos.x.val() - x_ref_point->x.val());
+        _document.active_wall_snaps.add(std::move(parameter), rank.numerical_value_in(mm), x_ref_point->index);
     }
 
     if (y_ref_point)
@@ -89,11 +91,11 @@ void vh_snap_builder::calculate_snaps(float view_pos_x, float view_pos_y)
         auto parameter = parameter::parameter::create<parameter::distance>(
             y_ref_point->index
             , apid
-            , 0.0
+            , 0.0 * mm
             , coordinate2d::y
         );
 
-        const auto rank = std::abs(model_pos.y - y_ref_point->y);
-        _document.active_wall_snaps.add(std::move(parameter), rank, y_ref_point->index);
+        const auto rank = mp_units::abs(model_pos.y.val() - y_ref_point->y.val());
+        _document.active_wall_snaps.add(std::move(parameter), rank.numerical_value_in(mm), y_ref_point->index);
     }
 }

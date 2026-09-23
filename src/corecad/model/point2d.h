@@ -4,10 +4,10 @@
 
 #include "model_base.h"
 #include "registry.h"
-#include "property.h"
 #include "type_meta_info.h"
 #include "member_info.h"
 #include "vector2d.h"
+#include "units.h"
 
 namespace corecad::model
 {
@@ -15,7 +15,7 @@ namespace corecad::model
     class point2d : public corecad::model::model_base<point2d<Tag>>
     {
     public:
-        point2d(double x, double y)
+        point2d(length_mm_t x, length_mm_t y)
             : x { this, x }
             , y { this, y }
         {
@@ -23,19 +23,19 @@ namespace corecad::model
 
         point2d(const point2d& other) 
             : corecad::model::model_base<point2d<Tag>> { other }
-            , x { this, static_cast<double>(other.x) }
-            , y { this, static_cast<double>(other.y) } 
+            , x { this, static_cast<length_mm_t>(other.x) }
+            , y { this, static_cast<length_mm_t>(other.y) } 
         {
         }
 
         point2d(point2d&& other) noexcept
             : corecad::model::model_base<point2d<Tag>> { other }
-            , x { this, static_cast<double>(other.x) }
-            , y { this, static_cast<double>(other.y) }
+            , x { this, static_cast<length_mm_t>(other.x) }
+            , y { this, static_cast<length_mm_t>(other.y) }
         {
         }
 
-        explicit point2d(const math::vector2d<double>& v) noexcept
+        explicit point2d(const math::vector2d<length_mm_t>& v) noexcept
             : x { this, v.x }
             , y { this, v.y }
         {
@@ -43,23 +43,23 @@ namespace corecad::model
 
         template<typename TagOther>
         explicit point2d(const point2d<TagOther>& other)
-            : x { this, static_cast<double>(other.x) }
-            , y { this, static_cast<double>(other.y) }
+            : x { this, static_cast<length_mm_t>(other.x) }
+            , y { this, static_cast<length_mm_t>(other.y) }
         {
         }
 
         point2d& operator=(const point2d& other) = default;
         point2d& operator=(point2d&& other) noexcept = default;
 
-        property<double, point2d> x { *this };
-        property<double, point2d> y { *this };
+        property<length_mm_t, point2d> x { *this };
+        property<length_mm_t, point2d> y { *this };
 
-        math::vector2d<double> vector() const
+        math::vector2d<length_mm_t> vector() const
         {
             return { x, y };
         }
 
-        operator math::vector2d<double>() const
+        operator math::vector2d<length_mm_t>() const
         {
             return vector();
         }

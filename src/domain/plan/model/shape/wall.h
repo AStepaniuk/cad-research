@@ -75,11 +75,11 @@ namespace domain::plan::model::shape
     class wall : public corecad::model::model_base<wall>
     {
     public:
-        wall(wall_axis_line::index_t a, double t)
+        wall(wall_axis_line::index_t a, corecad::model::length_mm_t t)
             : axis { this, a }
             , compound_type { this, {} }
             , thickness { this, t }
-            , axis_offset { this, 0.0 }
+            , axis_offset { this, 0.0 * corecad::model::length_mm_t::unit }
         {
         }
 
@@ -117,8 +117,8 @@ namespace domain::plan::model::shape
 
         corecad::model::property<wall_compound_type::index_t, wall> compound_type;
 
-        corecad::model::property<double, wall> thickness;
-        corecad::model::property<double, wall> axis_offset;
+        corecad::model::property<corecad::model::length_mm_t, wall> thickness;
+        corecad::model::property<corecad::model::length_mm_t, wall> axis_offset;
 
         // calculated properties
         wall_border_line::index_t left {};

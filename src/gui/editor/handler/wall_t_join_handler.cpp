@@ -37,7 +37,7 @@ bool wall_t_join_handler::wall_move(
     }
 
     const auto tol = _view.model_interaction_tolerance();
-    const double tol2 = tol.x * tol.y;
+    const auto tol2 = tol.x.val() * tol.y.val();
 
     for (const auto& p : _document.model.data().items<wall>())
     {
@@ -51,32 +51,32 @@ bool wall_t_join_handler::wall_move(
         const auto& sp = _document.model.data().get(axis.s);
         const auto& ep = _document.model.data().get(axis.e);
 
-        const auto min_x = (sp.x > ep.x ? ep.x : sp.x) - tol.x;
-        const auto max_x = (sp.x > ep.x ? sp.x : ep.x) + tol.x;
-        const auto min_y = (sp.y > ep.y ? ep.y : sp.y) - tol.y;
-        const auto max_y = (sp.y > ep.y ? sp.y : ep.y) + tol.y;
+        const auto min_x = (sp.x.val() > ep.x.val() ? ep.x.val() : sp.x.val()) - tol.x.val();
+        const auto max_x = (sp.x.val() > ep.x.val() ? sp.x.val() : ep.x.val()) + tol.x.val();
+        const auto min_y = (sp.y.val() > ep.y.val() ? ep.y.val() : sp.y.val()) - tol.y.val();
+        const auto max_y = (sp.y.val() > ep.y.val() ? sp.y.val() : ep.y.val()) + tol.y.val();
     
         if (model_pos.x < min_x || model_pos.x > max_x || model_pos.y < min_y || model_pos.y > max_y)
         {
             continue;
         }
 
-        const double wdx = ep.x - sp.x;
-        const double wdy = ep.y - sp.y;
+        const auto wdx = ep.x.val() - sp.x.val();
+        const auto wdy = ep.y.val() - sp.y.val();
 
-        if (wdx == 0.0 && wdy == 0.0)
+        if ((wdx == 0.0 * mm) && (wdy == 0.0 * mm))
         {
             continue;
         }
 
-        const double pdx = sp.x - model_pos.x;
-        const double pdy = sp.y - model_pos.y;
+        const auto pdx = sp.x.val() - model_pos.x.val();
+        const auto pdy = sp.y.val() - model_pos.y.val();
 
-        const double den2 = 1 / (wdx*wdx + wdy*wdy);
-        const double nom = wdx*pdy - wdy*pdx;
-        const double nom2 = nom*nom;
+        const auto den2 = 1 / (wdx*wdx + wdy*wdy);
+        const auto nom = wdx*pdy - wdy*pdx;
+        const auto nom2 = nom*nom;
 
-        const double d2 = nom2 * den2;
+        const auto d2 = nom2 * den2;
 
         if (d2 > tol2)
         {
@@ -92,7 +92,7 @@ bool wall_t_join_handler::wall_move(
         {
             const auto& d = dp.second;
 
-            if (d.value == 0.0)
+            if (d.value == 0.0 * mm)
             {
                 auto *wa_from = std::get_if<wall_axis_point::index_t>(&(d.from.val()));
                 auto *wa_to = std::get_if<wall_axis_point::index_t>(&(d.to.val()));
@@ -115,7 +115,7 @@ bool wall_t_join_handler::wall_move(
                 parameter::parameter::create<parameter::distance>(
                     sp.index,
                     ahid,
-                    0.0,
+                    0.0 * mm,
                     t_joint_wall_alignment.value()
                 ),
                 0.0,
@@ -125,7 +125,7 @@ bool wall_t_join_handler::wall_move(
                 parameter::parameter::create<parameter::distance>(
                     ahid,
                     ep.index,
-                    0.0,
+                    0.0 * mm,
                     t_joint_wall_alignment.value()
                 ),
                 0.0,

@@ -69,7 +69,7 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
                 ImVec2 pf = to_view(d.from);
                 ImVec2 pt = to_view(d.to);
 
-                if (d.value == 0.0)
+                if (d.value == 0.0 * mm)
                 {
                     if (d.direction == coordinate2d::x)
                     {
@@ -100,7 +100,7 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
                         draw_list->AddLine({ pf.x - 5, by - 5 }, { pf.x + 5, by + 5 }, color, Styles::CLineThickness);
                         draw_list->AddLine({ pt.x - 5, by - 5 }, { pt.x + 5, by + 5 }, color, Styles::CLineThickness);
                     
-                        const auto text = std::format("{:.0f}", std::abs(d.value));
+                        const auto text = std::format("{:.0f}", std::abs(d.value.val().numerical_value_in(mm)));
 
                         auto text_size = ImGui::CalcTextSize(text.c_str());
                         draw_list->AddText({ (pf.x + pt.x)*0.5f - text_size.x*0.5f, by - text_size.y }, color, text.c_str());
@@ -119,7 +119,7 @@ void parameters_view::draw_parameter(ImDrawList* draw_list, const parameter &p, 
                         draw_list->AddLine({ bx - 5, pf.y - 5 }, { bx + 5, pf.y + 5 }, color, Styles::CLineThickness);
                         draw_list->AddLine({ bx - 5, pt.y - 5 }, { bx + 5, pt.y + 5 }, color, Styles::CLineThickness);
                     
-                        const auto text = std::format("{:.0f}", std::abs(d.value));
+                        const auto text = std::format("{:.0f}", std::abs(d.value.val().numerical_value_in(mm)));
                         draw_text_vertical(draw_list, text.c_str(), { bx, (pt.y + pf.y)*0.5f }, color);
                     }
                 }

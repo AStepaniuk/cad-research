@@ -68,8 +68,8 @@ namespace gui
         {
             return
             {
-                (static_cast<double>(screen.x) - _x_offset) / _x_scale,
-                (static_cast<double>(screen.y) - _y_offset) / _y_scale
+                ((static_cast<double>(screen.x) - _x_offset) / _x_scale) * corecad::model::mm,
+                ((static_cast<double>(screen.y) - _y_offset) / _y_scale) * corecad::model::mm
             };
         }
 
@@ -79,8 +79,8 @@ namespace gui
         {
             return ImVec2
             {
-                static_cast<float>((p.x * _x_scale) + _x_offset),
-                static_cast<float>((p.y * _y_scale) + _y_offset)
+                static_cast<float>((p.x.val().numerical_value_in(corecad::model::mm) * _x_scale) + _x_offset),
+                static_cast<float>((p.y.val().numerical_value_in(corecad::model::mm) * _y_scale) + _y_offset)
             };
         }
 

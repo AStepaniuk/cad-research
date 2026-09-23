@@ -17,6 +17,8 @@ protected:
     class test_point_tag {};
     using test_point = corecad::model::point2d<test_point_tag>;
 
+    static constexpr auto mm = corecad::model::length_mm_t::unit;
+
     void given_history_is_empty();
     void given_point_added_to_registry(test_point p);
     void given_transaction_committed();

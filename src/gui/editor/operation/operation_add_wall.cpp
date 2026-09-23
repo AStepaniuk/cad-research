@@ -23,7 +23,7 @@ operation_add_wall::operation_add_wall(doc::document &doc, floor_view &v, calc_t
 
 void operation_add_wall::start()
 {
-    _current_point = _document.model.data().make<wall_axis_point>(0.0, 0.0);
+    _current_point = _document.model.data().make<wall_axis_point>(0.0 * mm, 0.0 * mm);
 
     _document.hovered_handle = handle_data { _current_point.value() };
     _document.selected_walls.clear();

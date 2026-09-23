@@ -4,27 +4,27 @@ class when_undo_redo_multiple_transactions : public history_base_fixture { };
 
 TEST_F(when_undo_redo_multiple_transactions, should_undo_two_transactions)
 {
-    given_point_added_to_registry({1000, 1000});
+    given_point_added_to_registry({1000.0 * mm, 1000.0 * mm});
     given_transaction_committed();
-    given_point_added_to_registry({2000, 3000});
+    given_point_added_to_registry({2000.0 * mm, 3000.0 * mm});
     given_transaction_committed();
-    given_point_is_modified(0, {4000, 5000});
+    given_point_is_modified(0, {4000.0 * mm, 5000.0 * mm});
     given_transaction_committed();
     given_undo_performed();
 
     when_undo_performed();
 
     then_points_number_should_be(1);
-    then_point_should_be(0, {1000, 1000});
+    then_point_should_be(0, {1000.0 * mm, 1000.0 * mm});
 }
 
 TEST_F(when_undo_redo_multiple_transactions, should_redo_two_transactions)
 {
-    given_point_added_to_registry({1000, 1000});
+    given_point_added_to_registry({1000.0 * mm, 1000.0 * mm});
     given_transaction_committed();
-    given_point_added_to_registry({2000, 3000});
+    given_point_added_to_registry({2000.0 * mm, 3000.0 * mm});
     given_transaction_committed();
-    given_point_is_modified(0, {4000, 5000});
+    given_point_is_modified(0, {4000.0 * mm, 5000.0 * mm});
     given_transaction_committed();
     given_undo_performed();
     given_undo_performed();
@@ -33,17 +33,17 @@ TEST_F(when_undo_redo_multiple_transactions, should_redo_two_transactions)
     when_redo_performed();
 
     then_points_number_should_be(2);
-    then_point_should_be(0, {4000, 5000});
-    then_point_should_be(1, {2000, 3000});
+    then_point_should_be(0, {4000.0 * mm, 5000.0 * mm});
+    then_point_should_be(1, {2000.0 * mm, 3000.0 * mm});
 }
 
 TEST_F(when_undo_redo_multiple_transactions, should_undo_two_transactions_2nd_time)
 {
-    given_point_added_to_registry({1000, 1000});
+    given_point_added_to_registry({1000.0 * mm, 1000.0 * mm});
     given_transaction_committed();
-    given_point_added_to_registry({2000, 3000});
+    given_point_added_to_registry({2000.0 * mm, 3000.0 * mm});
     given_transaction_committed();
-    given_point_is_modified(0, {4000, 5000});
+    given_point_is_modified(0, {4000.0 * mm, 5000.0 * mm});
     given_transaction_committed();
     given_undo_performed();
     given_undo_performed();
@@ -54,16 +54,16 @@ TEST_F(when_undo_redo_multiple_transactions, should_undo_two_transactions_2nd_ti
     when_undo_performed();
 
     then_points_number_should_be(1);
-    then_point_should_be(0, {1000, 1000});
+    then_point_should_be(0, {1000.0 * mm, 1000.0 * mm});
 }
 
 TEST_F(when_undo_redo_multiple_transactions, should_redo_two_transactions_2nd_time)
 {
-    given_point_added_to_registry({1000, 1000});
+    given_point_added_to_registry({1000.0 * mm, 1000.0 * mm});
     given_transaction_committed();
-    given_point_added_to_registry({2000, 3000});
+    given_point_added_to_registry({2000.0 * mm, 3000.0 * mm});
     given_transaction_committed();
-    given_point_is_modified(0, {4000, 5000});
+    given_point_is_modified(0, {4000.0 * mm, 5000.0 * mm});
     given_transaction_committed();
     given_undo_performed();
     given_undo_performed();
@@ -76,6 +76,6 @@ TEST_F(when_undo_redo_multiple_transactions, should_redo_two_transactions_2nd_ti
     when_redo_performed();
 
     then_points_number_should_be(2);
-    then_point_should_be(0, {4000, 5000});
-    then_point_should_be(1, {2000, 3000});
+    then_point_should_be(0, {4000.0 * mm, 5000.0 * mm});
+    then_point_should_be(1, {2000.0 * mm, 3000.0 * mm});
 }

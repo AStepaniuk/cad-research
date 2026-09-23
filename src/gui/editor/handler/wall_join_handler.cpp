@@ -45,8 +45,8 @@ bool wall_join_handler::wall_move(
 
             const auto& point = _document.model.data().get(a.*pptr);
         
-            if (model_pos.x > point.x - tol.x && model_pos.x < point.x + tol.x
-                && model_pos.y > point.y - tol.y && model_pos.y < point.y + tol.y)
+            if (model_pos.x.val() > point.x.val() - tol.x.val() && model_pos.x.val() < point.x.val() + tol.x.val()
+                && model_pos.y.val() > point.y.val() - tol.y.val() && model_pos.y.val() < point.y.val() + tol.y.val())
             {
                 _target_point_handle = doc::handle_data { point.index };
 

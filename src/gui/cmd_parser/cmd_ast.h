@@ -4,11 +4,13 @@
 #include <vector>
 #include <variant>
 
+#include "units.h"
+
 namespace gui::cmd_parser
 {
     struct value
     {
-        double data;
+        corecad::model::length_mm_t data;
     };
     
     struct attribute

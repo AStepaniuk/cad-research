@@ -8,3 +8,6 @@ target_include_directories(cadgui_cmd_parser PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+target_link_libraries(cadgui_cmd_parser PRIVATE
+    corecad
+)

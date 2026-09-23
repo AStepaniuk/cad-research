@@ -24,7 +24,7 @@ namespace gui::editor::operation
 
         operation_move_wall_handle _sub_operation_move_handle;
 
-        double _last_thickness = 400.0;
+        corecad::model::length_mm_t _last_thickness = 400.0 * corecad::model::mm;
 
     public:
         operation_add_wall(doc::document& doc, floor_view& v, calc_tools& t, attribute::attribute_service& as);

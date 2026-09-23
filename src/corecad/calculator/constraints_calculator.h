@@ -16,6 +16,7 @@
 #include "constraint.h"
 #include "point2d.h"
 #include "registry.h"
+#include "members_iterator.h"
 
 namespace corecad::calculator
 {
@@ -34,6 +35,31 @@ namespace corecad::calculator
     public:
         using constraint_t = TConstraintModel<corecad::util::type_list<TVectorIndex...>>;
 
+    private:
+        template <typename TMember>
+        using length_property = model::is_property_of_type<TMember, model::length_mm_t>;
+
+        template <typename TVariant>
+        struct max_const_parametric_member_count_impl;
+
+        template <typename... Ts>
+        struct max_const_parametric_member_count_impl<std::variant<Ts...>>
+        {
+            static constexpr size_t value = [] {
+                size_t counts[] = { meta::count_members<length_property, Ts>()... };
+                size_t max_val = 0;
+                for (size_t count : counts)
+                {
+                    if (count > max_val) max_val = count;
+                }
+                return max_val;
+            }();
+        };
+
+        static constexpr size_t max_const_parametric_properties_in_constraint =
+            max_const_parametric_member_count_impl<typename constraint_t::instance_t>::value;
+
+    public:
         constraints_calculator(TRegistryPool& data)
             : _data { data }
         {}
@@ -45,7 +71,8 @@ namespace corecad::calculator
 
         template <typename R>
         requires
-            std::ranges::input_range<R> && 
+            std::ranges::forward_range<R> &&
+            std::ranges::sized_range<R> &&
             std::same_as<std::ranges::range_value_t<R>, constraint_t>
         constraint_calculation_result recalculate_all(R&& iterable)
         {
@@ -55,12 +82,14 @@ namespace corecad::calculator
             std::vector<double> gcs_params;
             std::unordered_set<size_t> gcs_constants;
 
-            auto total_points_size = (_data.template size<typename TVectorIndex::tag_t>() + ...);
+            const auto total_points_size = (_data.template size<typename TVectorIndex::tag_t>() + ...);
+            const auto points_param_size = total_points_size * 2;
+            const auto max_const_param_size = std::ranges::distance(iterable) * max_const_parametric_properties_in_constraint;
 
             gcs_points.resize(total_points_size);
-            gcs_params.resize(total_points_size * 2);
-            size_t next_idx = 0;
-            size_t next_p = 0;
+            gcs_params.resize(points_param_size + max_const_param_size);
+            size_t next_point_idx = 0;
+            size_t next_const_idx = points_param_size;
 
             using point_id_t = typename constraint_t::point_id_t;
 
@@ -70,25 +99,34 @@ namespace corecad::calculator
                 auto [iter, inserted] = gcs_points_table.try_emplace(i, nullptr);
                 if (inserted)
                 {
-                    GCS::Point& gcs_p = gcs_points[next_idx];
-                    gcs_p.x = &(gcs_params[next_p]);
-                    gcs_p.y = &(gcs_params[next_p + 1]);
+                    const size_t current_param_idx = next_point_idx * 2;
+
+                    GCS::Point& gcs_p = gcs_points[next_point_idx];
+                    gcs_p.x = &(gcs_params[current_param_idx]);
+                    gcs_p.y = &(gcs_params[current_param_idx + 1]);
 
                     std::visit([&] (auto p_id) {
-                        using vector2d_t = decltype(p_id)::tag_t;
                         const auto& p = _data.get(p_id);
 
-                        *(gcs_p.x) = p.x;
-                        *(gcs_p.y) = p.y;
+                        *(gcs_p.x) = p.x.val().numerical_value_in(model::mm);
+                        *(gcs_p.y) = p.y.val().numerical_value_in(model::mm);
                     } , i);
 
                     iter->second = &gcs_p;
 
-                    next_idx++;
-                    next_p += 2;
+                    next_point_idx++;
                 }
 
                 return iter->second;
+            };
+
+            auto add_gcs_const_param = [&](model::length_mm_t l) {
+                gcs_params[next_const_idx] = l.numerical_value_in(model::mm);
+                const auto res = &gcs_params[next_const_idx];
+
+                next_const_idx++;
+
+                return res;
             };
 
             for(const auto& c : iterable)
@@ -96,16 +134,17 @@ namespace corecad::calculator
                 std::visit(util::overloaded
                     {
                         [&](const typename constraint_t::template concrete_t<model::constraint::offset>& offs) {
-                            auto f_gcs_p = get_or_add_gcs_point(offs.from);
-                            auto t_gcs_p = get_or_add_gcs_point(offs.to);
+                            auto f_gcs_point = get_or_add_gcs_point(offs.from);
+                            auto t_gcs_point = get_or_add_gcs_point(offs.to);
+                            auto dist_gsc_param = add_gcs_const_param(offs.distance);
 
                             if (offs.direction == model::coordinate2d::x)
                             {
-                                m_sys.addConstraintDifference(f_gcs_p->x, t_gcs_p->x, &(const_cast<double&>(offs.distance.val())));
+                                m_sys.addConstraintDifference(f_gcs_point->x, t_gcs_point->x, dist_gsc_param);
                             }
                             else
                             {
-                                m_sys.addConstraintDifference(f_gcs_p->y, t_gcs_p->y, &(const_cast<double&>(offs.distance.val())));
+                                m_sys.addConstraintDifference(f_gcs_point->y, t_gcs_point->y, dist_gsc_param);
                             }
                         },
                         [&](const typename constraint_t::template concrete_t<model::constraint::fixed>& fix) {
@@ -113,12 +152,12 @@ namespace corecad::calculator
 
                             if (fix.coordinate == model::coordinate2d::x)
                             {
-                                *(gcs_p->x) = fix.value;
+                                *(gcs_p->x) = fix.value.val().numerical_value_in(model::mm);
                                 gcs_constants.emplace(gcs_p->x - gcs_params.data());
                             }
                             else
                             {
-                                *(gcs_p->y) = fix.value;
+                                *(gcs_p->y) = fix.value.val().numerical_value_in(model::mm);
                                 gcs_constants.emplace(gcs_p->y - gcs_params.data());
                             }
                         },
@@ -134,11 +173,9 @@ namespace corecad::calculator
                             auto gcs_l1e = get_or_add_gcs_point(pd.line1_end);
                             auto gcs_l2s = get_or_add_gcs_point(pd.line2_start);
                             auto gcs_l2e = get_or_add_gcs_point(pd.line2_end);
+                            auto gsc_dist = add_gcs_const_param(pd.distance);
 
-                            auto* dist_constraint = new GCS::ConstraintP2LOnLeft(
-                                *gcs_l1s, *gcs_l1e, *gcs_l2s,
-                                &(const_cast<double&>(pd.distance.val()))
-                            );
+                            auto* dist_constraint = new GCS::ConstraintP2LOnLeft(*gcs_l1s, *gcs_l1e, *gcs_l2s, gsc_dist);
                             m_sys.addConstraint(dist_constraint);
 
                             auto* parallel_constraint = new GCS::ConstraintParallel2(*gcs_l1s, *gcs_l1e, *gcs_l2s, *gcs_l2e);
@@ -150,11 +187,13 @@ namespace corecad::calculator
             }
 
             auto gcs_variables = gcs_params 
-                | std::views::take(next_idx * 2)
-                | std::views::transform([](double& val) { return &val; })
-                | std::views::filter([&](double* d) { 
-                    return !gcs_constants.contains(d - gcs_params.data());
+                | std::views::take(next_point_idx * 2)
+                | std::views::enumerate
+                | std::views::filter([&](const auto& pair) {
+                    auto [idx, val] = pair;
+                    return !gcs_constants.contains(idx);
                 })
+                | std::views::transform([&](const auto& pair) { return &gcs_params[std::get<0>(pair)]; })
                 | std::ranges::to<std::vector>();
 
             auto res = m_sys.solve(gcs_variables, true, GCS::Algorithm::LevenbergMarquardt, true);
@@ -174,8 +213,8 @@ namespace corecad::calculator
                     std::visit([&] (auto p_id) {
                         using vector2d_t = decltype(p_id)::tag_t;
                         auto& p = _data.get(p_id);
-                        p.x = *(pair.second->x);
-                        p.y = *(pair.second->y);
+                        p.x = (*(pair.second->x)) * model::mm;
+                        p.y = (*(pair.second->y)) * model::mm;
                     } , pair.first);
                 }
 

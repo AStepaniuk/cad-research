@@ -69,14 +69,14 @@ model::floor::constraint_t constraints_builder::to_constraint(const model::param
                                 // Do nothing. Distance adjustment is not necessary.
                                 const auto& axis = _floor.data().get(wall.axis);
                                 auto pid = wbpl.point_on_border_ptr == &wall_border_line::s ? axis.s : axis.e;
-                                return std::pair<wall_axis_point::index_t, double>(pid, 0.0);
+                                return std::pair<wall_axis_point::index_t, length_mm_t>(pid, 0.0 * mm);
                             }
                         }
                         else
                         {
                             auto adjustment = wbpl.border_ptr == &wall::left
-                                ? -(wall.thickness * 0.5 + wall.axis_offset)
-                                : wall.thickness * 0.5  - wall.axis_offset;
+                                ? -(wall.thickness.val() * 0.5 + wall.axis_offset.val())
+                                : wall.thickness.val() * 0.5  - wall.axis_offset.val();
                             
                             if (wall_orienation.value().s == sign::neg)
                             {
@@ -85,7 +85,7 @@ model::floor::constraint_t constraints_builder::to_constraint(const model::param
 
                             const auto& axis = _floor.data().get(wall.axis);
                             auto pid = wbpl.point_on_border_ptr == &wall_border_line::s ? axis.s : axis.e;
-                            return std::pair<wall_axis_point::index_t, double>(pid, adjustment);
+                            return std::pair<wall_axis_point::index_t, length_mm_t>(pid, adjustment);
                         }
                     }
 
@@ -96,7 +96,7 @@ model::floor::constraint_t constraints_builder::to_constraint(const model::param
 
                 auto from_adjustment = std::visit(corecad::util::overloaded{
                     [&](const wall_axis_point::index_t& waid) {
-                        return std::pair<wall_axis_point::index_t, double>(waid, 0.0);
+                        return std::pair<wall_axis_point::index_t, length_mm_t>(waid, 0.0 * mm);
                     }, 
                     get_wbpl_distance_adjustment
                 }, d.from.val());
@@ -106,7 +106,7 @@ model::floor::constraint_t constraints_builder::to_constraint(const model::param
 
                 auto to_adjustment = std::visit(corecad::util::overloaded{
                     [&](const wall_axis_point::index_t& waid) {
-                        return std::pair<wall_axis_point::index_t, double>(waid, 0.0);
+                        return std::pair<wall_axis_point::index_t, length_mm_t>(waid, 0.0 * mm);
                     }, 
                     get_wbpl_distance_adjustment
                 }, d.to.val());
@@ -138,7 +138,7 @@ std::optional<constraints_builder::wall_orientation> constraints_builder::get_wa
 
     for (const model::parameter::parameter::concrete_t<distance>& d : distances)
     {
-        if (d.value != 0.0)
+        if (d.value != 0.0 * mm)
         {
             continue;
         }
@@ -161,7 +161,7 @@ std::optional<constraints_builder::wall_orientation> constraints_builder::get_wa
             (d.from != d.to) // this should never occur. Safety guard
         )
         {
-            auto dist = d.value;
+            auto dist = d.value.val();
             if ((*from_a) == axis.e)
             {
                 dist = -dist;
@@ -170,7 +170,7 @@ std::optional<constraints_builder::wall_orientation> constraints_builder::get_wa
             return wall_orientation
             {
                 .axis = (d.direction == coordinate2d::x) ? coordinate2d::y : coordinate2d::x,
-                .s = dist > 0.0 ? sign::pos : sign::neg
+                .s = dist > 0.0 * mm ? sign::pos : sign::neg
             }; 
         }
     }

@@ -11,18 +11,18 @@ class wall_calculator_base_fixture : public ::testing::Test
 {
 protected:
     void given_floor_has_wall_axis_point(const domain::plan::model::shape::wall_axis_point &p);
-    void given_floor_has_wall(size_t sp, size_t ep, double w);
+    void given_floor_has_wall(size_t sp, size_t ep, corecad::model::length_mm_t w);
     void given_single_wall_floor_generated(
         const domain::plan::model::shape::wall_axis_point& start,
         const domain::plan::model::shape::wall_axis_point& end,
-        float width
+        corecad::model::length_mm_t width
     );
     void given_two_walls_floor_generated(
         const domain::plan::model::shape::wall_axis_point& start,
         const domain::plan::model::shape::wall_axis_point& common,
         const domain::plan::model::shape::wall_axis_point& end,
-        float width1,
-        float width2
+        corecad::model::length_mm_t width1,
+        corecad::model::length_mm_t width2
     );
     void given_recalculating_all_walls();
 

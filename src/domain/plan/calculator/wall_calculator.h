@@ -39,7 +39,7 @@ namespace domain::plan::calculator
         );
         void calculate_joined_n_walls_borders(
             model::shape::wall_axis_point::index_t apid,
-            std::map<model::shape::wall::index_t, double>& walls_directions,
+            std::map<model::shape::wall::index_t, corecad::model::angle_rad_t>& walls_directions,
             std::vector<model::shape::wall_axis_point_locator>& processed_apls
         );
 

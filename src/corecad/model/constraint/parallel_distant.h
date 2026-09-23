@@ -12,7 +12,7 @@ namespace corecad::model::constraint
     {
         using point_id_t = TPoint2DIndexList::variant_t;
 
-        parallel_distant(point_id_t l1s, point_id_t l1e, point_id_t l2s, point_id_t l2e, double d)
+        parallel_distant(point_id_t l1s, point_id_t l1e, point_id_t l2s, point_id_t l2e, length_mm_t d)
             : line1_start { nullptr, l1s }
             , line1_end { nullptr, l1e }
             , line2_start { nullptr, l2s }
@@ -25,7 +25,7 @@ namespace corecad::model::constraint
         property<point_id_t, TModel> line1_end;
         property<point_id_t, TModel> line2_start;
         property<point_id_t, TModel> line2_end;
-        property<double, TModel> distance;
+        property<length_mm_t, TModel> distance;
 
         struct metadata
         {

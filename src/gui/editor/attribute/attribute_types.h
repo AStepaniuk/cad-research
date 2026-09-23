@@ -10,5 +10,5 @@
 namespace gui::editor::attribute
 {
     using model_variant_ptr = std::variant<domain::plan::model::shape::wall*>;
-    using attr_variant_val = std::variant<double>;
+    using attr_variant_val = std::variant<corecad::model::length_mm_t>;
 }

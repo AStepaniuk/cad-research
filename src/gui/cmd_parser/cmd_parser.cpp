@@ -8,6 +8,7 @@
 #include "parser_error.h"
 
 using namespace gui::cmd_parser;
+using namespace corecad::model;
 
 namespace
 {
@@ -73,7 +74,7 @@ namespace
         return { std::string(source.data(), cursor), cursor };
     }
 
-    parse_result<double> parse_double(std::string_view source)
+    parse_result<length_mm_t> parse_length(std::string_view source)
     {
         size_t cursor = 0;
         while (cursor < source.size() && is_number_char(static_cast<unsigned char>(source[cursor])))
@@ -94,7 +95,7 @@ namespace
             return { std::nullopt, 0 };
         }
 
-        return { numeric_data, cursor };
+        return { numeric_data * mm, cursor };
     }
 
     parse_result<attribute> parse_attribute(std::string_view source)
@@ -112,7 +113,7 @@ namespace
 
     parse_result<value> parse_value(std::string_view source)
     {
-        auto [num, num_size] = parse_double(source);
+        auto [num, num_size] = parse_length(source);
         if (num)
         {
             return { value { .data = num.value() }, num_size };

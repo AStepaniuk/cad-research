@@ -9,7 +9,7 @@ void wall_calculator_base_fixture::given_floor_has_wall_axis_point(const wall_ax
     points.push_back(test_floor.data().put(p));
 }
 
-void wall_calculator_base_fixture::given_floor_has_wall(size_t sp, size_t ep, double w)
+void wall_calculator_base_fixture::given_floor_has_wall(size_t sp, size_t ep, length_mm_t w)
 {
     const auto a = test_floor.data().make<wall_axis_line>(points[sp], points[ep]);
     walls.push_back(test_floor.data().make<wall>(a, w));
@@ -18,7 +18,7 @@ void wall_calculator_base_fixture::given_floor_has_wall(size_t sp, size_t ep, do
 void wall_calculator_base_fixture::given_single_wall_floor_generated(
     const wall_axis_point &start,
     const wall_axis_point &end,
-    float width
+    length_mm_t width
 )
 {
     given_floor_has_wall_axis_point(start);
@@ -31,8 +31,8 @@ void wall_calculator_base_fixture::given_two_walls_floor_generated(
     const wall_axis_point &start,
     const wall_axis_point &common,
     const wall_axis_point &end,
-    float width1,
-    float width2
+    length_mm_t width1,
+    length_mm_t width2
 )
 {
     given_floor_has_wall_axis_point(start);

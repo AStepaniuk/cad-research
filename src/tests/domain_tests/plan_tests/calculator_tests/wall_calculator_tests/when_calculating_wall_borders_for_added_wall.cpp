@@ -13,17 +13,17 @@ class when_calculating_wall_borders_for_added_wall : public wall_calculator_base
 
 TEST_F(when_calculating_wall_borders_for_added_wall, should_calculate_added_wall)
 {
-    given_floor_has_wall_axis_point({1000, 1000});
-    given_floor_has_wall_axis_point({5000, 1000});
-    given_floor_has_wall_axis_point({10000, 1000});
+    given_floor_has_wall_axis_point({1000.0 * mm, 1000.0 * mm});
+    given_floor_has_wall_axis_point({5000.0 * mm, 1000.0 * mm});
+    given_floor_has_wall_axis_point({10000.0 * mm, 1000.0 * mm});
 
-    given_floor_has_wall(0, 1, 100);
-    given_floor_has_wall(1, 2, 100);
+    given_floor_has_wall(0, 1, 100.0 * mm);
+    given_floor_has_wall(1, 2, 100.0 * mm);
 
     given_recalculating_all_walls();
 
-    given_floor_has_wall_axis_point({5000, 5000});
-    given_floor_has_wall(1, 3, 200);
+    given_floor_has_wall_axis_point({5000.0 * mm, 5000.0 * mm});
+    given_floor_has_wall(1, 3, 200.0 * mm);
 
     when_recalculating_all_walls();
 
@@ -32,33 +32,33 @@ TEST_F(when_calculating_wall_borders_for_added_wall, should_calculate_added_wall
 
 TEST_F(when_calculating_wall_borders_for_added_wall, should_calculate_added_wall_borders)
 {
-    given_floor_has_wall_axis_point({1000, 1000});
-    given_floor_has_wall_axis_point({5000, 1000});
-    given_floor_has_wall_axis_point({10000, 1000});
+    given_floor_has_wall_axis_point({1000.0 * mm, 1000.0 * mm});
+    given_floor_has_wall_axis_point({5000.0 * mm, 1000.0 * mm});
+    given_floor_has_wall_axis_point({10000.0 * mm, 1000.0 * mm});
 
-    given_floor_has_wall(0, 1, 100);
-    given_floor_has_wall(1, 2, 100);
+    given_floor_has_wall(0, 1, 100.0 * mm);
+    given_floor_has_wall(1, 2, 100.0 * mm);
 
     given_recalculating_all_walls();
 
-    given_floor_has_wall_axis_point({5000, 5000});
-    given_floor_has_wall(1, 3, 200);
+    given_floor_has_wall_axis_point({5000.0 * mm, 5000.0 * mm});
+    given_floor_has_wall(1, 3, 200.0 * mm);
 
     when_recalculating_all_walls();
 
-    then_border_point_should_be(0, &wall::left, &wall_border_line::s, { 1000, 950 });
-    then_border_point_should_be(0, &wall::right, &wall_border_line::s, { 1000, 1050 });
-    then_border_point_should_be(0, &wall::left, &wall_border_line::e, { 5000, 950 });
-    then_border_point_should_be(0, &wall::right, &wall_border_line::e, { 4900, 1050 });
+    then_border_point_should_be(0, &wall::left, &wall_border_line::s, { 1000.0 * mm, 950.0 * mm });
+    then_border_point_should_be(0, &wall::right, &wall_border_line::s, { 1000.0 * mm, 1050.0 * mm });
+    then_border_point_should_be(0, &wall::left, &wall_border_line::e, { 5000.0 * mm, 950.0 * mm });
+    then_border_point_should_be(0, &wall::right, &wall_border_line::e, { 4900.0 * mm, 1050.0 * mm });
 
-    then_border_point_should_be(1, &wall::left, &wall_border_line::s, { 5000, 950 });
-    then_border_point_should_be(1, &wall::right, &wall_border_line::s, { 5100, 1050 });
-    then_border_point_should_be(1, &wall::left, &wall_border_line::e, { 10000, 950 });
-    then_border_point_should_be(1, &wall::right, &wall_border_line::e, { 10000, 1050 });
+    then_border_point_should_be(1, &wall::left, &wall_border_line::s, { 5000.0 * mm, 950.0 * mm });
+    then_border_point_should_be(1, &wall::right, &wall_border_line::s, { 5100.0 * mm, 1050.0 * mm });
+    then_border_point_should_be(1, &wall::left, &wall_border_line::e, { 10000.0 * mm, 950.0 * mm });
+    then_border_point_should_be(1, &wall::right, &wall_border_line::e, { 10000.0 * mm, 1050.0 * mm });
 
-    then_border_point_should_be(2, &wall::left, &wall_border_line::s, { 5100, 1050 });
-    then_border_point_should_be(2, &wall::right, &wall_border_line::s, { 4900, 1050 });
-    then_border_point_should_be(2, &wall::left, &wall_border_line::e, { 5100, 5000 });
-    then_border_point_should_be(2, &wall::right, &wall_border_line::e, { 4900, 5000 });
+    then_border_point_should_be(2, &wall::left, &wall_border_line::s, { 5100.0 * mm, 1050.0 * mm });
+    then_border_point_should_be(2, &wall::right, &wall_border_line::s, { 4900.0 * mm, 1050.0 * mm });
+    then_border_point_should_be(2, &wall::left, &wall_border_line::e, { 5100.0 * mm, 5000.0 * mm });
+    then_border_point_should_be(2, &wall::right, &wall_border_line::e, { 4900.0 * mm, 5000.0 * mm });
 }
 

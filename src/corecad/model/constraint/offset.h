@@ -13,7 +13,7 @@ namespace corecad::model::constraint
     {
         using point_id_t = TPoint2DIndexList::variant_t;
 
-        offset(point_id_t f, point_id_t t, double o, coordinate2d d)
+        offset(point_id_t f, point_id_t t, length_mm_t o, coordinate2d d)
             : direction { nullptr, d }
             , from { nullptr, f }
             , to { nullptr, t }
@@ -25,7 +25,7 @@ namespace corecad::model::constraint
         property<point_id_t, TModel> from;
         property<point_id_t, TModel> to;
 
-        property<double, TModel> distance;
+        property<length_mm_t, TModel> distance;
 
         struct metadata
         {

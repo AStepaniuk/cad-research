@@ -11,7 +11,7 @@ namespace domain::plan::model::parameter
     {
         using point_id_t = typename shape::wall_point_id_t;
 
-        pinned(point_id_t p, double v, corecad::model::coordinate2d c)
+        pinned(point_id_t p, corecad::model::length_mm_t v, corecad::model::coordinate2d c)
             : coordinate { nullptr, c }
             , point { nullptr, p }
             , value { nullptr, v }
@@ -19,7 +19,7 @@ namespace domain::plan::model::parameter
 
         corecad::model::property<corecad::model::coordinate2d, TModel> coordinate;
         corecad::model::property<point_id_t, TModel> point;
-        corecad::model::property<double, TModel> value;
+        corecad::model::property<corecad::model::length_mm_t, TModel> value;
 
         struct metadata
         {

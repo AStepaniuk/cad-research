@@ -11,6 +11,7 @@ using namespace gui::editor::attribute;
 using namespace gui::localization;
 using namespace domain::plan::model::shape;
 using namespace domain::plan::model;
+using namespace corecad::model;
 
 namespace
 {
@@ -24,8 +25,8 @@ namespace
                 .reader = make_getter(&wall::thickness),
                 .writer = make_writer(
                     &wall::thickness,
-                    [](const wall& _, double new_thickness, const domain::plan::model::floor& __) -> std::optional<std::string> {
-                        if (new_thickness > 0.0)
+                    [](const wall& _, length_mm_t new_thickness, const domain::plan::model::floor& __) -> std::optional<std::string> {
+                        if (new_thickness > 0.0 * mm)
                         {
                             return std::nullopt;
                         }
