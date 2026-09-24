@@ -2,10 +2,11 @@
 
 using namespace gui;
 
-workspace::workspace(GLFWwindow* window, main_menu& mm)
-    : _main_menu { mm }
+workspace::workspace(GLFWwindow* window, main_menu& mm, ui_controller::ui& ui)
+    : _ui { ui }
+    , _main_menu { mm }
     , _document {}
-    , _editor { window, _document }
+    , _editor { window, _document, ui }
 {
 }
 

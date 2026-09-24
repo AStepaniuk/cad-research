@@ -11,11 +11,12 @@ using namespace corecad::model;
 using namespace domain::plan::model;
 using namespace domain::plan::model::shape;
 
-operation_add_wall::operation_add_wall(doc::document &doc, floor_view &v, calc_tools &t, attribute_service& as)
+operation_add_wall::operation_add_wall(doc::document &doc, floor_view &v, calc_tools &t, attribute_service& as, ui_controller::ui& ui)
     : _document { doc }
     , _view { v }
     , _tools { t }
     , _attribute_service { as }
+    , _ui { ui }
     , _sub_operation_move_handle { doc, v, t, "" }
 {
     _sub_operation_move_handle.disable_commit_on_click();
@@ -39,6 +40,8 @@ void operation_add_wall::stop()
     _document.hovered_handle = std::nullopt;
 
     _current_point = std::nullopt;
+
+    _ui.wall_context_panel.show = false;
 }
 
 action_handle_status operation_add_wall::mouse_move(float mx, float my)
@@ -75,7 +78,12 @@ action_handle_status operation_add_wall::left_mouse_click(float mx, float my)
         _current_point = hhid;
     }
 
-    if (!_document.selected_walls.empty())
+    if (_document.selected_walls.empty())
+    {
+        // first wall segment is added
+        _ui.wall_context_panel.show = true;
+    }
+    else
     {
         // Do commit only if wall has already been added. I.e. don't commit first added point, which has no wall
         _document.model.history().commit("Add wall");

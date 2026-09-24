@@ -37,4 +37,5 @@ target_link_libraries(cadgui_editor PUBLIC
     cadgui_editor_attribute
     cadgui_view
     cadgui_cmd_parser
+    cadgui_ui_controller
 )

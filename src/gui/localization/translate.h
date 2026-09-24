@@ -1,6 +1,7 @@
 #pragma once
 
 #include <format>
+#include <variant>
 
 #include "localization_manager.h"
 
@@ -13,6 +14,8 @@ namespace gui::localization
         translatable_string(const char* s);
         translatable_string(std::string_view s);
     };
+
+    std::string_view tr(translatable_string fmt);
 
     template <typename... Args>
     std::string tr(translatable_string fmt, Args&&... args)

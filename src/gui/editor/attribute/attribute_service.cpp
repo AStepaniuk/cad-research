@@ -32,7 +32,7 @@ namespace
                         }
                         else
                         {
-                            return tr("Wall thickness should be greater than zero");
+                            return std::string(tr("Wall thickness should be greater than zero"));
                         }
                     }
                 )

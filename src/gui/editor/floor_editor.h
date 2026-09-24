@@ -6,6 +6,7 @@
 #include "calc_tools.h"
 #include "attribute_service.h"
 #include "cmd_ast.h"
+#include "ui.h"
 
 #include "operation/operation_idle.h"
 #include "operation/operation_add_wall.h"
@@ -15,6 +16,7 @@ namespace gui::editor
     class floor_editor
     {
         doc::document& _document;
+        ui_controller::ui& _ui;
 
         calc_tools _tools;
         attribute::attribute_service _attribute_service;
@@ -31,7 +33,7 @@ namespace gui::editor
         void reset_selection();
 
     public:
-        floor_editor(GLFWwindow* window, doc::document& doc);
+        floor_editor(GLFWwindow* window, doc::document& doc, ui_controller::ui& ui);
 
         bool execute_instruction(const cmd_parser::instruction& instruction);
         void process_frame(bool mouse_in_workspace);

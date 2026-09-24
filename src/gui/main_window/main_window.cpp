@@ -9,10 +9,12 @@
 
 #include "main_menu.h"
 #include "cmd_panel.h"
+#include "wall_context_panel.h"
 #include "cmd_parser.h"
 #include "parser_error.h"
 #include "workspace.h"
 #include "translate.h"
+#include "ui.h"
 
 using namespace gui;
 using namespace gui::localization;
@@ -39,12 +41,14 @@ void main_window::run()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
+    ui_controller::ui ui;
     main_menu mm;
     cmd_panel cp;
+    wall_context_panel wcp { ui.wall_context_panel };
 
     // workspace init
     // TODO: consider creation multi-workspace environments
-    workspace ws { window, mm };
+    workspace ws { window, mm, ui };
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -56,6 +60,7 @@ void main_window::run()
 
         mm.process_frame();
         cp.process_frame();
+        wcp.process_frame();
 
         auto command = cp.take_entered_command();
 
@@ -80,7 +85,7 @@ void main_window::run()
             }
         }
 
-        bool is_mouse_in_workspace = !mm.is_mouse_hovering() && !cp.is_mouse_hovering();
+        bool is_mouse_in_workspace = !mm.is_mouse_hovering() && !cp.is_mouse_hovering() && !wcp.is_mouse_hovering();
         ws.process_frame(is_mouse_in_workspace);
 
         // other ImGui windows/widgets here

@@ -4,6 +4,7 @@ add_subdirectory(view)
 add_subdirectory(editor)
 add_subdirectory(cmd_parser)
 add_subdirectory(localization)
+add_subdirectory(ui_controller)
 
 find_package(OpenGL REQUIRED)
 

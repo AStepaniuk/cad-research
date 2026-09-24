@@ -6,14 +6,15 @@ using namespace gui::editor;
 using namespace domain::plan::model;
 using namespace domain::plan::model::shape;
 
-floor_editor::floor_editor(GLFWwindow *window, doc::document &doc)
+floor_editor::floor_editor(GLFWwindow *window, doc::document &doc, ui_controller::ui& ui)
     :_document{ doc }
+    , _ui { ui }
     , _tools { _document.model }
     , _attribute_service { _document.model }
     , _view { doc }
     , _mouse { window }
     , _operation_idle { _document, _view, _tools }
-    , _operation_add_wall { _document, _view, _tools, _attribute_service }
+    , _operation_add_wall { _document, _view, _tools, _attribute_service, _ui }
 {
     domain::plan::generator::default_floor_generator fg;
     fg.generate_floor(_document.model);

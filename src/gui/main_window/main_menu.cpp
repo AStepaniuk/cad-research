@@ -15,32 +15,32 @@ main_menu::main_menu()
     {
         menu_meta
         {
-            .caption = tr("File"),
+            .caption = std::string { tr("File") },
             .items =
             {
                 menu_item_meta 
                 {
-                    .caption = tr("Open")
+                    .caption = std::string { tr("Open") }
                 },                
                 menu_item_meta 
                 {
-                    .caption = tr("Save")
+                    .caption = std::string { tr("Save") }
                 },
                 separator_meta {},
                 menu_item_meta 
                 {
-                    .caption = tr("Exit")
+                    .caption = std::string { tr("Exit") }
                 }
             }
         },
         menu_meta
         {
-            .caption = tr("Edit"),
+            .caption = std::string { tr("Edit") },
             .items =
             {
                 menu_item_meta 
                 {
-                    .caption = tr("Undo"),
+                    .caption = std::string { tr("Undo") },
                     .hotkey = ImGuiKey_Z,
                     .key_mods = ImGuiMod_Ctrl,
                     .hotkey_text = "Ctrl+Z",
@@ -48,7 +48,7 @@ main_menu::main_menu()
                 },                
                 menu_item_meta 
                 {
-                    .caption = tr("Redo"),
+                    .caption = std::string { tr("Redo") },
                     .hotkey = ImGuiKey_Y,
                     .key_mods = ImGuiMod_Ctrl,
                     .hotkey_text = "Ctrl+Y",
@@ -58,12 +58,12 @@ main_menu::main_menu()
         },
         menu_meta
         {
-            .caption = tr("Draw"),
+            .caption = std::string { tr("Draw") },
             .items = 
             {
                 menu_item_meta
                 {
-                    .caption = tr("Wall"),
+                    .caption = std::string { tr("Wall") },
                     .hotkey = ImGuiKey_W,
                     .item_choice = item::add_wall
                 }
