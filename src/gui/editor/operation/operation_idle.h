@@ -6,6 +6,7 @@
 #include "document.h"
 #include "floor_view.h"
 #include "calc_tools.h"
+#include "root_ui_dispatcher.h"
 
 namespace gui::editor::operation
 {
@@ -14,12 +15,13 @@ namespace gui::editor::operation
         doc::document& _document;
         floor_view& _view;
         calc_tools& _tools;
+        ui_dispatcher::root_ui_dispatcher& _ui_dispatcher;
  
         i_operation* _sub_operation { nullptr };
         operation_move_wall_handle _sub_operation_move_wall;
 
     public:
-        operation_idle(doc::document& doc, floor_view& v, calc_tools& _t);
+        operation_idle(doc::document& doc, floor_view& v, calc_tools& _t, ui_dispatcher::root_ui_dispatcher& ui_dispatcher);
 
         void start() override;
         void stop() override;

@@ -13,7 +13,7 @@ floor_editor::floor_editor(GLFWwindow *window, doc::document &doc, ui_dispatcher
     , _attribute_service { _document.model }
     , _view { doc }
     , _mouse { window }
-    , _operation_idle { _document, _view, _tools }
+    , _operation_idle { _document, _view, _tools, _ui_dispatcher }
     , _operation_add_wall { _document, _view, _tools, _attribute_service, _ui_dispatcher }
 {
     domain::plan::generator::default_floor_generator fg;
