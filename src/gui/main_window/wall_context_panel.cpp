@@ -6,14 +6,14 @@
 
 using namespace gui::localization;
 
-gui::wall_context_panel::wall_context_panel(ui_controller::ui_wall_context_panel &ui)
-    : _ui { ui }
+gui::wall_context_panel::wall_context_panel(ui_dispatcher::wall_context_panel_dispatcher& wcp_dispatcher)
+    : _wcp_dispatcher { wcp_dispatcher }
 {
 }
 
 void gui::wall_context_panel::process_frame()
 {
-    auto shown_control = _ui.show.take();
+    auto shown_control = _wcp_dispatcher.show.take();
     if (shown_control)
     {
         _shown = shown_control.value();

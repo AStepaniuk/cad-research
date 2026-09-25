@@ -8,7 +8,7 @@
 #include "floor_view.h"
 #include "calc_tools.h"
 #include "attribute_service.h"
-#include "ui.h"
+#include "root_ui_dispatcher.h"
 
 #include "operation_move_wall_handle.h"
 
@@ -20,7 +20,7 @@ namespace gui::editor::operation
         floor_view& _view;
         calc_tools& _tools;
         attribute::attribute_service& _attribute_service;
-        ui_controller::ui& _ui;
+        ui_dispatcher::root_ui_dispatcher& _ui_dispatcher;
 
         std::optional<domain::plan::model::shape::wall_axis_point::index_t> _current_point = std::nullopt;
 
@@ -34,7 +34,7 @@ namespace gui::editor::operation
             floor_view& v,
             calc_tools& t,
             attribute::attribute_service& as,
-            ui_controller::ui& ui
+            ui_dispatcher::root_ui_dispatcher& ui_dispatcher
         );
 
         void start() override;

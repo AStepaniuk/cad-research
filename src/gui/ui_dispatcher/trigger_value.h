@@ -2,15 +2,15 @@
 
 #include <optional>
 
-namespace gui::ui_controller
+namespace gui::ui_dispatcher
 {
     template <typename TData>
-    class control_trigger
+    class trigger_value
     {
         std::optional<TData> _value = std::nullopt;
 
     public:
-        control_trigger& operator=(TData val)
+        trigger_value& operator=(TData val)
         {
             _value = std::move(val);
             return *this;

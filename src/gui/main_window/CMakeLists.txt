@@ -19,5 +19,5 @@ target_link_libraries(cadgui_main_window PRIVATE
     cadgui_editor
     cadgui_cmd_parser
     cadgui_localization
-    cadgui_ui_controller
+    cadgui_ui_dispatcher
 )

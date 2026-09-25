@@ -1,13 +1,13 @@
 #pragma once
 
-#include "ui_wall_context_panel.h"
+#include "wall_context_panel_dispatcher.h"
 
 namespace gui
 {
     class wall_context_panel
     {
     public:
-        wall_context_panel(ui_controller::ui_wall_context_panel& ui);
+        wall_context_panel(ui_dispatcher::wall_context_panel_dispatcher& wcp_dispatcher);
 
         void process_frame();
 
@@ -15,7 +15,7 @@ namespace gui
         bool take_open_wall_layers_editor_trigger();
 
     private:
-        ui_controller::ui_wall_context_panel& _ui;
+        ui_dispatcher::wall_context_panel_dispatcher& _wcp_dispatcher;
 
         bool _shown = false;
         bool _is_mouse_hovering = false;

@@ -14,7 +14,7 @@
 #include "parser_error.h"
 #include "workspace.h"
 #include "translate.h"
-#include "ui.h"
+#include "root_ui_dispatcher.h"
 
 using namespace gui;
 using namespace gui::localization;
@@ -41,14 +41,14 @@ void main_window::run()
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 
-    ui_controller::ui ui;
+    ui_dispatcher::root_ui_dispatcher ui_dispatcher;
     main_menu mm;
     cmd_panel cp;
-    wall_context_panel wcp { ui.wall_context_panel };
+    wall_context_panel wcp { ui_dispatcher.wall_context_panel };
 
     // workspace init
     // TODO: consider creation multi-workspace environments
-    workspace ws { window, mm, ui };
+    workspace ws { window, mm, ui_dispatcher };
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
