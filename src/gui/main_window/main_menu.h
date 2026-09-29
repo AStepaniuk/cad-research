@@ -16,7 +16,9 @@ namespace gui {
             none,
             add_wall,
             undo,
-            redo
+            redo,
+            edit_wall_materials,
+            edit_wall_layers
         };
 
         main_menu();

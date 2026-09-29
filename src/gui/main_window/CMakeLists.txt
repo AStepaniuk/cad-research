@@ -18,6 +18,7 @@ target_link_libraries(cadgui_main_window PRIVATE
     cadgui_doc
     cadgui_editor
     cadgui_cmd_parser
+    cadgui_components
     cadgui_localization
     cadgui_ui_dispatcher
 )

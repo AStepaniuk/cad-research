@@ -7,6 +7,7 @@ workspace::workspace(GLFWwindow* window, main_menu& mm, ui_dispatcher::root_ui_d
     , _main_menu { mm }
     , _document {}
     , _editor { window, _document, _ui_dispatcher }
+    , _wme {{ _document.model.data().items<domain::plan::model::shape::wall_material_definition>() }}
 {
 }
 
@@ -29,6 +30,11 @@ void workspace::process_frame(bool mouse_in_workspace)
     {
         _editor.redo();
     }
+    else if (_main_menu.choosen_item() == main_menu::item::edit_wall_materials)
+    {
+        _wme.open({});
+    }
 
-    _editor.process_frame(mouse_in_workspace);
+    _wme.process_frame();
+    _editor.process_frame(mouse_in_workspace && !_wme.is_active());
 }

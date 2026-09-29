@@ -12,7 +12,6 @@ namespace gui
         void process_frame();
 
         bool is_mouse_hovering() const { return _is_mouse_hovering; }
-        bool take_open_wall_layers_editor_trigger();
 
     private:
         ui_dispatcher::wall_context_panel_dispatcher& _wcp_dispatcher;

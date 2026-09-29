@@ -7,6 +7,7 @@
 #include "cmd_ast.h"
 #include "floor_editor.h"
 #include "root_ui_dispatcher.h"
+#include "wall_materials_editor_modal.h"
 
 namespace gui
 {
@@ -18,6 +19,8 @@ namespace gui
 
         doc::document _document;
         editor::floor_editor _editor;
+
+        wall_materials_editor_modal _wme;
 
     public:
         workspace(GLFWwindow* window, main_menu& mm, ui_dispatcher::root_ui_dispatcher& ui_dispatcher);

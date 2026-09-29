@@ -68,6 +68,23 @@ main_menu::main_menu()
                     .item_choice = item::add_wall
                 }
             }
+        },
+        menu_meta
+        {
+            .caption = std::string { tr("Libraries") },
+            .items = 
+            {
+                menu_item_meta
+                {
+                    .caption = std::string { tr("Wall Materials") },
+                    .item_choice = item::edit_wall_materials
+                },
+                menu_item_meta
+                {
+                    .caption = std::string { tr("Wall Layers") },
+                    .item_choice = item::edit_wall_layers
+                }
+            }
         }
     };
 

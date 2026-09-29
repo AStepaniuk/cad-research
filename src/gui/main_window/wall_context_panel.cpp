@@ -67,11 +67,3 @@ void gui::wall_context_panel::process_frame()
     
     ImGui::PopStyleVar();
 }
-
-bool gui::wall_context_panel::take_open_wall_layers_editor_trigger()
-{
-    auto res = _should_open_wall_layers_editor_modal;
-    _should_open_wall_layers_editor_modal = false;
-
-    return res;
-}
