@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "traits.h"
+#include "type_meta_info.h"
 
 namespace corecad::model
 {

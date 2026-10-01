@@ -6,13 +6,10 @@
 #include <cctype>
 #include <imgui.h>
 
+#include "component_utils.h"
+
 namespace gui::components
 {
-    namespace impl
-    {
-        bool contains_case_insensitive(const std::string& haystack, const std::string& needle);
-    }
-
     template <typename T>
     class searchable_combo
     {
