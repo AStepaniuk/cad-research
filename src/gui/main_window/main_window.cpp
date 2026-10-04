@@ -47,13 +47,6 @@ void main_window::run()
     cmd_panel cp;
     wall_context_panel wcp { ui_dispatcher.wall_context_panel };
 
-    std::vector<domain::plan::model::shape::wall_compound_type> all_compounds;
-    std::vector<domain::plan::model::shape::wall_layer> all_layers;
-    std::vector<domain::plan::model::shape::wall_material_definition> materials_lookup;
-
-    wall_layers_editor_modal wle;
-    // wle.open({ &all_compounds, &all_layers, &materials_lookup }, {});
-
     // workspace init
     // TODO: consider creation multi-workspace environments
     workspace ws { window, mm, ui_dispatcher };
@@ -69,7 +62,6 @@ void main_window::run()
         mm.process_frame();
         cp.process_frame();
         wcp.process_frame();
-        wle.process_frame();
 
         auto command = cp.take_entered_command();
 
@@ -95,7 +87,7 @@ void main_window::run()
         }
 
         bool is_mouse_in_workspace = !mm.is_mouse_hovering() && !cp.is_mouse_hovering()
-            && !wcp.is_mouse_hovering() && !wle.is_active();
+            && !wcp.is_mouse_hovering();
 
         ws.process_frame(is_mouse_in_workspace);
 

@@ -1,207 +1,128 @@
 #include "wall_layers_editor_modal.h"
+
 #include <algorithm>
 #include <cstring>
+
 #include "translate.h"
+#include "form_section.h"
+#include "action_strip.h"
+#include "input_text.h"
 
 using namespace gui::localization;
 using namespace domain::plan::model::shape;
 using namespace corecad::model;
 
-void gui::wall_layers_editor_modal::open(const context_data& ctx, std::optional<wall_compound_type::index_t> compound_idx)
+gui::wall_layers_editor_modal::wall_layers_editor_modal(context_data ctx)
+    : _ctx { ctx }
+    , _dialog { ImVec2(750.0f, 600.0f), ImVec2(550.0f, 300.0f), ImVec2(1200.0f, 900.0f) }
+    , _compound_type_picker { _ctx.all_compounds, &wall_compound_type::name }
+    , _structural_role_picker {{
+        { wall_structural_role::partition_wall, tr("Partition Wall").data() },
+        { wall_structural_role::bearing_interior, tr("Bearing Interior").data() },
+        { wall_structural_role::bearing_exterior, tr("Bearing Exterior").data() },
+        { wall_structural_role::shear_wall, tr("Shear Wall").data() }
+    }}
 {
-    _ctx = ctx;
-    _should_open_popup = true;
-    _is_active = true;
-    
-    load_compound_into_buffer(compound_idx);
 }
 
-void gui::wall_layers_editor_modal::load_compound_into_buffer(std::optional<wall_compound_type::index_t> compound_idx)
+void gui::wall_layers_editor_modal::open(wall_compound_type::index_t compound_idx)
 {
-    _target_compound_idx = compound_idx;
+    _dialog.open();
+    
+    load_compound_into_buffer(compound_idx);
+    refresh_picker_list();
+}
+
+void gui::wall_layers_editor_modal::refresh_picker_list()
+{
+    _compound_type_picker.refresh();
+}
+
+void gui::wall_layers_editor_modal::load_compound_into_buffer(wall_compound_type::index_t compound_idx)
+{
     _editing_layers.clear();
 
-    if (_target_compound_idx && _ctx.all_compounds)
+    if (compound_idx)
     {
-        auto it = std::find_if(_ctx.all_compounds->begin(), _ctx.all_compounds->end(),
-            [this](const auto& comp) { return comp.index == *_target_compound_idx; });
+        _editing_compound = _ctx.all_compounds.get(compound_idx);
 
-        if (it != _ctx.all_compounds->end())
+        for (const auto& layer_idx : _editing_compound.layers)
         {
-            _editing_compound = *it;
-            std::strncpy(_name_buffer, _editing_compound.name.val().c_str(), sizeof(_name_buffer) - 1);
-
-            if (_ctx.all_layers)
-            {
-                for (const auto& layer_idx : _editing_compound.layers)
-                {
-                    auto layer_it = std::find_if(_ctx.all_layers->begin(), _ctx.all_layers->end(),
-                        [&layer_idx](const auto& lay) { return lay.index == layer_idx; });
-                    
-                    if (layer_it != _ctx.all_layers->end())
-                    {
-                        _editing_layers.push_back(*layer_it);
-                    }
-                }
-            }
-            return;
+            _editing_layers.push_back(_ctx.all_layers.get(layer_idx));
         }
     }
-
-    _editing_compound = wall_compound_type();
-    std::strncpy(_name_buffer, tr("New Compound Type").data(), sizeof(_name_buffer) - 1);
+    else
+    {
+        _editing_compound = wall_compound_type();
+        _editing_compound.name = std::string { tr("New Compound Type").data() };
+    }
 }
 
 void gui::wall_layers_editor_modal::process_frame()
 {
-    if (!_is_active) return;
-
-    if (_should_open_popup)
-    {
-        ImGui::OpenPopup(tr("Compound Layer Hierarchy Editor").data());
-        _should_open_popup = false;
-    }
-
-    ImGuiViewport* main_viewport = ImGui::GetMainViewport();
-    if (main_viewport)
-    {
-        // Find the absolute midpoint of the current primary application footprint
-        ImVec2 viewport_center = ImVec2(
-            main_viewport->Pos.x + main_viewport->Size.x * 0.5f,
-            main_viewport->Pos.y + main_viewport->Size.y * 0.5f
-        );
-
-        // Center pivot alignment anchor: (0.5f, 0.5f) explicitly sets the window's center as the alignment handle
-        ImGui::SetNextWindowPos(viewport_center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-    }
-
-    ImVec2 target_default_size = ImVec2(750.0f, 600.0f);
-    if (main_viewport)
-    {
-        if (target_default_size.x > main_viewport->Size.x - 40.0f) target_default_size.x = main_viewport->Size.x - 40.0f;
-        if (target_default_size.y > main_viewport->Size.y - 40.0f) target_default_size.y = main_viewport->Size.y - 40.0f;
-    }
-    ImGui::SetNextWindowSize(target_default_size, ImGuiCond_FirstUseEver);
-    
-    if (ImGui::BeginPopupModal(tr("Compound Layer Hierarchy Editor").data(), &_is_active, ImGuiWindowFlags_AlwaysAutoResize))
+    if (const auto h = _dialog.begin(tr("Compound Layer Hierarchy Editor").data()))
     {
         render_compound_metadata_form();
         
-        ImGui::TextDisabled("%s", tr("Structural Composition Strategy (Ordered Outside to Inside)").data());
-        ImGui::Separator();
+        components::form_section(tr("Structural Composition Strategy (Ordered Outside to Inside)").data());
 
-        // Calculate exact remaining heights needed for bottom elements:
-        // 120.0f (Canvas) + Text headers (~20.0f) + Buttons (~35.0f) + Separators/Spacings (~35.0f)
-        float reserved_bottom_height = 120.0f + 20.0f + 35.0f + 35.0f;
-        float dynamic_table_height = ImGui::GetContentRegionAvail().y - reserved_bottom_height;
+        size_t row_count = _editing_layers.size();
+        float row_height = ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().CellPadding.y * 2.0f;
+        float header_height = ImGui::GetTextLineHeightWithSpacing() + ImGui::GetStyle().CellPadding.y * 2.0f;
+        
+        float dynamic_table_height = 0.0f;
+        if (row_count == 0)
+        {
+            dynamic_table_height = 100.0f;
+        }
+        else
+        {
+            float desired_h = header_height + (static_cast<float>(row_count) * row_height) + 10.0f;
+            dynamic_table_height = std::clamp(desired_h, 120.0f, 350.0f);
+        }
 
-        // Establish a healthy minimum boundary constraint so the table never disappears 
-        if (dynamic_table_height < 150.0f) dynamic_table_height = 150.0f;
-
-        // Pass the dynamically scaled height constraint straight down to our table renderer
         render_layers_table(dynamic_table_height);
+        
+        components::form_section(tr("Structural Preview").data());
+        render_profile_preview_canvas();
+        
+        int action = components::action_strip({
+            components::button_meta { .title = tr("Save Structural Changes").data(), .is_default = true },
+            components::button_meta { .title = tr("Discard Modifications").data() }
+        });
 
-        ImGui::Separator();
-        
-        ImGui::TextDisabled("%s", tr("Structural Preview").data());
-        render_profile_preview_canvas(); // <-- New structural drawing call pass
-        
-        ImGui::Separator();
-        
-        if (ImGui::Button(tr("Commit Structural Changes").data(), ImVec2(180, 0)))
+        if (action == 0)
         {
             save_transaction();
-            ImGui::CloseCurrentPopup();
-            _is_active = false;
+            _dialog.close();
         }
-        ImGui::SameLine();
-        if (ImGui::Button(tr("Discard Modifications").data(), ImVec2(120, 0)))
+        else if (action == 1)
         {
-            ImGui::CloseCurrentPopup();
-            _is_active = false;
+            _dialog.close();
         }
-
-        ImGui::EndPopup();
     }
 }
 
 void gui::wall_layers_editor_modal::render_compound_metadata_form()
 {
-    std::string current_selection_label { tr("<New Compound Profile>") };
-    if (_target_compound_idx && _ctx.all_compounds)
+    std::string selection_label = tr("<New Compound Profile>").data();
+    if (_editing_compound.index)
     {
-        current_selection_label = _editing_compound.name.val();
+        selection_label = _editing_compound.name.val();
     }
 
-    // Explicitly measure all individual horizontal layout elements
-    std::string combo_label_text { tr("Target Compound") };
-    std::string button_text { tr("+ New Profile") };
-
-    float combo_label_width = ImGui::CalcTextSize(combo_label_text.c_str()).x;
-    float button_width = ImGui::CalcTextSize(button_text.c_str()).x + ImGui::GetStyle().FramePadding.x * 2.0f;
-    float total_spacing = ImGui::GetStyle().ItemSpacing.x * 2.0f; // Padding between: [ComboBox] <sp> [Label] <sp> [Button]
-
-    // Calculate the precise box width so the trailing elements fit perfectly within the window bounds
-    float corrected_box_width = ImGui::GetContentRegionAvail().x - combo_label_width - button_width - total_spacing;
-
-    // Guard against unusually narrow windows
-    if (corrected_box_width < 50.0f) corrected_box_width = 50.0f;
-
-    ImGui::SetNextItemWidth(corrected_box_width);
-    if (ImGui::BeginCombo(tr("Target Compound").data(), current_selection_label.c_str()))
+    if (const auto idx = _compound_type_picker.render(tr("Active Compound").data(), selection_label, tr("+ New Compound").data()); idx)
     {
-        if (_ctx.all_compounds)
-        {
-            for (const auto& comp : *_ctx.all_compounds)
-            {
-                bool is_selected = (_target_compound_idx && *_target_compound_idx == comp.index);
-                if (ImGui::Selectable(comp.name.val().c_str(), is_selected))
-                {
-                    // Swap working copy buffer targets cleanly on a click selection pass
-                    load_compound_into_buffer(comp.index);
-                }
-            }
-        }
-        ImGui::EndCombo();
-    }
-    
-    ImGui::SameLine();
-    
-    if (ImGui::Button(tr("+ New Profile").data()))
-    {
-        // Flushes buffers back to blank base properties initialization slate
-        load_compound_into_buffer(std::nullopt);
-    }
-    if (ImGui::IsItemHovered())
-    {
-        ImGui::SetTooltip("%s", tr("Clear editing buffer workspace to define a blank compound configuration model").data());
+        load_compound_into_buffer(idx.value());
     }
 
     ImGui::Separator();
     ImGui::Spacing();
 
-if (ImGui::InputText(tr("Profile Designation").data(), _name_buffer, sizeof(_name_buffer)))
-    {
-        _editing_compound.name = _name_buffer;
-    }
+    components::input_text(tr("Profile Designation:").data(), _editing_compound.name);
 
-    int role_int = static_cast<int>(_editing_compound.structural_role.val());
-    const char* roles[] = { "Partition Wall", "Bearing Interior", "Bearing Exterior", "Shear Wall" };
-    int selected_idx = 0;
+    _structural_role_picker.render(tr("Structural Classification").data(), _editing_compound.structural_role);
 
-    if (role_int == 600) selected_idx = 1;
-    else if (role_int == 800) selected_idx = 2;
-    else if (role_int == 1000) selected_idx = 3;
-
-    if (ImGui::Combo(tr("Structural Classification").data(), &selected_idx, roles, IM_ARRAYSIZE(roles)))
-    {
-        wall_structural_role updated_role = wall_structural_role::partition_wall;
-        if (selected_idx == 1) updated_role = wall_structural_role::bearing_interior;
-        else if (selected_idx == 2) updated_role = wall_structural_role::bearing_exterior;
-        else if (selected_idx == 3) updated_role = wall_structural_role::shear_wall;
-        
-        _editing_compound.structural_role = updated_role;
-    }
     ImGui::Spacing();
 }
 
@@ -252,31 +173,28 @@ void gui::wall_layers_editor_modal::render_layers_table(float table_height)
             // Column 1: Material Mapping
             ImGui::TableSetColumnIndex(1);
             std::string material_preview = tr("<Unassigned>").data();
-            if (_ctx.materials_lookup)
+
+            for (const auto& [_, mat] : _ctx.materials_lookup)
             {
-                for (const auto& mat : *_ctx.materials_lookup)
+                if (mat.index == layer.material)
                 {
-                    if (mat.index == layer.material)
-                    {
-                        material_preview = mat.standard_name;
-                        break;
-                    }
+                    material_preview = mat.standard_name;
+                    break;
                 }
             }
+
             ImGui::SetNextItemWidth(-FLT_MIN);
             if (ImGui::BeginCombo("##Material", material_preview.c_str()))
             {
-                if (_ctx.materials_lookup)
+                for (const auto& [_, mat] : _ctx.materials_lookup)
                 {
-                    for (const auto& mat : *_ctx.materials_lookup)
+                    bool is_selected = (mat.index == layer.material.val());
+                    if (ImGui::Selectable(mat.standard_name.val().c_str(), is_selected))
                     {
-                        bool is_selected = (mat.index == layer.material.val());
-                        if (ImGui::Selectable(mat.standard_name.val().c_str(), is_selected))
-                        {
-                            layer.material = mat.index;
-                        }
+                        layer.material = mat.index;
                     }
                 }
+
                 ImGui::EndCombo();
             }
 
@@ -485,46 +403,26 @@ void gui::wall_layers_editor_modal::render_profile_preview_canvas()
 
 void gui::wall_layers_editor_modal::save_transaction()
 {
-    if (!_ctx.all_compounds || !_ctx.all_layers) return;
-
     _editing_compound.layers.clear();
     for (auto& dynamic_layer : _editing_layers)
     {
-        if (!dynamic_layer.index)
+        if (dynamic_layer.index)
         {
-            static wall_layer::index_t incremental_layer_id_mock { 50000 };
-            dynamic_layer.index = ++incremental_layer_id_mock;
-            _ctx.all_layers->push_back(dynamic_layer);
+            _ctx.all_layers.get(dynamic_layer.index) = dynamic_layer;
         }
         else
         {
-            for (auto& active_lay : *_ctx.all_layers)
-            {
-                if (active_lay.index == dynamic_layer.index)
-                {
-                    active_lay = dynamic_layer;
-                    break;
-                }
-            }
+            dynamic_layer.index = _ctx.all_layers.put(dynamic_layer);
         }
         _editing_compound.layers.put(dynamic_layer.index);
     }
 
-    if (_target_compound_idx)
+    if (_editing_compound.index)
     {
-        for (auto& comp : *_ctx.all_compounds)
-        {
-            if (comp.index == *_target_compound_idx)
-            {
-                comp = _editing_compound;
-                break;
-            }
-        }
+        _ctx.all_compounds.get(_editing_compound.index) = _editing_compound;
     }
     else
     {
-        static wall_compound_type::index_t incremental_comp_id_mock { 20000 };
-        _editing_compound.index = ++incremental_comp_id_mock;
-        _ctx.all_compounds->push_back(_editing_compound);
+        _editing_compound.index = _ctx.all_compounds.put(_editing_compound);
     }
 }
