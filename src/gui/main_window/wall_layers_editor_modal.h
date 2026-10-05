@@ -11,6 +11,7 @@
 #include "modal_dialog.h"
 #include "registry_combo.h"
 #include "static_combo.h"
+#include "wall_layers_table.h"
 
 namespace gui
 {
@@ -26,7 +27,6 @@ namespace gui
 
         wall_layers_editor_modal(context_data ctx);
 
-        // Opens the layout engine editing panel for a designated compound configuration index
         void open(domain::plan::model::shape::wall_compound_type::index_t compound_idx = {});
         
         void process_frame();
@@ -43,10 +43,12 @@ namespace gui
         context_data _ctx;
 
         domain::plan::model::shape::wall_compound_type _editing_compound;
-        std::vector<domain::plan::model::shape::wall_layer> _editing_layers;
 
         components::modal_dialog _dialog;
         components::registry_combo<std::remove_cvref_t<decltype(_ctx.all_compounds)>> _compound_type_picker;
         components::static_combo<domain::plan::model::shape::wall_structural_role> _structural_role_picker;
+
+        std::vector<domain::plan::model::shape::wall_layer> _editing_layers;
+        gui::wall_layers_table _layers_table;
     };
 }

@@ -14,7 +14,7 @@ using namespace corecad::model;
 
 gui::wall_layers_editor_modal::wall_layers_editor_modal(context_data ctx)
     : _ctx { ctx }
-    , _dialog { ImVec2(750.0f, 600.0f), ImVec2(550.0f, 300.0f), ImVec2(1200.0f, 900.0f) }
+    , _dialog { ImVec2(850.0f, 600.0f), ImVec2(650.0f, 300.0f), ImVec2(1200.0f, 900.0f) }
     , _compound_type_picker { _ctx.all_compounds, &wall_compound_type::name }
     , _structural_role_picker {{
         { wall_structural_role::partition_wall, tr("Partition Wall").data() },
@@ -22,6 +22,7 @@ gui::wall_layers_editor_modal::wall_layers_editor_modal(context_data ctx)
         { wall_structural_role::bearing_exterior, tr("Bearing Exterior").data() },
         { wall_structural_role::shear_wall, tr("Shear Wall").data() }
     }}
+    , _layers_table {{ _editing_layers, _ctx.materials_lookup }}
 {
 }
 
@@ -31,6 +32,7 @@ void gui::wall_layers_editor_modal::open(wall_compound_type::index_t compound_id
     
     load_compound_into_buffer(compound_idx);
     refresh_picker_list();
+    _layers_table.refresh_material_list();
 }
 
 void gui::wall_layers_editor_modal::refresh_picker_list()
@@ -128,136 +130,7 @@ void gui::wall_layers_editor_modal::render_compound_metadata_form()
 
 void gui::wall_layers_editor_modal::render_layers_table(float table_height)
 {
-    ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY;
-    
-    if (ImGui::Button(tr("+ Introduce Layer").data()))
-    {
-        wall_layer default_layer;
-        default_layer.thickness = 120.0 * mm;
-        _editing_layers.push_back(default_layer);
-    }
-    
-    if (ImGui::BeginTable("##LayersBIMTable", 6, flags, ImVec2(0.0f, table_height)))
-    {
-        ImGui::TableSetupColumn(tr("Function").data(), ImGuiTableColumnFlags_WidthFixed, 130.0f);
-        ImGui::TableSetupColumn(tr("Material Asset").data(), ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn(tr("Thick (mm)").data(), ImGuiTableColumnFlags_WidthFixed, 80.0f);
-        ImGui::TableSetupColumn(tr("Priority").data(), ImGuiTableColumnFlags_WidthFixed, 70.0f);
-        ImGui::TableSetupColumn(tr("BIM Flags").data(), ImGuiTableColumnFlags_WidthFixed, 110.0f);
-        ImGui::TableSetupColumn(tr("Arrangement").data(), ImGuiTableColumnFlags_WidthFixed, 100.0f);
-        ImGui::TableHeadersRow();
-
-        size_t index_to_delete = static_cast<size_t>(-1);
-        
-        for (size_t i = 0; i < _editing_layers.size(); ++i)
-        {
-            auto& layer = _editing_layers[i];
-            ImGui::PushID(static_cast<int>(i));
-
-            ImGui::TableNextRow();
-            
-            // Column 0: BIM Function
-            ImGui::TableSetColumnIndex(0);
-            int func_idx = static_cast<int>(layer.function.val());
-            const char* functions[] = { "Load Bearing", "Substrate", "Insulation", "Outer Finish", "Inner Finish" };
-            ImGui::SetNextItemWidth(-FLT_MIN);
-            if (ImGui::Combo("##Func", &func_idx, functions, IM_ARRAYSIZE(functions)))
-            {
-                layer.function = static_cast<wall_layer_function>(func_idx);
-                if (func_idx == 0) layer.priority = 1000;
-                else if (func_idx == 1) layer.priority = 600;
-                else if (func_idx == 2) layer.priority = 400;
-                else layer.priority = 100;
-            }
-
-            // Column 1: Material Mapping
-            ImGui::TableSetColumnIndex(1);
-            std::string material_preview = tr("<Unassigned>").data();
-
-            for (const auto& [_, mat] : _ctx.materials_lookup)
-            {
-                if (mat.index == layer.material)
-                {
-                    material_preview = mat.standard_name;
-                    break;
-                }
-            }
-
-            ImGui::SetNextItemWidth(-FLT_MIN);
-            if (ImGui::BeginCombo("##Material", material_preview.c_str()))
-            {
-                for (const auto& [_, mat] : _ctx.materials_lookup)
-                {
-                    bool is_selected = (mat.index == layer.material.val());
-                    if (ImGui::Selectable(mat.standard_name.val().c_str(), is_selected))
-                    {
-                        layer.material = mat.index;
-                    }
-                }
-
-                ImGui::EndCombo();
-            }
-
-            // Column 2: Thickness
-            ImGui::TableSetColumnIndex(2);
-            double thk = layer.thickness.val().numerical_value_in(mm);
-            double min_thk = 0.0;
-            double max_thk = 1000.0;
-            float speed = 0.5f;
-            ImGui::SetNextItemWidth(-FLT_MIN);
-            if (ImGui::DragScalar("##Thick", ImGuiDataType_Double, &thk, speed, &min_thk, &max_thk, "%.1f"))
-            {
-                layer.thickness = thk * mm;
-            }
-            // Column 3: Priority
-            ImGui::TableSetColumnIndex(3);
-            int priority = layer.priority;
-            ImGui::SetNextItemWidth(-FLT_MIN);
-            if (ImGui::DragInt("##Prio", &priority, 5.0f, 0, 1000))
-            {
-                layer.priority = priority;
-            }
-
-            // Column 4: Architectural Wrapping Rules
-            ImGui::TableSetColumnIndex(4);
-            bool wraps_e = layer.wraps_at_ends;
-            bool wraps_i = layer.wraps_at_inserts;
-            ImGui::Checkbox("E", &wraps_e); 
-            if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", tr("Wraps at boundary edge ends").data());
-            ImGui::SameLine();
-            ImGui::Checkbox("I", &wraps_i);
-            if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s", tr("Wraps at programmatic inserts (Windows/Doors)").data());
-            
-            layer.wraps_at_ends = wraps_e;
-            layer.wraps_at_inserts = wraps_i;
-
-            // Column 5: Positional Rearrangement Matrix
-            ImGui::TableSetColumnIndex(5);
-            if (ImGui::Button("^") && i > 0)
-            {
-                std::swap(_editing_layers[i], _editing_layers[i - 1]);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("v") && i < _editing_layers.size() - 1)
-            {
-                std::swap(_editing_layers[i], _editing_layers[i + 1]);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("X"))
-            {
-                index_to_delete = i;
-            }
-
-            ImGui::PopID();
-        }
-
-        if (index_to_delete != static_cast<size_t>(-1))
-        {
-            _editing_layers.erase(_editing_layers.begin() + index_to_delete);
-        }
-
-        ImGui::EndTable();
-    }
+    _layers_table.render("##LayersBIMTable_Old", table_height);
 }
 
 void gui::wall_layers_editor_modal::render_profile_preview_canvas()
