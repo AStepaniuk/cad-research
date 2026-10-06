@@ -24,18 +24,15 @@ namespace gui::components
         {
             auto& prop = item.*_prop_ptr;
             double value = prop.val().numerical_value_in(corecad::model::mm);
-            bool changed = false;
             
             ImGui::SetNextItemWidth(-FLT_MIN);
             if (ImGui::InputScalar("##QtyInput", ImGuiDataType_Double, &value, &_step, &_step_fast, "%.1f"))
             {
-                if (value < 0.0) value = 0.0;
-                
+                if (value < 0.0) value = 0.0;                
                 prop = value * corecad::model::mm;
-                changed = true;
             }
 
-            return changed;
+            return ImGui::IsItemDeactivatedAfterEdit();
         }
 
     private:

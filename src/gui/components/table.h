@@ -101,17 +101,23 @@ namespace gui::components
 
                     ImGui::TableSetColumnIndex(static_cast<int>(functional_columns_count));
                     
-                    if (ImGui::Button("^") && row_idx > 0)
+                    ImGui::BeginDisabled(row_idx == 0);
+                    if (ImGui::Button("^"))
                     {
                         swap_index_a = row_idx;
                         swap_index_b = row_idx - 1;
                     }
+                    ImGui::EndDisabled();
+
                     ImGui::SameLine();
-                    if (ImGui::Button("v") && row_idx < _data_set.size() - 1)
+                    ImGui::BeginDisabled(row_idx == _data_set.size() - 1);
+                    if (ImGui::Button("v"))
                     {
                         swap_index_a = row_idx;
                         swap_index_b = row_idx + 1;
                     }
+                    ImGui::EndDisabled();
+
                     ImGui::SameLine();
                     if (ImGui::Button("X"))
                     {

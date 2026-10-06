@@ -26,18 +26,15 @@ namespace gui::components
         {
             auto& prop = item.*_prop_ptr;
             int value = prop.val();
-            bool changed = false;
             
             ImGui::SetNextItemWidth(-FLT_MIN);
             if (ImGui::InputInt("##IntInput", &value, _step, _step_fast))
             {
-                value = std::clamp(value, _min_v, _max_v);
-                
+                value = std::clamp(value, _min_v, _max_v);                
                 prop = value;
-                changed = true;
             }
 
-            return changed;
+            return ImGui::IsItemDeactivatedAfterEdit();
         }
 
     private:
