@@ -52,7 +52,7 @@ gui::wall_materials_editor_modal::wall_materials_editor_modal(context_data ctx)
 
 void gui::wall_materials_editor_modal::process_frame()
 {
-    if (const auto h = _dialog.begin(tr("BIM Material Resource Manager").data()); h)
+    if (const auto h = _dialog.begin(tr("BIM Material Resource Manager").data(), ImGuiWindowFlags_AlwaysAutoResize))
     {
         render_material_properties_form();
 

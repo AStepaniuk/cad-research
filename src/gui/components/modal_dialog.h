@@ -32,7 +32,7 @@ namespace gui::components
         void open();
         void close();
 
-        modal_dialog_scope_handle begin(const char* title);
+        modal_dialog_scope_handle begin(const char* title, ImGuiWindowFlags flags = 0);
         void end();
 
         bool is_active() const;

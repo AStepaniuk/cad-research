@@ -12,6 +12,7 @@
 #include "registry_combo.h"
 #include "static_combo.h"
 #include "wall_layers_table.h"
+#include "wall_profile_preview_canvas.h"
 
 namespace gui
 {
@@ -35,9 +36,8 @@ namespace gui
     private:
         void refresh_picker_list();
         void load_compound_into_buffer(domain::plan::model::shape::wall_compound_type::index_t compound_idx);
-        void render_layers_table(float table_height);
         void render_compound_metadata_form();
-        void render_profile_preview_canvas();
+        void render_editor_workspace_layout();
         void save_transaction();
 
         context_data _ctx;
@@ -50,5 +50,6 @@ namespace gui
 
         std::vector<domain::plan::model::shape::wall_layer> _editing_layers;
         gui::wall_layers_table _layers_table;
+        gui::wall_profile_preview_canvas _profile_preview_canvas;
     };
 }
