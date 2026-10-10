@@ -102,7 +102,7 @@ void gui::wall_layers_editor_modal::render_compound_metadata_form()
     ImGui::Spacing();
 
     components::input_text(tr("Profile Designation:").data(), _editing_compound.name);
-    _structural_role_picker.render(tr("Structural Classification").data(), _editing_compound.structural_role);
+    _structural_role_picker.render(tr("Structural Classification:").data(), _editing_compound.structural_role);
     ImGui::Spacing();
 }
 

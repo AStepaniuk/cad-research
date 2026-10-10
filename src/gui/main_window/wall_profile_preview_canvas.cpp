@@ -28,45 +28,21 @@ void gui::wall_profile_preview_canvas::render(const char* str_id, float target_w
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     
-    ImVec2 explicit_size(target_width <= 0.0f ? ImGui::GetContentRegionAvail().x : target_width, 
-                         target_height <= 0.0f ? 50.0f : target_height);
+    ImVec2 explicit_size(
+        target_width <= 0.0f ? ImGui::GetContentRegionAvail().x : target_width, 
+        target_height <= 0.0f ? 50.0f : target_height
+    );
 
     if (ImGui::BeginChild(str_id, explicit_size, true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove))
     {
         ImVec2 canvas_pos = ImGui::GetCursorScreenPos();
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-        if (_is_first_frame)
-        {
-            reset_zoom_view(explicit_size);
-            _is_first_frame = false;
-        }
+        reset_zoom_view(explicit_size);
 
-        ImGui::InvisibleButton("##CanvasInteractionCaptureRegion", explicit_size, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
-        const bool is_hovered = ImGui::IsItemHovered();
-        const bool is_active = ImGui::IsItemActive();
-
-        if (is_active && ImGui::IsMouseDragging(ImGuiMouseButton_Middle, 0.0f))
-        {
-            ImVec2 mouse_delta = ImGui::GetIO().MouseDelta;
-            _pan_offset.x += mouse_delta.x;
-            _pan_offset.y += mouse_delta.y;
-        }
-
-        if (is_hovered && ImGui::GetIO().MouseWheel != 0.0f)
-        {
-            ImVec2 mouse_pos_in_canvas = ImVec2(ImGui::GetIO().MousePos.x - (canvas_pos.x + _pan_offset.x), ImGui::GetIO().MousePos.y - (canvas_pos.y + _pan_offset.y));
-            
-            float old_zoom = _zoom_factor;
-            _zoom_factor += ImGui::GetIO().MouseWheel * 0.15f * _zoom_factor;
-            _zoom_factor = std::clamp(_zoom_factor, 0.1f, 100.0f);
-
-            _pan_offset.x -= mouse_pos_in_canvas.x * ((_zoom_factor / old_zoom) - 1.0f);
-            _pan_offset.y -= mouse_pos_in_canvas.y * ((_zoom_factor / old_zoom) - 1.0f);
-        }
-
+        // Render Background
         draw_list->AddRectFilled(canvas_pos, ImVec2(canvas_pos.x + explicit_size.x, canvas_pos.y + explicit_size.y), IM_COL32(24, 24, 27, 255));
-        
+
         ImVec2 origin_screen_pos = ImVec2(canvas_pos.x + _pan_offset.x, canvas_pos.y + _pan_offset.y);
 
         if (!_ctx.editing_layers.empty())
@@ -78,7 +54,6 @@ void gui::wall_profile_preview_canvas::render(const char* str_id, float target_w
             }
             
             float current_y_mm = -static_cast<float>(total_thickness_mm) * 0.5f;
-            
             float wall_length_pixels = explicit_size.x * 0.80f;
             float half_length_x = wall_length_pixels * 0.5f;
 
@@ -91,14 +66,12 @@ void gui::wall_profile_preview_canvas::render(const char* str_id, float target_w
                 ImVec2 rect_max = ImVec2(origin_screen_pos.x + half_length_x, rect_min.y + layer_thick_pixels);
 
                 ImU32 material_color = IM_COL32(63, 63, 70, 255);
-                std::string_view material_label = tr("Unassigned Asset");
+                std::string_view material_label = tr("Unassigned Material");
 
                 if (layer.material.val())
                 {
                     const auto& asset = _ctx.materials_lookup.get(layer.material);
                     material_label = asset.standard_name.val();
-                    
-                    // material_color = asset.presentation_color_hex;
                 }
 
                 draw_list->AddRectFilled(rect_min, rect_max, material_color);                
@@ -106,7 +79,7 @@ void gui::wall_profile_preview_canvas::render(const char* str_id, float target_w
 
                 if (layer_thick_pixels > 14.0f) 
                 {
-                    char format_buf[32];
+                    char format_buf[128];
                     snprintf(format_buf, sizeof(format_buf), tr("%.1f mm - %s").data(), 
                              layer.thickness.val().numerical_value_in(corecad::model::mm), 
                              material_label.data());
@@ -138,17 +111,6 @@ void gui::wall_profile_preview_canvas::render(const char* str_id, float target_w
                 empty_msg.data()
             );
         }
-
-        ImGui::SetCursorScreenPos(ImVec2(canvas_pos.x + 8.0f, canvas_pos.y + 6.0f));
-        ImGui::BeginGroup();
-        if (explicit_size.y > 45.0f)
-        {
-            if (ImGui::Button(tr("Reset view").data()))
-            {
-                reset_zoom_view(explicit_size);
-            }
-        }
-        ImGui::EndGroup();
     }
     ImGui::EndChild();
     

@@ -30,8 +30,7 @@ namespace gui
     private:
         context_data _ctx;
 
-       float _zoom_factor = 2.0f;
+        float _zoom_factor = 2.0f;
         ImVec2 _pan_offset = {0.0f, 0.0f};
-        bool _is_first_frame = true;
     };
 }

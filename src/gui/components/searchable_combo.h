@@ -22,7 +22,6 @@ namespace gui::components
 
         searchable_combo() = default;
 
-        // Renders the searchable combo box. Returns true if the user changed the selection.
         bool render(
             const char* label,
             const std::string& current_selection_text,
@@ -40,18 +39,15 @@ namespace gui::components
 
             if (ImGui::BeginCombo(label, current_selection_text.c_str()))
             {
-                // Auto-focus the search input element the single frame the dropdown first appears
                 if (ImGui::IsWindowAppearing())
                 {
                     ImGui::SetKeyboardFocusHere();
                 }
 
-                // Render Search Bar
                 ImGui::SetNextItemWidth(-FLT_MIN);
                 ImGui::InputTextWithHint("##ComboSearchInput", "Type to filter...", _search_buffer, sizeof(_search_buffer));
                 ImGui::Separator();
 
-                // Scrollable container bounding area protecting high collection counts
                 ImGui::BeginChild("SearchableComboDropdownScroll", ImVec2(0, 200.0f), ImGuiChildFlags_None, ImGuiWindowFlags_NoMove);
 
                 std::string search_query(_search_buffer);
@@ -68,7 +64,7 @@ namespace gui::components
                         {
                             out_selected_value = item.value;
                             selection_changed = true;
-                            _search_buffer[0] = '\0'; // Purge criteria strings
+                            _search_buffer[0] = '\0';
                             ImGui::CloseCurrentPopup();
                         }
 
@@ -89,7 +85,6 @@ namespace gui::components
             }
             else if (_search_buffer[0] != '\0')
             {
-                // Clean up string caches if the user dropped focus without picking anything
                 _search_buffer[0] = '\0';
             }
 
